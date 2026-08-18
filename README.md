@@ -240,13 +240,3 @@ eshop/
 ├── REBUILD_PLAN.md      # Piano test rebuild + bug B1–B8 + note tecniche
 └── pom.xml
 ```
-
----
-
-## 📝 Note
-
-- Database **PostgreSQL** 16 in Docker (container `eshop-postgres`), persistente (dati conservati al riavvio)
-- **JWT** implementato: access 1h + refresh 24h, stateless; password **BCrypt**
-- `MockPaymentGateway`: delay ~200ms + 1% failure casuale (simula instabilità gateway)
-- Stato del piano di rebuild test: S0–S4 **DONE** (302/302 test), pendente S5 (Playwright E2E) — dettagli in `REBUILD_PLAN.md`
-- Credenziali di sviluppo: `CREDENTIALS.md`
