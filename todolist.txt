@@ -1,0 +1,271 @@
+================================================================================
+🛒 ESHOP — TODO LIST
+================================================================================
+Updated: 2026-08-18 | ✅ 302/302 test (default) + 12/12 E2E (manuale) | Rebuild suite S0–S5 COMPLETO
+Stack: Java 21 + Spring Boot 3.4.1 + PostgreSQL 16 + JWT + BCrypt + Testcontainers
+================================================================================
+
+📍 ROADMAP — COSA C'È DA COMPLETARE
+
+🔴 PRIORITÀ ALTA (Security) — DONE ✅
+─────────────────────────────────────
+✅ JWT auto-refresh  — POST /api/auth/refresh + apiFetch() intercepts 401→refresh→retry
+✅ Password verifica — updateProfile() richiede currentPassword + form field aggiunto
+✅ Create() solo ADMIN — hasAnyRole→hasRole('ADMIN') su POST /api/articles
+
+🔴 PRIORITÀ ALTA — DONE ✅
+4. [✅] Sistema di pagamento  — Checkout 2 step (prepare→pay) + MockPaymentGateway
+   ✅ PaymentMethod enum | PaymentStatus enum | OrderPayment entity
+   ✅ Order: paymentMethod, reservedStock (NOT NULL default 0)
+   ✅ POST /api/orders/checkout/prepare (riserva stock, svuota carrello)
+   ✅ POST /api/orders/{id}/pay (verifica pagamento, deduce stock, → PROCESSING)
+   ✅ MockPaymentGateway: 200ms delay, 1% failure rate (NESSUN expiry nel codice attuale)
+   ✅ Legacy checkout() mantenuto per retrocompatibilità
+
+🟡 PRIORITÀ MEDIA — DA FARE
+5. [✅] Suite test completa  — REBUILD COMPLETATO S0–S5 (2026-08-18, vedi REBUILD_PLAN.md)
+   → Vecchia suite (125/125) rimossa e riscritta in 6 sezioni gerarchiche: 302/302 verdi (default)
+   → S0 smoke (2) | S1 config/JWT (12) | S2 services Mockito (113) | S3 @WebMvcTest (83) | S4 full-stack Testcontainers (92)
+   → S5 E2E Playwright (12): smoke (3) + ShopFlow (9) — gated di default, run manuale con app live:
+     ./start.sh && mvn test -Dtest="PlaywrightSmokeTest,ShopFlowTest" -De2e.enabled=true
+   → Bug noti B1–B8 documentati nei test (comportamento attuale, app non modificata)
+
+6. [✅] Rate limiting  — Login/register protetti da brute force (2026-08-14)
+   → RateLimitFilter: sliding window algorithm in-memory
+   → Login: 30 req/min | Register: 10 req/min
+   → IP-based (rispetta X-Forwarded-For)
+   → Headers: X-RateLimit-Limit, X-RateLimit-Remaining, Retry-After
+   → Zero dipendenze esterne — Spring Boot 3.4 nativo
+
+🟢 PRIORITÀ BASSA — FEATURE FUTURE
+7. [🟢] Email notifications  — Spring Mail + EmailService + templates
+8. [🟢] Swagger/OpenAPI  — springdoc-openapi per API docs
+9. [🟢] Docker Compose  — docker-compose.yml per backend+db
+10. [🟢] Wishlist/Favorites  — Wishlist entity + CRUD + UI
+11. [🟢] Recensioni/rating  — Review entity, 1-5 stars, media per prodotto
+12. [🟢] Image upload  — ArticleImageController + ImageService (filesystem/S3)
+13. [🟢] Notifiche in-app  — Toast per stati ordine (spedito/consegnato)
+14. [🟢] Export ordini  — CSV/PDF endpoint admin
+15. [🟢] Audit logging  — Tracciamento modifiche critiche prodotti
+
+================================================================================
+✅ COMPLETATO — AUTENTICAZIONE & JWT
+================================================================================
+✅ POST /api/auth/register (validazione) | POST /api/auth/login (JWT tokens)
+✅ JWT TokenProvider: access 1h + refresh 24h, stateless
+✅ BCryptPasswordEncoder bean | Ruoli USER/ADMIN | CORS localhost:8081
+✅ POST /api/auth/refresh (auto-refresh, aggiunto 2026-08-13)
+
+================================================================================
+✅ COMPLETATO — ARTICOLI / CATALOGO
+================================================================================
+✅ GET /api/articles (pagination, search, filtri categoria, dual-range prezzo)
+✅ GET /api/articles/{id} | POST | PUT/{id} (solo ADMIN) | DELETE/{id} (solo ADMIN)
+✅ GET /api/articles/by-author/{authorId} | Gestione stock
+✅ Sortable columns, filter buttons, pagination UI con next/prev/ellipsis
+
+================================================================================
+✅ COMPLETATO — CARRELLO
+================================================================================
+✅ POST /api/cart/items | GET /api/cart/me | GET /api/cart/total
+✅ DELETE /api/cart/items/{id} | DELETE /api/cart/clear
+✅ Sidebar +/- quantità, cache-busting post-checkout
+
+================================================================================
+✅ COMPLETATO — ORDINI
+================================================================================
+✅ GET /api/orders/my | GET /api/orders (admin) | PUT /api/orders/{id}/status
+✅ GET /api/orders/{id} | Admin: search + sorting + pagination + filtri
+✅ OrderStatus: PENDING→PROCESSING→SHIPPED→DELIVERED/COMPLETED | CANCELLED
+
+================================================================================
+✅ COMPLETATO — SISTEMA DI PAGAMENTO (2 STEP CHECKOUT)
+================================================================================
+✅ PaymentMethod enum: CREDIT_CARD, PAYPAL, COD (contrassegno), BANK_TRANSFER
+✅ PaymentStatus enum: PENDING, AUTHORIZED, CAPTURED, FAILED, REFUNDED
+✅ OrderPayment entity (order, paymentMethod, amount, status, transactionId, createdAt)
+✅ Order fields: paymentMethod (default CREDIT_CARD), reservedStock (default 0)
+✅ POST /api/orders/checkout/prepare — Riserva stock, svuota carrello (NON crea OrderPayment)
+   → Response: PrepareCheckoutResponse(orderId, total, items, paymentMethod)
+✅ POST /api/orders/{orderId}/pay — MockPaymentGateway auth+capture, crea OrderPayment
+   → Validazione: order PENDING, non già pagato (NESSUN expiry nel codice attuale)
+   → Successo: status→PROCESSING, stock dedotto, OrderPayment creato
+   → ⚠ B6: OrderPayment.status è SEMPRE PENDING (@PrePersist lo forza; lo status del
+     gateway AUTHORIZED/CAPTURED viene perso) — documentato nei test
+   → Errori: 409 (già pagato), 404 (ordine non trovato)
+✅ MockPaymentGateway: 200ms delay, 1% random failure, txn "MOCK-xxxxxxxx"
+✅ Legacy POST /api/orders/checkout mantenuto per retrocompatibilità
+✅ FIX: @Builder.Default su paymentMethod e reservedStock per evitare vincoli NOT NULL
+
+================================================================================
+✅ COMPLETATO — FRONTEND PAGAMENTO (MODAL)
+================================================================================
+✅ Modal #paymentModal con overlay scuro (z-index 1000)
+✅ Riepilogo ordine con lista articoli, quantità e totale
+✅ Selezione metodo pagamento: Carta di Credito / PayPal / Contrassegno
+   → Radio buttons stilizzati con icone emoji, descrizioni, bordo attivo
+✅ Pulsante "Paga €X.XX" → chiama POST /orders/{id}/pay
+✅ Loading state durante elaborazione pagamento
+✅ Successo: badge verde ✅, dettagli transazione (ID, importo, metodo)
+✅ Errori: toast rosso + pulsante Riprova
+✅ Chiusura modal: overlay click o pulsante Annulla
+✅ Checkout mobile aggiornato: checkoutFromMobile() → prepareCheckout() → modal
+✅ Carrello svuotato automaticamente dopo pagamento con successo
+
+================================================================================
+✅ COMPLETATO — TELEFONO & INDIRIZZI
+================================================================================
+✅ PhoneNumber (countryPrefix, number, MOBILE/FIXED) — CRUD su /api/users/me/phone/me
+✅ Address (street, number, postalCode, city, country) — CRUD su /api/users/me/address/me
+✅ UI: Settings tabs Phones + Addresses con add/delete
+
+================================================================================
+✅ COMPLETATO — PROFILO UTENTE & CATEGORIE
+================================================================================
+✅ GET /api/users/me | PUT /api/users/me/profile (email + password con verifica)
+✅ Entity Category (name, parent gerarchia) | GET /api/categories
+
+================================================================================
+✅ COMPLETATO — FRONTEND
+================================================================================
+✅ Login/Registrazione toggle | Catalogo ricerca/filtri/pagination | Product modal
+✅ Admin panel (prodotti + ordini) | Settings (Profilo/Telefono/Indirizzo)
+✅ Toast notifications (queue max 3) | Dark/Light theme | Responsive <768px
+✅ Session timeout 30min + warning modal | Cart dropdown | Navigation menu
+✅ apiFetch() JWT auto-attach + 401→refresh retry | Form validation inline
+✅ Loading spinners | Scroll-to-product | Reload button | Stats cards (admin)
+✅ Payment modal: 2-step checkout (prepare→pay) con selezione metodo pagamento
+
+================================================================================
+✅ COMPLETATO — RINOMINA IDENTIFICATORI (REFACTOR 2026-08-13)
+================================================================================
+✅ Rimossa prefisso 'mobile' da tutti gli elementi UI dove possibile
+✅ CONFLITTO RISOLTO — Elementi cartScreen (non confliggono con desktop cart):
+   - mobileCartItems → cartScreenItems (carrello full-screen overlay)
+   - mobileCartScreen → cartScreen (schermo completo)
+   - mobileCartSummary → cartScreenSummary (pannello riassuntivo)
+   - mobileCartTotal → cartScreenTotal (valore totale)
+   - mobileEmptyCart → cartScreenEmpty (messaggio vuoto)
+✅ CONFLITTO RISOLTO — Menu di navigazione:
+   - mobileMenu → listMenu (menu fullscreen overlay, non confligge con .menu CSS)
+✅ SENZA CONFLITTO — Rinominati:
+   - mobileThemeIcon → themeIcon | mobileThemeText → themeText
+   - mobileStatsMenuItem → statsMenuItem
+   - openMobileCart() → openCart() | closeMobileCart() → closeCart()
+   - updateMobileCart() → updateCart() | checkoutFromMobile() → checkoutFromCart()
+   - closeMobileMenu() → closeMenu() | toggleMobileMenu() → toggleMenu()
+   - .mobile-cart-item* → .cart-item* (CSS classes)
+✅ Commenti aggiornati: 'mobile' → 'small screens'
+
+================================================================================
+✅ COMPLETATO — UI/UX REFINEMENTS (2026-08-14)
+================================================================================
+✅ FIX — Cart modal stacking context: rimosso backdrop-filter:blur() dall'header
+   → Il modal con z-index:100001 ora esce dal contesto dell'header
+✅ FIX — Z-index hierarchy: .cart-modal(100001) > overlay(100000) > menu(10000) > toast(9000)
+✅ FIX — Cart overlay aggiunto: backdrop scuro 30% su tutto il contenuto
+✅ FIX — Cart modal: click sull'overlay chiude il modal
+
+✅ FIX — Cart item allineamento: da flexbox a CSS Grid
+   → 3 colonne: nome/prezzo | qty (+/-) | totale
+   → bottoni +/- perfettamente allineati (grid-template-columns: 1fr auto 100px)
+   → rimossa margin-top:5px dal qty che causava sfalsamento
+
+✅ FIX — Cart screen layout: da full-width a modal centrato
+   → cart-screen ora è position:fixed con display:flex center
+   → cart-screen-content: max-width 800px, padding 24px, border-radius 16px
+   → backdrop scuro 50% (cart-screen-backdrop)
+   → click sul backdrop chiude il carrello
+   → layout side-by-side: items a sx, riepilogo sticky a dx (grid 1fr 340px)
+
+✅ NEW — Order By dropdown nella filter bar (dopo il prezzo)
+   → 7 opzioni: Rilevanza, Nome(A→Z), Nome(Z→A), Prezzo(↑), Prezzo(↓), Stock(↑), Stock(↓)
+   → Stile coerente con category-dropdown (pill shape, arrow SVG)
+   → Integrato con API: sort param passato a GET /api/articles
+   → Resettato da clearFilters()
+
+✅ FIX — Label filter bar uniformi:
+   → category-dropdown-label: 0.8rem, 700 weight (già ok)
+   → price-range-label: 0.8rem, 700 weight, rimosso text-transform:uppercase
+   → order-by-label: 0.8rem, 700 weight (già ok)
+   → Tutti uguali: "Categoria:", "Prezzo:", "Ordina:"
+
+✅ FIX — Spaziatura filter bar:
+   → gap: 8px → 16px (doppio spazio tra filtri)
+   → padding: 8px 10px → 10px 16px
+
+================================================================================
+✅ COMPLETATO — AUTO-LOGOUT TOKEN SCADUTI (2026-08-13)
+================================================================================
+✅ Rimossa prefisso 'mobile' da tutti gli elementi UI dove possibile
+✅ CONFLITTO RISOLTO — Elementi cartScreen (non confliggono con desktop cart):
+   - mobileCartItems → cartScreenItems (carrello full-screen overlay)
+   - mobileCartScreen → cartScreen (schermo completo)
+   - mobileCartSummary → cartScreenSummary (pannello riassuntivo)
+   - mobileCartTotal → cartScreenTotal (valore totale)
+   - mobileEmptyCart → cartScreenEmpty (messaggio vuoto)
+✅ CONFLITTO RISOLTO — Menu di navigazione:
+   - mobileMenu → listMenu (menu fullscreen overlay, non confligge con .menu CSS)
+✅ SENZA CONFLITTO — Rinominati:
+   - mobileThemeIcon → themeIcon | mobileThemeText → themeText
+   - mobileStatsMenuItem → statsMenuItem
+   - openMobileCart() → openCart() | closeMobileCart() → closeCart()
+   - updateMobileCart() → updateCart() | checkoutFromMobile() → checkoutFromCart()
+   - closeMobileMenu() → closeMenu() | toggleMobileMenu() → toggleMenu()
+   - .mobile-cart-item* → .cart-item* (CSS classes)
+✅ Commenti aggiornati: 'mobile' → 'small screens'
+
+================================================================================
+✅ COMPLETATO — TEST (REBUILD 2026-08-17 — 302/302 — 0 fallimenti, `mvn test`)
+================================================================================
+Vecchia suite (125/125) RIMossa e riscritta secondo REBUILD_PLAN.md:
+S0  com.eshop                    — 2   Smoke (contesto + round-trip DB)
+S1  com.eshop.config             — 12  JwtTokenProvider (access/refresh, expired, tampered)
+S2  com.eshop.service            — 113 Services (Mockito) + transizioni OrderStatus
+S3  com.eshop.controller         — 83  @WebMvcTest, 8 controller (services mockati)
+S4  com.eshop.integration        — 92  Full-stack @SpringBootTest + Testcontainers PG16
+                                      Auth(19) | Articles(14) | Cart(12) | Orders(28)
+                                      User(18) | PaymentGatewayReal(1)
+✅ S5 E2E Playwright (12/12, 2026-08-18): smoke 3 + ShopFlow 9 (com.eshop.playwright)
+   gated di default (-De2e.enabled=true), app live: ./start.sh poi run manuale (vedi §5 sopra)
+
+⚠ S4 usa profilo "test": SecurityTestConfig permitAll + param ?testUser= (non ?testUserId= per auth),
+  rate limit alzati in application-test.properties, DB Testcontainers create-drop condiviso per JVM.
+
+================================================================================
+🐛 BUG / ISSUES CONOSCIUTI (fonte autorevole: REBUILD_PLAN.md §2.5 — B1–B8)
+================================================================================
+Tutti documentati nei test come comportamento attuale (app NON modificata).
+B1 ⚠ Cancel ordine → stock inflation (quantità restituita MAI decurtata)
+B2 ⚠ Cancel su ordine non-PENDING è no-op
+B3–B5 (vedi REBUILD_PLAN.md §2.5)
+B6 ⚠ OrderPayment.@PrePersist forza status=PENDING → status gateway perso (response pay: sempre PENDING)
+B7 ⚠ EntityNotFoundException non mappata in GlobalExceptionHandler → 500 (non 404)
+    su delete telefono/indirizzo di un altro utente
+B8 ⚠ Branch "Il carrello è vuoto" irraggiungibile (findByUserIdWithItems usa JOIN FETCH
+    → carrello vuoto non trovato → 409 "Carrello non trovato per utente")
+
+Storico (fixati):
+1. ✅ OrderStatus COMPLETED — Percorso implementato (2026-08-14)
+   → DELIVERED → COMPLETED consentito in isValidTransition()
+   → Endpoint PUT /api/orders/{id}/complete (user: conferma ricezione)
+   → Service: markAsCompleted() con verifica proprietà e stato
+   → Frontend: pulsante 🏁 Completa Ordine visibile solo su ordini DELIVERED
+   → Conferma: confirm() prima del completamento
+   → Toast successo/errore dopo tentativi
+3. ✅ CartItem.unitPrice — Carrello sincronizzato con ultimo prezzo articolo (2026-08-14)
+   → CartItem: @PrePersist/@PreUpdate sincronizza sempre unitPrice con articles.price
+   → OrderItem: prezzo bloccato al checkout (nessun listener JPA — una tantum)
+   → Articolo: prezzo sempre aggiornabile dall'admin
+   → Flusso: admin cambia prezzo → carrello si aggiorna → checkout cattura prezzo corrente → ordine blocca il prezzo
+
+================================================================================
+📊 PROGRESSO Riepilogo
+================================================================================
+🔴 Security fixes: 3/3 ✅
+💳 Payment system: 2/2 ✅ (checkout 2-step + mock payment)
+🎨 UI/UX: Cart modal overlay + grid items + centered screen + order by + filter fixes ✅
+🧪 Test rebuild: S0–S5 ✅ COMPLETO (302/302 verdi default + 12/12 E2E manuale, 2026-08-18)
+✅ Rate limiting: 1/1 (login 30/min, register 10/min)
+🟢 Features future: 0/9
+================================================================================
