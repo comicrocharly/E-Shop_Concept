@@ -373,7 +373,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     // ==================== CANCEL ====================
 
     @Test
-    void cancelPending_200_cancelled_stockInflates_knownBugB1() throws Exception {
+    void cancelPending_200_cancelled_stockUntouched() throws Exception {
         Auth a = newUser();
         long articleId = createArticle("canc-art", "10.00", 10);
         long orderId = prepareOrder(a, articleId, 2);
@@ -386,10 +386,9 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
         Order o = order(orderId);
         assertThat(o.getStatus()).isEqualTo(OrderStatus.CANCELLED);
         assertThat(o.getReservedStock()).isZero();
-        // ⚠ KNOWN BUG B1 (comportamento attuale, documentato in S2 e confermato a
-        // livello API): prepare NON decrementa lo stock; cancel aggiunge la quantità
-        // "riservata" allo stock già integro → 10 → 12 (dovrebbe restare 10).
-        assertThat(stockOf(articleId)).isEqualTo(12);
+        // Flow nuovo: prepare NON decrementa lo stock (solo riserva), quindi la
+        // cancellazione non deve modificarlo: 10 resta 10.
+        assertThat(stockOf(articleId)).isEqualTo(10);
     }
 
     @Test

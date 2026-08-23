@@ -216,14 +216,20 @@ public class OrderService {
         if (opt.isPresent()) {
             Order order = opt.get();
             if (order.getStatus() == OrderStatus.PENDING) {
-                // Riporta lo stock
-                for (OrderItem item : order.getItems()) {
-                    Articles articles = item.getArticles();
-                    articles.setStock(articles.getStock() + item.getQuantity());
-                    articlesRepository.save(articles);
+                if (order.getReservedStock() > 0) {
+                    // Flow nuovo (prepare/completePayment): lo stock è solo RISERVATO
+                    // (mai decrementato) → si rilascia la riserva, nessuna modifica allo stock.
+                    order.setReservedStock(0);
+                } else {
+                    // Flow legacy (checkout one-step): lo stock è già stato decrementato
+                    // alla creazione → va riportato.
+                    for (OrderItem item : order.getItems()) {
+                        Articles articles = item.getArticles();
+                        articles.setStock(articles.getStock() + item.getQuantity());
+                        articlesRepository.save(articles);
+                    }
                 }
                 order.setStatus(OrderStatus.CANCELLED);
-                order.setReservedStock(0);
                 orderRepository.save(order);
             }
         }

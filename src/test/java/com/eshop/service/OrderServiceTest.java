@@ -270,7 +270,7 @@ class OrderServiceTest {
         }
 
         @Test
-        @DisplayName("gateway failure -> order cancelled, exception thrown (stock inflated - known bug)")
+        @DisplayName("gateway failure -> order cancelled, exception thrown, stock untouched")
         void completePaymentGatewayFailure() {
             Order order = pendingOrderWithItems(OrderStatus.PENDING, 2,
                     orderItem(null, articleA, 2, "10.00"));
@@ -284,13 +284,11 @@ class OrderServiceTest {
                     .isInstanceOf(RuntimeException.class)
                     .hasMessageContaining("Pagamento fallito");
 
-            // cancelOrder side effects
+            // cancelOrder side effects: la riserva viene rilasciata, lo stock (mai
+            // decrementato dal flow nuovo) resta invariato.
             assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCELLED);
             assertThat(order.getReservedStock()).isZero();
-            // ⚠ KNOWN BUG (documented in REBUILD_PLAN.md, section "Bug discovered"): the gateway
-            // failed BEFORE any stock decrement, yet cancelOrder still adds the quantity back.
-            // prepareCheckout only reserves (never decrements), so stock inflates 10 -> 12.
-            assertThat(articleA.getStock()).isEqualTo(12);
+            assertThat(articleA.getStock()).isEqualTo(10);
             assertThat(order.getPayment()).isNull();
         }
 
@@ -322,7 +320,7 @@ class OrderServiceTest {
     class CancelOrder {
 
         @Test
-        @DisplayName("PENDING order: status CANCELLED, reservation released (stock inflated - known bug)")
+        @DisplayName("PENDING order (new flow): status CANCELLED, reservation released, stock untouched")
         void cancelPendingOrder() {
             Order order = pendingOrderWithItems(OrderStatus.PENDING, 2,
                     orderItem(null, articleA, 2, "10.00"));
@@ -333,11 +331,27 @@ class OrderServiceTest {
 
             assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCELLED);
             assertThat(order.getReservedStock()).isZero();
-            // ⚠ KNOWN BUG (documented in REBUILD_PLAN.md, section "Bug discovered"): stock was
-            // reserved but never decremented by prepareCheckout, yet cancelOrder adds the
-            // quantity back -> stock inflates 10 -> 12. Same for admin-cancelled PENDING orders.
-            assertThat(articleA.getStock()).isEqualTo(12);
+            // Flow nuovo: prepareCheckout solo RISERVA lo stock (non lo decrementa),
+            // quindi la cancellazione non deve modificarlo: 10 resta 10.
+            assertThat(articleA.getStock()).isEqualTo(10);
             verify(orderRepository).save(order);
+        }
+
+        @Test
+        @DisplayName("PENDING order (legacy flow, stock already decremented): stock restored")
+        void cancelLegacyPendingOrder_restoresStock() {
+            Order order = pendingOrderWithItems(OrderStatus.PENDING, 0,
+                    orderItem(null, articleA, 2, "10.00"));
+            // flow legacy: lo stock era già stato decrementato alla creazione (10 -> 8)
+            articleA.setStock(8);
+            when(orderRepository.findById(500L)).thenReturn(Optional.of(order));
+            when(orderRepository.save(order)).thenReturn(order);
+
+            orderService.cancelOrder(500L);
+
+            assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCELLED);
+            assertThat(articleA.getStock()).isEqualTo(10); // 8 + 2 ripristinati
+            verify(articlesRepository).save(articleA);
         }
 
         @Test
