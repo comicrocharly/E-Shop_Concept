@@ -35,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * S3 — unit test {@code @WebMvcTest} di {@link CartController} (service mockato).
  */
-@WebMvcTest(CartController.class)
+@WebMvcTest(value = CartController.class, properties = "app.security.allow-test-userid=true")
 @AutoConfigureMockMvc(addFilters = false)
 @ContextConfiguration(classes = EshopApplication.class)
 @Import(MethodSecurityConfig.class)

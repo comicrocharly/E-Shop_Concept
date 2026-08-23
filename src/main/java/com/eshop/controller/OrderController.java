@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -28,6 +29,10 @@ public class OrderController {
     private final OrderService orderService;
     private final CurrentUser currentUser;
 
+    // ?testUserId è attivo solo se esplicitamente abilitato (application-test.properties)
+    @Value("${app.security.allow-test-userid:false}")
+    private boolean testUserIdAllowed;
+
     // ========== NEW CHECKOUT FLOW (2 STEP) ==========
 
     /**
@@ -37,7 +42,7 @@ public class OrderController {
     public ResponseEntity<PrepareCheckoutResponse> prepareCheckout(
             @RequestParam(required = false) Long testUserId) {
         PaymentMethod method = PaymentMethod.CREDIT_CARD; // default
-        Long userId = (testUserId != null) ? testUserId : currentUser.getCurrentUserId();
+        Long userId = (testUserIdAllowed && testUserId != null) ? testUserId : currentUser.getCurrentUserId();
         PrepareCheckoutResponse response = orderService.prepareCheckout(userId, method);
         return ResponseEntity.ok(response);
     }
@@ -50,7 +55,7 @@ public class OrderController {
             @PathVariable Long id,
             @RequestBody PayOrderRequest request,
             @RequestParam(required = false) Long testUserId) {
-        Long userId = (testUserId != null) ? testUserId : currentUser.getCurrentUserId();
+        Long userId = (testUserIdAllowed && testUserId != null) ? testUserId : currentUser.getCurrentUserId();
         // Verify ownership
         Order order = orderService.findById(id);
         if (!order.getUser().getId().equals(userId)) {
@@ -65,7 +70,7 @@ public class OrderController {
     @PostMapping("/checkout")
     public ResponseEntity<Order> checkout(
             @RequestParam(required = false) Long testUserId) {
-        Long userId = (testUserId != null) ? testUserId : currentUser.getCurrentUserId();
+        Long userId = (testUserIdAllowed && testUserId != null) ? testUserId : currentUser.getCurrentUserId();
         Order order = orderService.checkout(userId);
         return ResponseEntity.ok(order);
     }
@@ -82,7 +87,7 @@ public class OrderController {
     public ResponseEntity<Order> findById(@PathVariable Long id,
                                           @RequestParam(required = false) Long testUserId) {
         Order order = orderService.findById(id);
-        if (testUserId != null && !order.getUser().getId().equals(testUserId)) {
+        if (testUserIdAllowed && testUserId != null && !order.getUser().getId().equals(testUserId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         return ResponseEntity.ok(order);
@@ -95,7 +100,7 @@ public class OrderController {
             @RequestParam(defaultValue = "orderDate,desc") String sort,
             @RequestParam(required = false) OrderStatus status,
             @RequestParam(required = false) Long testUserId) {
-        Long userId = (testUserId != null) ? testUserId : currentUser.getCurrentUserId();
+        Long userId = (testUserIdAllowed && testUserId != null) ? testUserId : currentUser.getCurrentUserId();
         String sortField = sort.contains(",") ? sort.substring(0, sort.indexOf(',')) : "orderDate";
         Sort.Direction sortDir = Sort.Direction.fromString(
                 sort.contains(",") ? sort.substring(sort.indexOf(',') + 1) : "DESC"
@@ -173,7 +178,7 @@ public class OrderController {
             @PathVariable Long id,
             @RequestParam(required = false) Long testUserId) {
         Order order = orderService.findById(id);
-        if (testUserId != null && !order.getUser().getId().equals(testUserId)) {
+        if (testUserIdAllowed && testUserId != null && !order.getUser().getId().equals(testUserId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         orderService.cancelOrder(id);
@@ -189,7 +194,7 @@ public class OrderController {
     public ResponseEntity<Order> completeOrder(
             @PathVariable Long id,
             @RequestParam(required = false) Long testUserId) {
-        Long userId = (testUserId != null) ? testUserId : currentUser.getCurrentUserId();
+        Long userId = (testUserIdAllowed && testUserId != null) ? testUserId : currentUser.getCurrentUserId();
         Order updated = orderService.markAsCompleted(id, userId);
         return ResponseEntity.ok(updated);
     }

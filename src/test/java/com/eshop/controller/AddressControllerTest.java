@@ -41,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * letto dal controller: l'utente effettivo viene da {@code testUserId} oppure da
  * {@code currentUser.getCurrentUserId()}.</p>
  */
-@WebMvcTest(AddressController.class)
+@WebMvcTest(value = AddressController.class, properties = "app.security.allow-test-userid=true")
 @AutoConfigureMockMvc(addFilters = false)
 @ContextConfiguration(classes = EshopApplication.class)
 @Import(MethodSecurityConfig.class)

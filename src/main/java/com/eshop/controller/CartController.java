@@ -6,6 +6,7 @@ import com.eshop.entity.Cart;
 import com.eshop.service.CartService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,10 +20,14 @@ public class CartController {
     private final CartService cartService;
     private final CurrentUser currentUser;
 
+    // ?testUserId è attivo solo se esplicitamente abilitato (application-test.properties)
+    @Value("${app.security.allow-test-userid:false}")
+    private boolean testUserIdAllowed;
+
     @GetMapping("/me")
     public ResponseEntity<Cart> getCart(
             @RequestParam(required = false) Long testUserId) {
-        Long userId = (testUserId != null) ? testUserId : currentUser.getCurrentUserId();
+        Long userId = (testUserIdAllowed && testUserId != null) ? testUserId : currentUser.getCurrentUserId();
         return ResponseEntity.ok(cartService.getCartByUserId(userId));
     }
 
@@ -30,7 +35,7 @@ public class CartController {
     public ResponseEntity<Cart> addToCart(
             @RequestParam(required = false) Long testUserId,
             @Valid @RequestBody AddToCartRequest request) {
-        Long userId = (testUserId != null) ? testUserId : currentUser.getCurrentUserId();
+        Long userId = (testUserIdAllowed && testUserId != null) ? testUserId : currentUser.getCurrentUserId();
         Cart cart = cartService.addToCart(userId, request);
         return ResponseEntity.ok(cart);
     }
@@ -39,7 +44,7 @@ public class CartController {
     public ResponseEntity<Cart> removeFromCart(
             @PathVariable Long articleId,
             @RequestParam(required = false) Long testUserId) {
-        Long userId = (testUserId != null) ? testUserId : currentUser.getCurrentUserId();
+        Long userId = (testUserIdAllowed && testUserId != null) ? testUserId : currentUser.getCurrentUserId();
         Cart cart = cartService.removeFromCart(userId, articleId);
         return ResponseEntity.ok(cart);
     }
@@ -47,7 +52,7 @@ public class CartController {
     @DeleteMapping("/clear")
     public ResponseEntity<Cart> clearCart(
             @RequestParam(required = false) Long testUserId) {
-        Long userId = (testUserId != null) ? testUserId : currentUser.getCurrentUserId();
+        Long userId = (testUserIdAllowed && testUserId != null) ? testUserId : currentUser.getCurrentUserId();
         Cart cart = cartService.clearCart(userId);
         return ResponseEntity.ok(cart);
     }
@@ -55,7 +60,7 @@ public class CartController {
     @GetMapping("/total")
     public ResponseEntity<BigDecimal> calculateTotal(
             @RequestParam(required = false) Long testUserId) {
-        Long userId = (testUserId != null) ? testUserId : currentUser.getCurrentUserId();
+        Long userId = (testUserIdAllowed && testUserId != null) ? testUserId : currentUser.getCurrentUserId();
         Cart cart = cartService.getCartByUserId(userId);
         BigDecimal total = cartService.calculateTotal(cart);
         return ResponseEntity.ok(total);

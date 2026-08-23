@@ -6,6 +6,7 @@ import com.eshop.dto.AddressResponse;
 import com.eshop.service.AddressService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,10 +20,14 @@ public class AddressController {
     private final AddressService addressService;
     private final CurrentUser currentUser;
 
+    // ?testUserId è attivo solo se esplicitamente abilitato (application-test.properties)
+    @Value("${app.security.allow-test-userid:false}")
+    private boolean testUserIdAllowed;
+
     @GetMapping("/me")
     public ResponseEntity<List<AddressResponse>> findByUser(
             @RequestParam(required = false) Long testUserId) {
-        Long userId = (testUserId != null) ? testUserId : currentUser.getCurrentUserId();
+        Long userId = (testUserIdAllowed && testUserId != null) ? testUserId : currentUser.getCurrentUserId();
         return ResponseEntity.ok(addressService.findByUserId(userId));
     }
 
@@ -30,7 +35,7 @@ public class AddressController {
     public ResponseEntity<AddressResponse> add(
             @RequestParam(required = false) Long testUserId,
             @Valid @RequestBody AddAddressRequest request) {
-        Long userId = (testUserId != null) ? testUserId : currentUser.getCurrentUserId();
+        Long userId = (testUserIdAllowed && testUserId != null) ? testUserId : currentUser.getCurrentUserId();
         return ResponseEntity.ok(addressService.add(userId, request));
     }
 
@@ -38,7 +43,7 @@ public class AddressController {
     public ResponseEntity<Void> delete(
             @PathVariable Long addressId,
             @RequestParam(required = false) Long testUserId) {
-        Long userId = (testUserId != null) ? testUserId : currentUser.getCurrentUserId();
+        Long userId = (testUserIdAllowed && testUserId != null) ? testUserId : currentUser.getCurrentUserId();
         addressService.delete(userId, addressId);
         return ResponseEntity.noContent().build();
     }
