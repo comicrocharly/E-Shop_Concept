@@ -189,13 +189,12 @@ class ShopFlowTest extends PlaywrightBase {
         assertThat(myOrder.locator(".order-items")).containsText(token + " Beta x2");
         assertThat(myOrder.locator(".order-total")).hasText("Totale: €21.00");
 
-        // Back to the catalog: stock decremented. Bug B1: each 1% gateway failure also
-        // re-added the ordered quantities (rollback on never-decremented stock), so the
-        // expected value accounts for the failures that actually happened.
+        // Back to the catalog: stock decremented. Gateway 1% failures (if any) no longer
+        // inflate stock (B1 fixed: cancel only releases the reservation), so the expected
+        // value is independent of the failure count.
         page.locator(".nav-tab", new LocatorOptions().setHasText("Catalogo")).click();
-        int f = checkout.gatewayFailures();
-        assertThat(productCard(alpha).locator(".product-stock")).hasText((3 - 1 + f) + " disponibili");
-        assertThat(productCard(beta).locator(".product-stock")).hasText((5 - 2 + 2 * f) + " disponibili");
+        assertThat(productCard(alpha).locator(".product-stock")).hasText((3 - 1) + " disponibili");
+        assertThat(productCard(beta).locator(".product-stock")).hasText((5 - 2) + " disponibili");
     }
 
     @Test

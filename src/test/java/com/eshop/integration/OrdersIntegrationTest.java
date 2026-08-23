@@ -274,7 +274,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void pay_gatewayFailure_500_rollbackPendingAndStock() throws Exception {
+    void pay_gatewayFailure_402_orderPersistentlyCancelled() throws Exception {
         Auth a = newUser();
         long articleId = createArticle("pay-fail", "5.00", 10);
         long orderId = prepareOrder(a, articleId, 3);
@@ -284,14 +284,15 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
                         .param("testUserId", String.valueOf(a.id()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json(Map.of("method", "CREDIT_CARD"))))
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isPaymentRequired())
                 .andExpect(jsonPath("$.message").value("Pagamento fallito: Simulazione errore gateway"));
 
-        // ⚠ ROLLBACK di tutto il TX (anche la cancelOrder interna al fallimento):
-        // ordine PENDING, reservedStock invariato, stock intatto, nessun OrderPayment.
+        // Comportamento corretto (security fix): l'ordine viene cancellato in una
+        // transazione separata → persiste come CANCELLED. Stock intatto (il flow
+        // nuovo non lo decrementa mai a questo punto), nessun OrderPayment.
         Order o = order(orderId);
-        assertThat(o.getStatus()).isEqualTo(OrderStatus.PENDING);
-        assertThat(o.getReservedStock()).isEqualTo(3);
+        assertThat(o.getStatus()).isEqualTo(OrderStatus.CANCELLED);
+        assertThat(o.getReservedStock()).isZero();
         assertThat(stockOf(articleId)).isEqualTo(10);
         assertThat(orderPaymentRepository.findByOrderId(orderId)).isEmpty();
     }

@@ -154,9 +154,10 @@ public class OrderService {
         GatewayResult result = paymentGateway.processPayment(method, order.getTotal(), details);
 
         if (!result.success()) {
-            // Pagamento fallito: cancella ordine
-            cancelOrder(orderId);
-            throw new RuntimeException("Pagamento fallito: " + result.status());
+            // Pagamento rifiutato: la transazione viene rollata al 100%
+            // (nessun effetto collaterale). Il controller annulla l'ordine
+            // in una transazione separata e risponde con 402.
+            throw new PaymentDeclinedException("Pagamento fallito: " + result.status());
         }
 
         // Pagamento riuscito: riduci stock

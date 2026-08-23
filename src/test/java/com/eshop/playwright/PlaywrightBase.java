@@ -403,8 +403,8 @@ abstract class PlaywrightBase {
 
     /**
      * Result of {@link #completeCheckout}: the payment-modal success-screen text, the number
-     * of gateway 1% failures hit (each one inflates stock by the ordered quantities — bug B1,
-     * order rollback re-adds stock that was never decremented), and the captured checkout totals.
+     * of gateway 1% failures hit (since the B1 fix each failure only releases the stock
+     * reservation, so it has no net effect on stock), and the captured checkout totals.
      */
     protected record CheckoutResult(String successBody, int gatewayFailures, String cartModalTotal,
                                     String cartScreenSummary, int orderId) {

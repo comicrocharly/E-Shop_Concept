@@ -6,6 +6,9 @@ import com.eshop.entity.Order;
 import com.eshop.enums.OrderStatus;
 import com.eshop.enums.PaymentMethod;
 import com.eshop.service.OrderService;
+import com.eshop.service.PaymentDeclinedException;
+
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -51,7 +54,7 @@ public class OrderController {
      * Step 2: Completa il pagamento. Riduce lo stock, cambia status a PROCESSING.
      */
     @PostMapping("/{id}/pay")
-    public ResponseEntity<PayOrderResponse> payOrder(
+    public ResponseEntity<?> payOrder(
             @PathVariable Long id,
             @RequestBody PayOrderRequest request,
             @RequestParam(required = false) Long testUserId) {
@@ -61,8 +64,16 @@ public class OrderController {
         if (!order.getUser().getId().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        PayOrderResponse response = orderService.completePayment(id, request.method(), request.details());
-        return ResponseEntity.ok(response);
+        try {
+            PayOrderResponse response = orderService.completePayment(id, request.method(), request.details());
+            return ResponseEntity.ok(response);
+        } catch (PaymentDeclinedException e) {
+            // completePayment ha già rollbackato (nessun effetto collaterale):
+            // annulliamo l'ordine in una transazione separata e rispondiamo 402.
+            orderService.cancelOrder(id);
+            return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED)
+                    .body(Map.of("message", e.getMessage()));
+        }
     }
 
     // ========== LEGACY: ONE-STEP CHECKOUT (backward compatible for tests) ==========

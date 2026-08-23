@@ -270,24 +270,23 @@ class OrderServiceTest {
         }
 
         @Test
-        @DisplayName("gateway failure -> order cancelled, exception thrown, stock untouched")
+        @DisplayName("gateway failure -> PaymentDeclinedException, zero side effects (tx rolls back)")
         void completePaymentGatewayFailure() {
             Order order = pendingOrderWithItems(OrderStatus.PENDING, 2,
                     orderItem(null, articleA, 2, "10.00"));
-            when(orderRepository.findById(500L)).thenReturn(Optional.of(order)); // 1x pay, 1x cancel
+            when(orderRepository.findById(500L)).thenReturn(Optional.of(order));
             when(paymentGateway.processPayment(any(), any(), any()))
                     .thenReturn(new GatewayResult(false, "Simulazione errore gateway", null));
-            when(orderRepository.save(order)).thenReturn(order);
 
             assertThatThrownBy(() -> orderService.completePayment(
                     500L, PaymentMethod.CREDIT_CARD, Map.of("card", "x")))
-                    .isInstanceOf(RuntimeException.class)
+                    .isInstanceOf(PaymentDeclinedException.class)
                     .hasMessageContaining("Pagamento fallito");
 
-            // cancelOrder side effects: la riserva viene rilasciata, lo stock (mai
-            // decrementato dal flow nuovo) resta invariato.
-            assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCELLED);
-            assertThat(order.getReservedStock()).isZero();
+            // La transazione viene rollata al 100%: nessun effetto collaterale
+            // (l'ordine resta PENDING; il controller lo cancellerà in un TX separato).
+            assertThat(order.getStatus()).isEqualTo(OrderStatus.PENDING);
+            assertThat(order.getReservedStock()).isEqualTo(2);
             assertThat(articleA.getStock()).isEqualTo(10);
             assertThat(order.getPayment()).isNull();
         }
