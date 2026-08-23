@@ -87,7 +87,8 @@ public class OrderController {
     public ResponseEntity<Order> findById(@PathVariable Long id,
                                           @RequestParam(required = false) Long testUserId) {
         Order order = orderService.findById(id);
-        if (testUserIdAllowed && testUserId != null && !order.getUser().getId().equals(testUserId)) {
+        Long userId = (testUserIdAllowed && testUserId != null) ? testUserId : currentUser.getCurrentUserId();
+        if (!order.getUser().getId().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         return ResponseEntity.ok(order);
@@ -178,7 +179,8 @@ public class OrderController {
             @PathVariable Long id,
             @RequestParam(required = false) Long testUserId) {
         Order order = orderService.findById(id);
-        if (testUserIdAllowed && testUserId != null && !order.getUser().getId().equals(testUserId)) {
+        Long userId = (testUserIdAllowed && testUserId != null) ? testUserId : currentUser.getCurrentUserId();
+        if (!order.getUser().getId().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         orderService.cancelOrder(id);

@@ -53,11 +53,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *       irraggiungibile: la query {@code findByUserIdWithItems} usa JOIN FETCH
  *       (inner join) sulla collezione items → una cart vuota non viene nemmeno
  *       trovata → 409 "Carrello non trovato per utente: X".</li>
- *   <li>⚠ cancel senza ?testUserId (autenticazione via Bearer) NON fa ownership check:
- *       un altro utente può cancellare l'ordine (il check esiste solo sul path legacy
- *       ?testUserId);</li>
- *   <li>⚠ GET /api/orders/{id} senza ?testUserId è leggibile anche da anonimi
- *       (endpoint read senza sicurezza esplicita, permitAll nel profilo test).</li>
+ *   <li>⚠ (fissato) ownership check ora SEMPRE attivo su findById/cancel: anche
+ *       senza ?testUserId (Bearer) un altro utente riceve 403;
+ *       anonimamente il profilo test (permitAll) arriva al controller e
+ *       {@code CurrentUser} lancia → 500 (in produzione la security chain
+ *       risponde prima con 401).</li>
  * </ul>
  */
 class OrdersIntegrationTest extends IntegrationTestSupport {
@@ -393,10 +393,10 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void cancelViaJwt_otherUserCanCancel_noOwnershipCheck() throws Exception {
-        // ⚠ Comportamento attuale: senza ?testUserId il controller NON fa ownership
-        // check e il servizio non lo fa mai → un utente (Bearer JWT, ROLE_USER) può
-        // cancellare l'ordine di un altro.
+    void cancelViaJwt_otherUser_403_orderUntouched() throws Exception {
+        // Comportamento corretto (security fix): l'ownership check è sempre attivo,
+        // anche senza ?testUserId (autenticazione via Bearer) → un altro utente
+        // non può cancellare l'ordine di un altro.
         Auth a = newUser();
         Auth b = newUser();
         long articleId = createArticle("canc-jwt", "5.00", 5);
@@ -404,9 +404,8 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
 
         mockMvc.perform(post("/api/orders/" + orderId + "/cancel")
                         .header("Authorization", "Bearer " + b.accessToken()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("CANCELLED"));
-        assertThat(order(orderId).getStatus()).isEqualTo(OrderStatus.CANCELLED);
+                .andExpect(status().isForbidden());
+        assertThat(order(orderId).getStatus()).isEqualTo(OrderStatus.PENDING);
     }
 
     @Test
@@ -495,15 +494,22 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void findById_withoutTestUserId_readableByAnyone_401nA_currentBehavior() throws Exception {
-        // ⚠ Comportamento attuale: GET /api/orders/{id} senza ?testUserId non fa
-        // ownership check e, nel profilo test (permitAll), è raggiungibile anche
-        // senza autenticazione: qualsiasi ordine è leggibile da chiunque.
+    void findById_jwtOwnership_otherUser403_owner200() throws Exception {
+        // Comportamento corretto (security fix): GET /api/orders/{id} verifica
+        // sempre l'ownership (anche senza ?testUserId).
         Auth a = newUser();
+        Auth b = newUser();
         long articleId = createArticle("read-order", "5.00", 5);
         long orderId = prepareOrder(a, articleId, 1);
 
-        mockMvc.perform(get("/api/orders/" + orderId))
+        // utente diverso → 403
+        mockMvc.perform(get("/api/orders/" + orderId)
+                        .header("Authorization", "Bearer " + b.accessToken()))
+                .andExpect(status().isForbidden());
+
+        // proprietario → 200
+        mockMvc.perform(get("/api/orders/" + orderId)
+                        .header("Authorization", "Bearer " + a.accessToken()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(orderId))
                 .andExpect(jsonPath("$.status").value("PENDING"));
