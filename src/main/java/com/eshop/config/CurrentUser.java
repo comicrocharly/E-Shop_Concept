@@ -20,9 +20,17 @@ public class CurrentUser {
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new RuntimeException("Utente non autenticato");
         }
-        String username = authentication.getName();
-        return userService.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+
+        // Caso normale (JwtAuthenticationFilter): l'entity User è già il principal
+        // → nessuna query al database.
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof User user) {
+            return user;
+        }
+
+        // Fallback (es. auth di test che mette un nome in chiaro nel context).
+        return userService.findByUsername(principal.toString())
+                .orElseThrow(() -> new RuntimeException("User not found: " + principal));
     }
 
     public Long getCurrentUserId() {

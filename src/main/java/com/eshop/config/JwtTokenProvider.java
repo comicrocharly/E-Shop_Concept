@@ -1,6 +1,9 @@
 package com.eshop.config;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -16,6 +19,9 @@ public class JwtTokenProvider {
     private final long accessTokenValidityMs;
     private final long refreshTokenValidityMs;
 
+    /** Parser riutilizzabile: costruito una sola volta (invece di un nuovo parser per ogni chiamata). */
+    private final JwtParser parser;
+
     public JwtTokenProvider(
             @Value("${app.jwt.secret}") String secret,
             @Value("${app.jwt.access-token-expiration:3600000}") long accessTokenValidityMs,
@@ -23,6 +29,7 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret));
         this.accessTokenValidityMs = accessTokenValidityMs;
         this.refreshTokenValidityMs = refreshTokenValidityMs;
+        this.parser = Jwts.parser().verifyWith(key).build();
     }
 
     public String createAccessToken(String username, String role) {
@@ -45,33 +52,36 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String getUsernameFromToken(String token) {
-        return Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
+    /**
+     * Parse il token una sola volta, restituendo i claim.
+     * @return i claim se il token è valido, altrimenti {@code null}
+     */
+    public Claims parseClaims(String token) {
+        if (token == null) {
+            return null;
+        }
+        try {
+            return parser.parseSignedClaims(token).getPayload();
+        } catch (JwtException | IllegalArgumentException e) {
+            return null;
+        }
     }
 
+    /**
+     * @throws JwtException se il token è invalido o scaduto (semantica storica, usata dai test)
+     */
+    public String getUsernameFromToken(String token) {
+        return parser.parseSignedClaims(token).getPayload().getSubject();
+    }
+
+    /**
+     * @throws JwtException se il token è invalido o scaduto (semantica storica, usata dai test)
+     */
     public String getRoleFromToken(String token) {
-        return Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .get("role", String.class);
+        return parser.parseSignedClaims(token).getPayload().get("role", String.class);
     }
 
     public boolean validateToken(String token) {
-        try {
-            Jwts.parser()
-                    .verifyWith(key)
-                    .build()
-                    .parseSignedClaims(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
-        }
+        return parseClaims(token) != null;
     }
 }
