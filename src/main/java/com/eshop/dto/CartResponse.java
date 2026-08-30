@@ -33,6 +33,7 @@ public class CartResponse {
         public static class ArticleShort {
             private Long id;
             private String name;
+            private String previewImage;
         }
     }
 }

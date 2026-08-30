@@ -185,7 +185,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1700px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -748,8 +748,24 @@
 
         .product-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            /* Colonne fisse: ogni riga mostra sempre lo stesso numero di articoli
+               (pagina da 24 → righe sempre piene a ogni breakpoint) */
+            grid-template-columns: repeat(6, 1fr);
             gap: 15px;
+        }
+
+        /* 6 colonne fintanto c'è spazio; si riduce solo a schermi stretti:
+           6 → 4 (≤1200px) → 3 (≤900px) → 2 (mobile, ≤768px) */
+        @media (max-width: 1200px) {
+            .product-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .product-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
 
         .product-card {
@@ -759,6 +775,208 @@
             padding: 15px;
             transition: all 0.3s;
             cursor: pointer;
+        }
+
+        /* Immagine articolo (card, dettaglio, carrello, form) */
+        .product-image {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            background: var(--bg-image-placeholder, #f0f0f5);
+        }
+
+        .detail-image-wrap {
+            position: relative;
+            width: 100%;
+            max-width: 340px;
+        }
+        .detail-image-main {
+            width: 100%;
+        }
+        .detail-image-main img {
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            cursor: zoom-in;
+        }
+        /* Thumbnail row list: hidden until the cursor is over the main image */
+        .detail-thumbs {
+            position: absolute;
+            left: 6px;
+            right: 6px;
+            bottom: 6px;
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 6px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 6px 4px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.35);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            scrollbar-width: thin;
+        }
+        .detail-image-wrap:hover .detail-thumbs,
+        .detail-image-wrap:focus-within .detail-thumbs {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .detail-thumbs img {
+            width: 44px;
+            height: 44px;
+            flex: 0 0 auto;
+            object-fit: cover;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.2s;
+        }
+        .detail-thumbs img:hover,
+        .detail-thumbs img.active {
+            border-color: var(--primary);
+        }
+
+        /* Lightbox — bigger view of the detail images */
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            z-index: var(--z-toast, 9000);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.85);
+        }
+        .lightbox.hidden {
+            display: none;
+        }
+        .lightbox-image {
+            max-width: calc(100vw - 120px);
+            max-height: calc(100vh - 200px);
+            object-fit: contain;
+            border-radius: 8px;
+            user-select: none;
+        }
+        .lightbox-thumbs {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 8px;
+            margin-top: 16px;
+            max-width: calc(100vw - 80px);
+            overflow-x: auto;
+            padding: 8px;
+            scrollbar-width: thin;
+        }
+        .lightbox-thumbs img {
+            width: 64px;
+            height: 64px;
+            flex: 0 0 auto;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            opacity: 0.6;
+            transition: opacity 0.2s, border-color 0.2s;
+        }
+        .lightbox-thumbs img:hover {
+            opacity: 1;
+        }
+        .lightbox-thumbs img.active {
+            border-color: var(--primary, #4361ee);
+            opacity: 1;
+        }
+        .lightbox-counter {
+            margin-top: 10px;
+            color: #fff;
+            font-size: 0.9rem;
+            user-select: none;
+        }
+        .lightbox-nav,
+        .lightbox-close {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            font-size: 1.6rem;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            z-index: 1;
+        }
+        .lightbox-nav:hover,
+        .lightbox-close:hover {
+            background: rgba(255, 255, 255, 0.28);
+        }
+        .lightbox-prev {
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .lightbox-next {
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .lightbox-close {
+            top: 16px;
+            right: 16px;
+            transform: none;
+            font-size: 1.3rem;
+        }
+        .lightbox-single .lightbox-nav,
+        .lightbox-single .lightbox-counter {
+            display: none;
+        }
+
+        .cart-thumb {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+
+        .image-previews {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .image-previews .img-preview {
+            position: relative;
+            width: 64px;
+            height: 64px;
+        }
+        .image-previews .img-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .image-previews .img-preview button {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 20px;
+            height: 20px;
+            border: none;
+            border-radius: 50%;
+            background: #e5484d;
+            color: white;
+            font-size: 11px;
+            line-height: 20px;
+            cursor: pointer;
+            padding: 0;
         }
 
         .product-card:hover {
@@ -848,10 +1066,17 @@
 
         .cart-item {
             display: grid;
-            grid-template-columns: 1fr auto 100px;
-            align-items: start;
+            grid-template-columns: auto 1fr auto auto;
+            align-items: center;
+            gap: 14px;
             padding: 12px 0;
             border-bottom: 1px solid var(--border);
+        }
+
+        .cart-list .cart-thumb {
+            width: 64px;
+            height: 64px;
+            border-radius: 10px;
         }
 
         .cart-item:last-child {
@@ -1910,10 +2135,10 @@
 
         /* ===== Article Detail Modal — Wide & Elegant ===== */
         .article-detail-modal .modal {
-            max-width: 90vw;
-            width: 960px;
+            max-width: 96vw;
+            width: 1240px;
             min-width: 480px;
-            max-height: 88vh;
+            max-height: 96vh;
             padding: 0;
             overflow: hidden;
             border-radius: 16px;
@@ -1928,14 +2153,16 @@
             display: flex;
             flex-direction: column;
             overflow-y: auto;
-            max-height: 88vh;
+            max-height: 96vh;
         }
 
         /* Close button — top right corner */
         .detail-close-btn {
-            position: absolute;
+            position: sticky;
             top: 8px;
-            right: 12px;
+            align-self: flex-end;
+            margin-right: 12px;
+            z-index: 30;
             width: 34px;
             height: 34px;
             display: flex;
@@ -1950,7 +2177,6 @@
             line-height: 1;
             padding: 0;
             transition: all 0.2s ease;
-            z-index: 30;
             font-weight: 300;
             backdrop-filter: blur(4px);
         }
@@ -2023,7 +2249,7 @@
         /* Body grid */
         .detail-body-grid {
             display: grid;
-            grid-template-columns: 260px 1fr;
+            grid-template-columns: 340px 1fr;
             gap: 0;
             border-bottom: 2px solid var(--border);
         }
@@ -2034,7 +2260,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 260px;
+            min-height: 340px;
             padding: 24px;
             border-right: 2px solid var(--border);
             position: relative;
@@ -2042,8 +2268,8 @@
         }
 
         .detail-image-col .product-image-placeholder {
-            width: 200px;
-            height: 200px;
+            width: 240px;
+            height: 240px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -2078,7 +2304,7 @@
 
         .detail-image-col img.product-image {
             max-width: 100%;
-            max-height: 220px;
+            max-height: 300px;
             object-fit: contain;
             border-radius: 10px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.1);
@@ -2097,6 +2323,26 @@
             opacity: 0.85;
             line-height: 1.75;
             font-size: 0.95rem;
+        }
+        .detail-description p {
+            margin: 0 0 10px;
+        }
+        .detail-description h4 {
+            margin: 16px 0 6px;
+            font-size: 1rem;
+            font-weight: 700;
+            opacity: 1;
+            color: var(--text-primary);
+        }
+        .detail-description ul {
+            margin: 0 0 10px;
+            padding-left: 20px;
+        }
+        .detail-description li {
+            margin-bottom: 4px;
+        }
+        .detail-description :last-child {
+            margin-bottom: 0;
         }
 
         .detail-stock {
@@ -2136,12 +2382,61 @@
             padding: 20px 32px;
             border-top: 2px solid var(--border);
             background: var(--bg-detail-actions);
+            justify-content: flex-end;
         }
 
         .detail-actions .btn {
-            flex: 1;
+            flex: 0 0 auto;
             padding: 12px 20px;
             font-size: 0.95rem;
+        }
+
+        /* Quantity picker next to add-to-cart button */
+        .detail-qty-picker {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            background: var(--bg-surface-alt);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            padding: 3px 6px;
+        }
+
+        .detail-qty-picker button {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.15s ease;
+        }
+
+        .detail-qty-picker button:hover:not(:disabled) {
+            background: rgba(0, 0, 0, 0.08);
+        }
+
+        [data-theme="dark"] .detail-qty-picker button:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .detail-qty-picker button:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .detail-qty-value {
+            min-width: 32px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-primary);
         }
 
 
@@ -2203,7 +2498,13 @@
             }
 
             .product-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                /* 2 colonne → almeno 2 articoli per riga (mobile) */
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            /* Immagine un po' più compatta su mobile (4:3 invece di 1:1) */
+            .product-image {
+                aspect-ratio: 4 / 3;
             }
 
             .admin-form {
@@ -2226,13 +2527,13 @@
             .detail-image-col {
                 border-right: none;
                 border-bottom: 2px solid var(--border);
-                min-height: 180px;
+                min-height: 260px;
                 padding: 20px;
             }
 
             .detail-image-col .product-image-placeholder {
-                width: 140px;
-                height: 140px;
+                width: 160px;
+                height: 160px;
             }
 
             .detail-image-col .placeholder-icon {
@@ -2249,6 +2550,11 @@
             }
 
             .detail-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .detail-qty-picker {
                 width: 100%;
                 justify-content: center;
             }
@@ -3052,6 +3358,11 @@
                         <input type="text" id="productDesc" autocomplete="off">
                         <div class="form-error" id="productDescError"></div>
                     </div>
+                    <div class="form-group full-width">
+                        <label for="productImages">Immagini (una o più)</label>
+                        <input type="file" id="productImages" accept="image/*" multiple autocomplete="off">
+                        <div class="image-previews" id="productImagePreviews"></div>
+                    </div>
                 </div>
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeProductModal()">Annulla</button>
@@ -3090,6 +3401,11 @@
                         <input type="text" id="sellDesc" autocomplete="off">
                         <div class="form-error" id="sellDescError"></div>
                     </div>
+                    <div class="form-group full-width">
+                        <label for="sellImages">Immagini (una o più)</label>
+                        <input type="file" id="sellImages" accept="image/*" multiple autocomplete="off">
+                        <div class="image-previews" id="sellImagePreviews"></div>
+                    </div>
                 </div>
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeSellModal()">Annulla</button>
@@ -3100,7 +3416,7 @@
     </div>
 
     <!-- Article Detail Modal -->
-    <div id="articleDetailModal" class="modal-overlay hidden">
+    <div id="articleDetailModal" class="modal-overlay article-detail-modal hidden">
         <div class="modal">
             <div class="article-detail-content">
                 <button class="detail-close-btn" onclick="closeArticleDetailModal()">&times;</button>
@@ -3109,6 +3425,16 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Detail Lightbox (bigger image view) -->
+    <div id="detailLightbox" class="lightbox hidden" onclick="if (event.target === this) closeDetailLightbox()">
+        <button type="button" class="lightbox-close" onclick="closeDetailLightbox()" title="Chiudi">&times;</button>
+        <button type="button" class="lightbox-nav lightbox-prev" onclick="stepLightbox(-1)" title="Precedente">&lsaquo;</button>
+        <img id="lightboxImage" class="lightbox-image" src="" alt="">
+        <button type="button" class="lightbox-nav lightbox-next" onclick="stepLightbox(1)" title="Successiva">&rsaquo;</button>
+        <div id="lightboxThumbs" class="lightbox-thumbs"></div>
+        <div id="lightboxCounter" class="lightbox-counter"></div>
     </div>
 
     <!-- Logout Confirmation Modal -->
@@ -3172,8 +3498,10 @@
 
         function apiFetch(url, options = {}) {
             const accessToken = localStorage.getItem('eshopAccessToken');
+            // FormData: il browser deve impostare da solo Content-Type (boundary multipart)
+            const isFormData = options.body instanceof FormData;
             const headers = {
-                'Content-Type': 'application/json',
+                ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
                 ...options.headers
             };
             if (accessToken) {
@@ -3242,6 +3570,7 @@
         // Pagination state
         let currentPage = 0;
         const PAGE_SIZE = 12;
+        const CATALOG_PAGE_SIZE = 36; // griglia uniforme a ogni breakpoint (36 ÷ 6/4/3/2)
         let totalPages = 1;
         let totalElements = 0;
         let searchQuery = '';
@@ -3261,20 +3590,10 @@
         });
 
         function setupModalCloseHandlers() {
-            // Event delegation for product cards: card click → detail modal, button click → add to cart only
+            // Event delegation for product cards: card click → detail modal
             const productGrid = document.getElementById('productGrid');
             if (productGrid) {
                 productGrid.addEventListener('click', (e) => {
-                    const addBtn = e.target.closest('.add-to-cart-btn');
-                    if (addBtn) {
-                        // Click on Add to Cart button — only add to cart, NO detail modal
-                        const productId = parseInt(addBtn.dataset.productId);
-                        if (productId && !addBtn.disabled) {
-                            addToCart(productId);
-                        }
-                        return; // Stop here — don't propagate to card handler
-                    }
-                    
                     const card = e.target.closest('.product-card');
                     if (card) {
                         const productId = parseInt(card.dataset.productId);
@@ -3784,7 +4103,7 @@
             try {
                 const params = new URLSearchParams({
                     page: currentPage,
-                    size: PAGE_SIZE
+                    size: CATALOG_PAGE_SIZE
                 });
                 if (searchQuery) params.set('search', searchQuery);
                 if (activeCategory) params.set('category', activeCategory);
@@ -3843,6 +4162,7 @@
             
             grid.innerHTML = displayProducts.map(product => `
                 <div class="product-card" data-product-id="${product.id}">
+                    ${product.previewImage ? `<img class="product-image" src="${product.previewImage}" alt="${product.name}" loading="lazy">` : ''}
                     <div class="product-name">${product.name}</div>
                     <div class="product-author">${product.authorUsername || 'Sconosciuto'}</div>
                     <div class="product-desc">${product.description || 'Nessuna descrizione'}</div>
@@ -3850,11 +4170,6 @@
                     <div class="product-stock ${getStockClass(product.stock)}">
                         ${getStockText(product.stock)}
                     </div>
-                    <button class="btn btn-primary btn-sm add-to-cart-btn" 
-                            style="width: 100%;" data-product-id="${product.id}"
-                            ${product.stock === 0 ? 'disabled' : ''}>
-                        ${product.stock === 0 ? 'Esaurito' : 'Aggiungi al Carrello'}
-                    </button>
                 </div>
             `).join('');
         }
@@ -3901,8 +4216,8 @@
             html += `<button class="pagination-btn" onclick="goToPage(${currentPage + 1})" ${currentPage >= totalPages - 1 ? 'disabled' : ''}>Succ →</button>`;
             
             // Info text
-            const startItem = currentPage * PAGE_SIZE + 1;
-            const endItem = Math.min((currentPage + 1) * PAGE_SIZE, totalElements);
+            const startItem = currentPage * CATALOG_PAGE_SIZE + 1;
+            const endItem = Math.min((currentPage + 1) * CATALOG_PAGE_SIZE, totalElements);
             html += `<span class="pagination-info">${startItem}-${endItem} di ${totalElements}</span>`;
             
             container.innerHTML = html;
@@ -4173,11 +4488,22 @@
                     </div>
                     <div class="detail-body-grid">
                         <div class="detail-image-col">
-                            <div class="product-image-placeholder">
-                                <span class="placeholder-icon">${categoryIcon}</span>
-                                <span class="placeholder-text">${product.name}</span>
-                                <span class="placeholder-subtitle">Immagine non disponibile</span>
-                            </div>
+                            ${product.previewImage ? `
+                                <div class="detail-image-wrap">
+                                    <div class="detail-image-main"><img id="detailMainImage" src="${product.previewImage}" alt="${product.name}" onclick="openDetailLightbox('${product.previewImage}')" title="Clicca per ingrandire"></div>
+                                    ${(product.images || []).length > 1 ? `
+                                        <div class="detail-thumbs">
+                                            ${(product.images || []).map(img => `<img src="${img.url}" alt="" class="${img.url === product.previewImage ? 'active' : ''}" onclick="setDetailImage('${img.url}')">`).join('')}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            ` : `
+                                <div class="product-image-placeholder">
+                                    <span class="placeholder-icon">${categoryIcon}</span>
+                                    <span class="placeholder-text">${product.name}</span>
+                                    <span class="placeholder-subtitle">Immagine non disponibile</span>
+                                </div>
+                            `}
                         </div>
                         <div class="detail-info-col">
                             <div class="detail-description">${product.description || 'Nessuna descrizione disponibile'}</div>
@@ -4185,18 +4511,25 @@
                         </div>
                     </div>
                     <div class="detail-actions">
-                        <button class="btn btn-primary" 
-                                onclick="addToCartFromDetail(${product.id})"
-                                ${product.stock === 0 ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
-                            ${product.stock === 0 ? '⛔ Esaurito' : '🛒 Aggiungi al Carrello'}
-                        </button>
                         ${currentUser && currentUser.role === 'ADMIN' ? `
                             <button class="btn btn-secondary" onclick="editProductFromDetail(${product.id})">
                                 ✏️ Modifica
                             </button>
                         ` : ''}
+                        <div class="detail-qty-picker" data-max="${product.stock}">
+                            <button type="button" onclick="changeDetailQty(-1)" ${product.stock === 0 ? 'disabled' : ''}>−</button>
+                            <span class="detail-qty-value" id="detailQtyValue">1</span>
+                            <button type="button" id="detailQtyPlus" onclick="changeDetailQty(1)" ${product.stock === 0 ? 'disabled' : ''}>+</button>
+                        </div>
+                        <button class="btn btn-primary" 
+                                onclick="addToCartFromDetail(${product.id})"
+                                ${product.stock === 0 ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
+                            ${product.stock === 0 ? '⛔ Esaurito' : '🛒 Aggiungi al Carrello'}
+                        </button>
                     </div>
                 `;
+
+                window._detailImages = (product.images && product.images.length ? product.images.map(i => i.url) : (product.previewImage ? [product.previewImage] : []));
 
                 detailBody.innerHTML = html;
             } catch (error) {
@@ -4207,8 +4540,22 @@
             }
         }
 
+        function changeDetailQty(delta) {
+            const value = document.getElementById('detailQtyValue');
+            const picker = document.getElementById('detailQtyValue')?.closest('.detail-qty-picker');
+            if (!value) return;
+            const max = parseInt(picker?.dataset?.max || '99', 10);
+            let q = (parseInt(value.textContent, 10) || 1) + delta;
+            q = Math.max(1, Math.min(max, q));
+            value.textContent = q;
+            const plus = document.getElementById('detailQtyPlus');
+            if (plus) plus.disabled = q >= max;
+        }
+
         async function addToCartFromDetail(productId) {
-            await addToCart(productId);
+            const qtyEl = document.getElementById('detailQtyValue');
+            const quantity = qtyEl ? (parseInt(qtyEl.textContent, 10) || 1) : 1;
+            await addToCart(productId, quantity);
             if (currentUser) {
                 await loadCart();
                 await loadProducts(true); // Force refresh stock
@@ -4299,6 +4646,7 @@
 
             itemsEl.innerHTML = cart.items.map(item => `
                 <div class="cart-modal-item">
+                    ${item.articles?.previewImage ? `<img class="cart-thumb" src="${item.articles.previewImage}" alt="">` : ''}
                     <div class="cart-modal-item-info">
                         <div class="cart-modal-item-name" title="${item.articles?.name || 'Articolo'}">${item.articles?.name || 'Articolo'}</div>
                         <div class="cart-modal-item-unit">€${item.unitPrice.toFixed(2)} cad.</div>
@@ -4338,9 +4686,9 @@
             // Left panel: cart items
             cartScreenItemsEl.innerHTML = cart.items.map(item => `
                 <div class="cart-item">
+                    ${item.articles?.previewImage ? `<img class="cart-thumb" src="${item.articles.previewImage}" alt="">` : ''}
                     <div>
                         <div class="cart-item-name">${item.articles?.name || 'Articolo'}</div>
-                        <div class="cart-item-price">€${item.unitPrice.toFixed(2)} cad.</div>
                     </div>
                     <div class="cart-item-qty">
                         <button class="qty-btn" onclick="updateQuantity(${item.articles.id}, ${item.quantity - 1})">-</button>
@@ -4399,7 +4747,7 @@
             closeCart();
         }
 
-        async function addToCart(productId) {
+        async function addToCart(productId, quantity = 1) {
             if (!currentUser) return;
             
             // Find product card for animation
@@ -4442,7 +4790,7 @@
             try {
                 const response = await apiFetch('/cart/items', {
                     method: 'POST',
-                    body: JSON.stringify({ articleId: productId, quantity: 1 })
+                    body: JSON.stringify({ articleId: productId, quantity })
                 });
                 
                 if (response.ok) {
@@ -5314,6 +5662,8 @@
             document.getElementById('modalTitle').textContent = 'Aggiungi Prodotto';
             document.getElementById('editProductId').value = '';
             document.getElementById('productForm').reset();
+            _productExistingImages = [];
+            renderFilePreviews('productImages', 'productImagePreviews', []);
         }
 
         async function editProduct(productId) {
@@ -5331,6 +5681,9 @@
                 document.getElementById('productPrice').value = product.price;
                 document.getElementById('productStock').value = product.stock;
                 document.getElementById('productDesc').value = product.description || '';
+                document.getElementById('productImages').value = '';
+                _productExistingImages = (product.images || []).map(img => ({ id: img.id, url: img.url }));
+                renderFilePreviews('productImages', 'productImagePreviews', _productExistingImages);
             } catch (error) {
                 showToast('Errore di connessione', 'error');
             }
@@ -5340,7 +5693,117 @@
             document.getElementById('productModal').classList.add('hidden');
         }
 
+        // ===== Immagini prodotto (anteprime nei form) =====
+        // In edit mode: immagini già salvate nell'articolo, rimovibili da qui
+        let _productExistingImages = [];
+
+        function renderFilePreviews(inputId, containerId, existingImages) {
+            const input = document.getElementById(inputId);
+            const container = document.getElementById(containerId);
+            if (!input || !container) return;
+            container.innerHTML = '';
+
+            (existingImages || []).forEach(img => {
+                const div = document.createElement('div');
+                div.className = 'img-preview';
+                div.innerHTML = `<img src="${img.url}" alt=""><button type="button" title="Elimina immagine">✕</button>`;
+                div.querySelector('button').onclick = async () => {
+                    if (!confirm('Eliminare questa immagine?')) return;
+                    const r = await apiFetch(`/articles/images/${img.id}`, { method: 'DELETE' });
+                    if (r.ok) {
+                        _productExistingImages = _productExistingImages.filter(i => i.id !== img.id);
+                        renderFilePreviews(inputId, containerId, _productExistingImages);
+                    } else {
+                        showToast('Errore nel rimuovere l\'immagine', 'error');
+                    }
+                };
+                container.appendChild(div);
+            });
+
+            Array.from(input.files || []).forEach((file, i) => {
+                const div = document.createElement('div');
+                div.className = 'img-preview';
+                const url = URL.createObjectURL(file);
+                div.innerHTML = `<img src="${url}" alt=""><button type="button" title="Rimuovi">✕</button>`;
+                div.querySelector('button').onclick = () => {
+                    // Rimuove il file dalla FileList mantenendo gli altri
+                    const dt = new DataTransfer();
+                    Array.from(input.files).forEach((f, j) => { if (j !== i) dt.items.add(f); });
+                    input.files = dt.files;
+                    URL.revokeObjectURL(url);
+                    renderFilePreviews(inputId, containerId, _productExistingImages);
+                };
+                container.appendChild(div);
+            });
+        }
+
+        document.getElementById('productImages').addEventListener('change', () => {
+            renderFilePreviews('productImages', 'productImagePreviews', _productExistingImages);
+        });
+        document.getElementById('sellImages').addEventListener('change', () => {
+            renderFilePreviews('sellImages', 'sellImagePreviews', []);
+        });
+
+        function setDetailImage(url) {
+            const el = document.getElementById('detailMainImage');
+            if (el) el.src = url;
+            document.querySelectorAll('.detail-thumbs img').forEach(t => t.classList.toggle('active', t.src === new URL(url, location.href).href));
+        }
+
+        // ===== DETAIL LIGHTBOX (bigger view) =====
+        let _lightboxUrls = [];
+        let _lightboxIndex = 0;
+
+        function _lightboxKeyHandler(e) {
+            if (e.key === 'Escape') closeDetailLightbox();
+            else if (e.key === 'ArrowLeft') stepLightbox(-1);
+            else if (e.key === 'ArrowRight') stepLightbox(1);
+        }
+
+        function openDetailLightbox(url) {
+            const urls = (window._detailImages && window._detailImages.length)
+                ? window._detailImages
+                : [url];
+            _lightboxUrls = urls;
+            _lightboxIndex = Math.max(0, urls.indexOf(url));
+            const lb = document.getElementById('detailLightbox');
+            lb.classList.toggle('lightbox-single', urls.length < 2);
+            renderLightbox();
+            lb.classList.remove('hidden');
+            document.addEventListener('keydown', _lightboxKeyHandler);
+        }
+
+        function renderLightbox() {
+            const url = _lightboxUrls[_lightboxIndex];
+            document.getElementById('lightboxImage').src = url;
+            const thumbs = document.getElementById('lightboxThumbs');
+            thumbs.innerHTML = _lightboxUrls.map((u, i) =>
+                `<img src="${u}" alt="" class="${i === _lightboxIndex ? 'active' : ''}" onclick="lightboxGo(${i})">`
+            ).join('');
+            const active = thumbs.querySelector('.active');
+            if (active) active.scrollIntoView({ inline: 'center', block: 'nearest' });
+            document.getElementById('lightboxCounter').textContent = `${_lightboxIndex + 1} / ${_lightboxUrls.length}`;
+        }
+
+        function lightboxGo(index) {
+            if (index < 0 || index >= _lightboxUrls.length) return;
+            _lightboxIndex = index;
+            renderLightbox();
+        }
+
+        function stepLightbox(delta) {
+            if (_lightboxUrls.length < 2) return;
+            _lightboxIndex = (_lightboxIndex + delta + _lightboxUrls.length) % _lightboxUrls.length;
+            renderLightbox();
+        }
+
+        function closeDetailLightbox() {
+            document.getElementById('detailLightbox').classList.add('hidden');
+            document.removeEventListener('keydown', _lightboxKeyHandler);
+        }
+
         function closeArticleDetailModal() {
+            closeDetailLightbox();
             document.getElementById('articleDetailModal').classList.add('hidden');
         }
 
@@ -5383,22 +5846,25 @@
             saveBtn.disabled = true;
             saveBtn.textContent = '⏳ Pubblicazione...';
 
-            const productData = {
-                name: document.getElementById('sellName').value,
-                price: parseFloat(document.getElementById('sellPrice').value),
-                stock: parseInt(document.getElementById('sellStock').value),
-                description: document.getElementById('sellDesc').value
-            };
+            const fd = new FormData();
+            fd.append('name', document.getElementById('sellName').value);
+            fd.append('price', document.getElementById('sellPrice').value);
+            fd.append('stock', document.getElementById('sellStock').value);
+            const sellDesc = document.getElementById('sellDesc').value;
+            if (sellDesc) fd.append('description', sellDesc);
+            for (const f of document.getElementById('sellImages').files) fd.append('images', f);
 
             try {
-                const response = await apiFetch('/articles', {
+                const response = await apiFetch('/articles/upload', {
                     method: 'POST',
-                    body: JSON.stringify(productData)
+                    body: fd
                 });
 
                 if (response.ok || response.status === 201) {
                     showToast('Prodotto pubblicato con successo!', 'success');
                     closeSellModal();
+                    document.getElementById('sellImages').value = '';
+                    document.getElementById('sellImagePreviews').innerHTML = '';
                     await loadProducts(true);
                 } else {
                     const errorData = await response.json();
@@ -5602,32 +6068,50 @@
             saveBtn.disabled = true;
             saveBtn.textContent = '⏳ Salvataggio...';
             
-            const productData = {
-                name: document.getElementById('productName').value,
-                price: parseFloat(document.getElementById('productPrice').value),
-                stock: parseInt(document.getElementById('productStock').value),
-                description: document.getElementById('productDesc').value
-            };
+            const newFiles = Array.from(document.getElementById('productImages').files);
 
             try {
                 let response;
                 if (editId) {
-                    // Update existing product
+                    // Update existing product (campi testuali via JSON)
+                    const productData = {
+                        name: document.getElementById('productName').value,
+                        price: parseFloat(document.getElementById('productPrice').value),
+                        stock: parseInt(document.getElementById('productStock').value),
+                        description: document.getElementById('productDesc').value
+                    };
                     response = await apiFetch(`/articles/${editId}`, {
                         method: 'PUT',
                         body: JSON.stringify(productData)
                     });
+                    // nuove immagini aggiunte dopo l'update
+                    if (response.ok && newFiles.length > 0) {
+                        const imgFd = new FormData();
+                        newFiles.forEach(f => imgFd.append('images', f));
+                        await apiFetch(`/articles/${editId}/images`, { method: 'POST', body: imgFd });
+                        const updated = await (await apiFetch(`/articles/${editId}`)).json();
+                        _productExistingImages = (updated.images || []).map(img => ({ id: img.id, url: img.url }));
+                    }
                 } else {
-                    // Create new product
-                    response = await apiFetch('/articles', {
+                    // Create new product with images (multipart)
+                    const createFd = new FormData();
+                    createFd.append('name', document.getElementById('productName').value);
+                    createFd.append('price', document.getElementById('productPrice').value);
+                    createFd.append('stock', document.getElementById('productStock').value);
+                    const desc = document.getElementById('productDesc').value;
+                    if (desc) createFd.append('description', desc);
+                    newFiles.forEach(f => createFd.append('images', f));
+                    response = await apiFetch('/articles/upload', {
                         method: 'POST',
-                        body: JSON.stringify(productData)
+                        body: createFd
                     });
                 }
 
                 if (response.ok || response.status === 201) {
                     showToast(editId ? 'Prodotto modificato!' : 'Prodotto aggiunto!', 'success');
                     closeProductModal();
+                    document.getElementById('productImages').value = '';
+                    renderFilePreviews('productImages', 'productImagePreviews', _productExistingImages);
                     await loadProducts(true);
                     if (currentUser?.role === 'ADMIN') loadAdminProducts();
                     

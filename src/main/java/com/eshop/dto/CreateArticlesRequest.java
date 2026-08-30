@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 
 public record CreateArticlesRequest(
         @NotBlank String name,
-        @Size(max = 500) String description,
+        @Size(max = 5000) String description,
         @NotNull BigDecimal price,
         @NotNull Integer stock
 ) {}

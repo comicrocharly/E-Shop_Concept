@@ -80,6 +80,7 @@ public class AuthController {
                                 .article(ArticleShort.builder()
                                         .id(item.getArticles().getId())
                                         .name(item.getArticles().getName())
+                                        .previewImage(item.getArticles().getPreviewImage())
                                         .build())
                                 .quantity(item.getQuantity())
                                 .unitPrice(item.getUnitPrice())

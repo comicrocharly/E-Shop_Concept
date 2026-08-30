@@ -131,6 +131,7 @@ public class UserService implements org.springframework.security.core.userdetail
                                 .article(CartResponse.CartItemResponse.ArticleShort.builder()
                                         .id(item.getArticles().getId())
                                         .name(item.getArticles().getName())
+                                        .previewImage(item.getArticles().getPreviewImage())
                                         .build())
                                 .quantity(item.getQuantity())
                                 .unitPrice(item.getUnitPrice())

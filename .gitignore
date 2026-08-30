@@ -27,3 +27,4 @@ REBUILD_PLAN.md
 
 # Backup files
 index-original-backup.html
+__pycache__/
