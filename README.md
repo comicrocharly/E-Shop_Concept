@@ -171,6 +171,11 @@ Category (gerarchia parent) ↔ Articles
 - ✅ **Gestione errori globale** — Mapping errori HTTP (400/403/404/409/500)
 - ✅ **Prevenzione cicli Jackson** — `@JsonIgnore` su relazioni bidirezionali
 - ✅ **Frontend responsive** — HTML/CSS/JS con design moderno (modal pagamento, admin panel, settings)
+- ✅ **Immagini articoli** — più immagini per articolo (tabella `article_images`), servite su `/images/articles/**`, con miniatura hover e lightbox navigabile nella scheda dettaglio
+
+> **🖼️ Crediti immagini (frontend mockup)** — le immagini prodotto di questo progetto sono state generate con
+> [**txt2mock_batchgen**](https://github.com/comicrocharly/txt2mock_batchgen), altro mio progetto di **generazione massiva di immagini mockup via ComfyUI API**:
+> un LLM converte le righe della tabella `articles` in prompt English (`items.json`), e lo script trasforma il file in un batch di PNG (workflow **Z-Image Turbo**). Le immagini generate risiedono in `data/article-images/` e sono associate agli articoli.
 
 ---
 
