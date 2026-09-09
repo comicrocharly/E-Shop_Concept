@@ -1,5 +1,9 @@
 # 🛒 E-Shop — Spring Boot REST API
 
+<p align="center">
+  <img src="docs/Themes.png" alt="Anteprima E-Shop" width="800" />
+</p>
+
 Un e-commerce RESTful completo costruito con **Spring Boot 3.x**, con autenticazione, gestione prodotti, carrello e ordini.
 
 ---
