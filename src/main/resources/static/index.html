@@ -1197,7 +1197,8 @@
             color: var(--text-primary);
         }
 
-        .form-group input {
+        .form-group input,
+        .form-group textarea {
             width: 100%;
             padding: 12px;
             border: 2px solid var(--border);
@@ -1207,18 +1208,28 @@
             color: var(--text-primary);
         }
 
-        .form-group input:focus {
+        .form-group input:focus,
+        .form-group textarea:focus {
             outline: none;
             border-color: var(--primary);
         }
 
         /* Form validation styles */
-        .form-group input.error {
+        .form-group input.error,
+        .form-group textarea.error {
             border-color: var(--danger, #ef4444);
         }
 
-        .form-group input.valid {
+        .form-group input.valid,
+        .form-group textarea.valid {
             border-color: var(--success, #22c55e);
+        }
+
+        /* Product description textarea */
+        .form-group textarea#productDesc {
+            min-height: 180px;
+            line-height: 1.5;
+            resize: vertical;
         }
 
         .form-error {
@@ -3355,7 +3366,7 @@
                     </div>
                     <div class="form-group full-width">
                         <label for="productDesc">Descrizione</label>
-                        <input type="text" id="productDesc" autocomplete="off">
+                        <textarea id="productDesc" rows="6" autocomplete="off" placeholder="Descrivi il prodotto..."></textarea>
                         <div class="form-error" id="productDescError"></div>
                     </div>
                     <div class="form-group full-width">
