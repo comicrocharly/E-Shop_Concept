@@ -65,7 +65,7 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         try {
-            PayOrderResponse response = orderService.completePayment(id, request.method(), request.details());
+            PayOrderResponse response = orderService.completePayment(id, request.method(), request.details(), request.addressId());
             return ResponseEntity.ok(response);
         } catch (PaymentDeclinedException e) {
             // completePayment ha già rollbackato (nessun effetto collaterale):
@@ -159,6 +159,10 @@ public class OrderController {
                 o.getStatus(),
                 o.getTotal(),
                 o.getUser() != null ? o.getUser().getUsername() : "N/A",
+                o.getShippingAddress() != null ? String.join(", ",
+                        o.getShippingAddress().getStreet() + " " + o.getShippingAddress().getStreetNumber(),
+                        o.getShippingAddress().getPostalCode() + " " + o.getShippingAddress().getCity(),
+                        o.getShippingAddress().getCountry()) : null,
                 o.getItems().stream()
                         .map(i -> new OrderItemDto(
                                 i.getId(),

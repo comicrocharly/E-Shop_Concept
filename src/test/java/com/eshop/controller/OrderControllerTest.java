@@ -124,7 +124,7 @@ class OrderControllerTest {
         when(currentUser.getCurrentUserId()).thenReturn(1L);
         when(orderService.findById(5L))
                 .thenReturn(TestFixtures.order(5L, OWNER, OrderStatus.PENDING, new BigDecimal("100.00")));
-        when(orderService.completePayment(eq(5L), eq(PaymentMethod.CREDIT_CARD), anyMap()))
+        when(orderService.completePayment(eq(5L), eq(PaymentMethod.CREDIT_CARD), anyMap(), any()))
                 .thenReturn(TestFixtures.payOrderResponse(5L, PaymentStatus.CAPTURED, "MOCK-1",
                         new BigDecimal("100.00")));
 
@@ -148,7 +148,7 @@ class OrderControllerTest {
                         .content("{\"method\":\"CREDIT_CARD\",\"details\":{}}"))
                 .andExpect(status().isForbidden());
 
-        verify(orderService, never()).completePayment(anyLong(), any(), anyMap());
+        verify(orderService, never()).completePayment(anyLong(), any(), anyMap(), any());
     }
 
     @Test
@@ -158,7 +158,7 @@ class OrderControllerTest {
         when(currentUser.getCurrentUserId()).thenReturn(1L);
         when(orderService.findById(5L))
                 .thenReturn(TestFixtures.order(5L, OWNER, OrderStatus.PENDING, new BigDecimal("100.00")));
-        when(orderService.completePayment(eq(5L), eq(null), eq(null)))
+        when(orderService.completePayment(eq(5L), eq(null), eq(null), eq(null)))
                 .thenReturn(TestFixtures.payOrderResponse(5L, PaymentStatus.FAILED, null, null));
 
         mockMvc.perform(post("/api/orders/5/pay")
@@ -167,7 +167,7 @@ class OrderControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.paymentStatus").value("FAILED"));
 
-        verify(orderService).completePayment(eq(5L), eq(null), eq(null));
+        verify(orderService).completePayment(eq(5L), eq(null), eq(null), eq(null));
     }
 
     // ==================== LEGACY CHECKOUT ====================

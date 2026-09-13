@@ -10,13 +10,14 @@ import java.util.List;
  * DTO per la visualizzazione ordini nell'interfaccia admin.
  * Include il nome utente (l'Order entity ha @JsonIgnore su user).
  */
-@JsonPropertyOrder({"id", "orderDate", "status", "total", "user", "items"})
+@JsonPropertyOrder({"id", "orderDate", "status", "total", "user", "shippingAddress", "items"})
 public record AdminOrderDto(
         Long id,
         LocalDateTime orderDate,
         OrderStatus status,
         BigDecimal total,
         String username,
+        String shippingAddress,
         List<OrderItemDto> items
 ) {
     public AdminOrderDto {

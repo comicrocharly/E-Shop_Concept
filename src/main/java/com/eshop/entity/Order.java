@@ -51,6 +51,11 @@ public class Order {
     @JsonIgnore
     private OrderPayment payment;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "shipping_address_id")
+    @JsonIgnoreProperties({"user"})
+    private Address shippingAddress;
+
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "varchar(50) default 'CREDIT_CARD'")
     @Builder.Default

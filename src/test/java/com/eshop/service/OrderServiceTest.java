@@ -13,6 +13,7 @@ import com.eshop.entity.User;
 import com.eshop.enums.OrderStatus;
 import com.eshop.enums.PaymentMethod;
 import com.eshop.enums.PaymentStatus;
+import com.eshop.repository.AddressRepository;
 import com.eshop.repository.ArticlesRepository;
 import com.eshop.repository.CartRepository;
 import com.eshop.repository.OrderPaymentRepository;
@@ -59,6 +60,8 @@ class OrderServiceTest {
     private CartRepository cartRepository;
     @Mock
     private ArticlesRepository articlesRepository;
+    @Mock
+    private AddressRepository addressRepository;
     @Mock
     private UserService userService;
     @Mock
@@ -222,7 +225,7 @@ class OrderServiceTest {
             when(orderRepository.save(order)).thenReturn(order);
 
             PayOrderResponse response = orderService.completePayment(
-                    500L, PaymentMethod.CREDIT_CARD, Map.of("card", "****1234"));
+                    500L, PaymentMethod.CREDIT_CARD, Map.of("card", "****1234"), null);
 
             // stock decremented
             assertThat(articleA.getStock()).isEqualTo(8);
@@ -251,7 +254,7 @@ class OrderServiceTest {
         void completePaymentUnknownOrder() {
             when(orderRepository.findById(404L)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> orderService.completePayment(404L, PaymentMethod.COD, Map.of()))
+            assertThatThrownBy(() -> orderService.completePayment(404L, PaymentMethod.COD, Map.of(), null))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("Ordine non trovato");
         }
@@ -263,7 +266,7 @@ class OrderServiceTest {
                     orderItem(null, articleA, 1, "10.00"));
             when(orderRepository.findById(500L)).thenReturn(Optional.of(order));
 
-            assertThatThrownBy(() -> orderService.completePayment(500L, PaymentMethod.COD, Map.of()))
+            assertThatThrownBy(() -> orderService.completePayment(500L, PaymentMethod.COD, Map.of(), null))
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessageContaining("già elaborato");
             verify(paymentGateway, never()).processPayment(any(), any(), any());
@@ -279,7 +282,7 @@ class OrderServiceTest {
                     .thenReturn(new GatewayResult(false, "Simulazione errore gateway", null));
 
             assertThatThrownBy(() -> orderService.completePayment(
-                    500L, PaymentMethod.CREDIT_CARD, Map.of("card", "x")))
+                    500L, PaymentMethod.CREDIT_CARD, Map.of("card", "x"), null))
                     .isInstanceOf(PaymentDeclinedException.class)
                     .hasMessageContaining("Pagamento fallito");
 
@@ -302,7 +305,7 @@ class OrderServiceTest {
                     .thenReturn(new GatewayResult(true, "CAPTURED", "MOCK-RACE"));
 
             assertThatThrownBy(() -> orderService.completePayment(
-                    500L, PaymentMethod.CREDIT_CARD, Map.of()))
+                    500L, PaymentMethod.CREDIT_CARD, Map.of(), null))
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessageContaining("Stock insufficiente");
 

@@ -5,6 +5,7 @@ import com.eshop.entity.*;
 import com.eshop.enums.OrderStatus;
 import com.eshop.enums.PaymentMethod;
 import com.eshop.enums.PaymentStatus;
+import com.eshop.repository.AddressRepository;
 import com.eshop.repository.ArticlesRepository;
 import com.eshop.repository.CartRepository;
 import com.eshop.repository.OrderPaymentRepository;
@@ -29,6 +30,7 @@ public class OrderService {
     private final OrderPaymentRepository orderPaymentRepository;
     private final CartRepository cartRepository;
     private final ArticlesRepository articlesRepository;
+    private final AddressRepository addressRepository;
     private final UserService userService;
     private final PaymentGatewayService paymentGateway;
 
@@ -142,12 +144,19 @@ public class OrderService {
      * - Se fallimento: annulla prenotazione, cancella ordine
      */
     @Transactional
-    public PayOrderResponse completePayment(Long orderId, PaymentMethod method, Map<String, String> details) {
+    public PayOrderResponse completePayment(Long orderId, PaymentMethod method, Map<String, String> details, Long addressId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Ordine non trovato: " + orderId));
 
         if (order.getStatus() != OrderStatus.PENDING) {
             throw new IllegalStateException("Ordine già elaborato o cancellato. Status: " + order.getStatus());
+        }
+
+        // Associamo l'indirizzo di consegna (se indicato)
+        if (addressId != null) {
+            Address address = addressRepository.findByIdAndUserId(addressId, order.getUser().getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Indirizzo di consegna non valido"));
+            order.setShippingAddress(address);
         }
 
         // Chiamata al mock gateway

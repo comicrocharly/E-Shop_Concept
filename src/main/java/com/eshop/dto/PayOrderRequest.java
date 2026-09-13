@@ -8,5 +8,6 @@ import java.util.Map;
 
 public record PayOrderRequest(
         @NotNull PaymentMethod method,
-        Map<String, String> details
+        Map<String, String> details,
+        Long addressId
 ) {}

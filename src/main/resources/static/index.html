@@ -18,7 +18,7 @@
         }
         [data-theme="dark"] ::-webkit-scrollbar-thumb {
             background: #3a3a48;
-            border-radius: 4px;
+            border-radius: var(--radius-xs);
         }
         [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
             background: #4a4a58;
@@ -68,6 +68,47 @@
             --placeholder-text: var(--gray);
             --placeholder-sub: #adb5bd;
             --placeholder-border: var(--border);
+            /* Hover / interactive variants */
+            --success-hover: #05c090;
+            --danger-hover: #d63a5e;
+            --gray-hover: #5a6268;
+            --bg-hover: #e8ecf4;
+            /* Warning / low-stock text */
+            --text-warning: #b45309;
+            --text-on-warning: #333;
+            /* Status badges */
+            --status-pending-bg: rgba(255, 179, 38, 0.16);
+            --status-pending-text: #92600a;
+            --status-processing-bg: rgba(59, 130, 246, 0.14);
+            --status-processing-text: #1d4ed8;
+            --status-shipped-bg: rgba(139, 92, 246, 0.14);
+            --status-shipped-text: #7c3aed;
+            --status-delivered-bg: rgba(6, 214, 160, 0.16);
+            --status-delivered-text: #047857;
+            --status-completed-bg: rgba(5, 150, 105, 0.14);
+            --status-completed-text: #047857;
+            --status-cancelled-bg: rgba(239, 71, 111, 0.14);
+            --status-cancelled-text: #d63a5e;
+            /* Payment status badges */
+            --pay-success-bg: rgba(6, 214, 160, 0.15);
+            --pay-success-text: #059669;
+            --pay-pending-bg: rgba(255, 209, 102, 0.15);
+            --pay-pending-text: #b8860b;
+            --pay-error-bg: rgba(239, 71, 111, 0.15);
+            --pay-error-text: #dc2626;
+            /* Toast gradients */
+            --toast-grad-success: linear-gradient(135deg, #06d6a0, #05b88a);
+            --toast-grad-error: linear-gradient(135deg, #ef476f, #d63a5e);
+            --toast-grad-info: linear-gradient(135deg, #4361ee, #3a56d4);
+            --toast-grad-warning: linear-gradient(135deg, #ffd166, #e6bc5c);
+
+            /* Radius scale (theme-independent) */
+            --radius-xs: 4px;
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            --radius-pill: 20px;
         }
 
         /* ===== Dark Theme ===== */
@@ -99,6 +140,36 @@
             --shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 8px 28px rgba(0, 0, 0, 0.55);
             --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.6), 0 20px 48px rgba(0, 0, 0, 0.65);
             --primary-glow: rgba(107, 127, 247, 0.4);
+            /* Status badges (dark: brighter text, same hues) */
+            --status-pending-bg: rgba(255, 209, 102, 0.16);
+            --status-pending-text: #ffd166;
+            --status-processing-bg: rgba(96, 165, 250, 0.16);
+            --status-processing-text: #93c5fd;
+            --status-shipped-bg: rgba(167, 139, 250, 0.16);
+            --status-shipped-text: #c4b5fd;
+            --status-delivered-bg: rgba(6, 214, 160, 0.14);
+            --status-delivered-text: #6ee7b7;
+            --status-completed-bg: rgba(16, 185, 129, 0.16);
+            --status-completed-text: #6ee7b7;
+            --status-cancelled-bg: rgba(239, 71, 111, 0.16);
+            --status-cancelled-text: #fda4af;
+            /* Payment status badges (dark: brighter text) */
+            --pay-success-text: #6ee7b7;
+            --pay-pending-text: #ffd166;
+            --pay-error-text: #fda4af;
+        }
+
+        /* Icon system: stroke SVG icons (sprite <use>, viewBox 24x24) */
+        .icon {
+            width: 1em;
+            height: 1em;
+            vertical-align: -0.125em;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex-shrink: 0;
         }
 
         * {
@@ -124,7 +195,7 @@
         }
         ::-webkit-scrollbar-thumb {
             background: rgba(0, 0, 0, 0.18);
-            border-radius: 4px;
+            border-radius: var(--radius-xs);
         }
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(0, 0, 0, 0.3);
@@ -193,7 +264,7 @@
         header {
             position: relative;
             background: var(--bg-header);
-            border-radius: 12px;
+            border-radius: var(--radius-lg);
             padding: 15px 25px;
             margin-bottom: 20px;
             display: flex;
@@ -253,7 +324,7 @@
             background: var(--bg-input);
             color: var(--text-primary);
             border: 2px solid var(--border);
-            border-radius: 12px;
+            border-radius: var(--radius-lg);
             padding: 8px 14px;
             font-size: 1.3rem;
             cursor: pointer;
@@ -303,7 +374,7 @@
             overflow-y: auto;
             background: var(--bg-surface);
             border: 1px solid var(--border);
-            border-radius: 16px;
+            border-radius: var(--radius-xl);
             box-shadow: 0 12px 40px rgba(0,0,0,0.18);
             z-index: var(--z-cart);
             display: none;
@@ -344,7 +415,7 @@
             top: 0;
             background: var(--bg-surface);
             z-index: 1;
-            border-radius: 16px 16px 0 0;
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
         }
         .cart-modal-header h3 {
             margin: 0;
@@ -402,7 +473,7 @@
             width: 28px;
             height: 28px;
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: var(--radius-sm);
             background: var(--bg-card);
             cursor: pointer;
             display: flex;
@@ -431,7 +502,7 @@
             line-height: 1;
         }
         .cart-modal-item-remove:hover {
-            color: darkred;
+            color: var(--danger);
         }
         .cart-modal-item-total {
             font-weight: 700;
@@ -443,7 +514,7 @@
             padding: 16px 20px;
             border-top: 2px solid var(--border);
             background: var(--bg-surface-alt);
-            border-radius: 0 0 16px 16px;
+            border-radius: 0 0 var(--radius-xl) var(--radius-xl);
         }
         .cart-modal-total {
             display: flex;
@@ -466,7 +537,7 @@
             z-index: 99999;
             width: 60px;
             height: 60px;
-            border-radius: 12px;
+            border-radius: var(--radius-lg);
             background: var(--primary);
             opacity: 0.85;
             pointer-events: none;
@@ -487,7 +558,7 @@
             right: 0;
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: var(--radius-lg);
             box-shadow: 0 8px 32px rgba(0,0,0,0.2);
             z-index: var(--z-menu);
             min-width: 200px;
@@ -551,7 +622,7 @@
         }
         .cart-screen-content {
             background: var(--bg-card);
-            border-radius: 16px;
+            border-radius: var(--radius-xl);
             border: 1px solid var(--border);
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             width: 100%;
@@ -570,7 +641,7 @@
         }
         .cart-summary {
             background: var(--bg-surface-alt);
-            border-radius: 12px;
+            border-radius: var(--radius-lg);
             padding: 20px;
             border: 1px solid var(--border);
             position: sticky;
@@ -620,7 +691,7 @@
         .btn {
             padding: 8px 16px;
             border: none;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             cursor: pointer;
             font-weight: 600;
             letter-spacing: 0.2px;
@@ -654,7 +725,7 @@
         }
 
         .btn-success:hover {
-            background: #05c090;
+            background: var(--success-hover);
         }
 
         .btn-danger {
@@ -663,7 +734,7 @@
         }
 
         .btn-danger:hover {
-            background: #d63a5e;
+            background: var(--danger-hover);
         }
 
         .btn-secondary {
@@ -672,7 +743,7 @@
         }
 
         .btn-secondary:hover {
-            background: #5a6268;
+            background: var(--gray-hover);
         }
 
         .btn-outline {
@@ -699,7 +770,7 @@
 
         .card {
             background: var(--bg-card);
-            border-radius: 12px;
+            border-radius: var(--radius-lg);
             padding: 20px;
             box-shadow: var(--shadow);
             margin-bottom: 20px;
@@ -735,7 +806,7 @@
             flex: 1;
             padding: 10px 15px;
             border: 2px solid var(--border);
-            border-radius: 6px;
+            border-radius: var(--radius-sm);
             font-size: 1rem;
             background: var(--bg-input);
             color: var(--text-primary);
@@ -771,7 +842,7 @@
         .product-card {
             background: var(--bg-surface);
             border: 2px solid var(--border);
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             padding: 15px;
             transition: all 0.3s;
             cursor: pointer;
@@ -782,7 +853,7 @@
             width: 100%;
             aspect-ratio: 1;
             object-fit: cover;
-            border-radius: 6px;
+            border-radius: var(--radius-sm);
             margin-bottom: 10px;
             background: var(--bg-image-placeholder, #f0f0f5);
         }
@@ -797,7 +868,7 @@
         }
         .detail-image-main img {
             width: 100%;
-            border-radius: 12px;
+            border-radius: var(--radius-lg);
             box-shadow: 0 2px 12px rgba(0,0,0,0.08);
             cursor: zoom-in;
         }
@@ -813,7 +884,7 @@
             overflow-x: auto;
             overflow-y: hidden;
             padding: 6px 4px;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             background: rgba(0, 0, 0, 0.35);
             opacity: 0;
             pointer-events: none;
@@ -830,7 +901,7 @@
             height: 44px;
             flex: 0 0 auto;
             object-fit: cover;
-            border-radius: 6px;
+            border-radius: var(--radius-sm);
             cursor: pointer;
             border: 2px solid transparent;
             transition: border-color 0.2s;
@@ -858,7 +929,7 @@
             max-width: calc(100vw - 120px);
             max-height: calc(100vh - 200px);
             object-fit: contain;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             user-select: none;
         }
         .lightbox-thumbs {
@@ -876,7 +947,7 @@
             height: 64px;
             flex: 0 0 auto;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             cursor: pointer;
             border: 2px solid transparent;
             opacity: 0.6;
@@ -942,7 +1013,7 @@
             width: 40px;
             height: 40px;
             object-fit: cover;
-            border-radius: 6px;
+            border-radius: var(--radius-sm);
             flex-shrink: 0;
         }
 
@@ -961,7 +1032,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
         }
         .image-previews .img-preview button {
             position: absolute;
@@ -971,9 +1042,9 @@
             height: 20px;
             border: none;
             border-radius: 50%;
-            background: #e5484d;
+            background: var(--danger);
             color: white;
-            font-size: 11px;
+            font-size: 0.6875rem;
             line-height: 20px;
             cursor: pointer;
             padding: 0;
@@ -990,7 +1061,7 @@
         }
 
         [data-theme="dark"] .qty-btn {
-            color: #c9cdd4;
+            color: var(--text-primary);
         }
         [data-theme="dark"] .qty-btn:hover {
             background: var(--primary);
@@ -1026,7 +1097,7 @@
         }
 
         .product-stock.low {
-            color: #b45309;
+            color: var(--text-warning);
             font-weight: 600;
         }
 
@@ -1049,8 +1120,13 @@
         }
 
         .product-author::before {
-            content: '👤';
-            font-size: 0.85rem;
+            content: '';
+            width: 0.9em;
+            height: 0.9em;
+            flex-shrink: 0;
+            background-color: currentColor;
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E") center / contain no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E") center / contain no-repeat;
         }
 
         .sell-section {
@@ -1111,7 +1187,7 @@
             height: 24px;
             border: 1px solid var(--border);
             background: var(--bg-surface);
-            border-radius: 4px;
+            border-radius: var(--radius-xs);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -1122,7 +1198,7 @@
             transition: all 0.2s;
         }
         .qty-btn:hover {
-            background: #e8ecf4;
+            background: var(--bg-hover);
             color: var(--primary);
             border-color: var(--primary);
         }
@@ -1175,7 +1251,7 @@
         .auth-card {
             background: var(--bg-surface);
             padding: 40px;
-            border-radius: 12px;
+            border-radius: var(--radius-lg);
             box-shadow: var(--shadow);
         }
 
@@ -1202,7 +1278,7 @@
             width: 100%;
             padding: 12px;
             border: 2px solid var(--border);
-            border-radius: 6px;
+            border-radius: var(--radius-sm);
             font-size: 1rem;
             background: var(--bg-input);
             color: var(--text-primary);
@@ -1298,7 +1374,7 @@
             cursor: pointer;
             font-weight: 600;
             color: var(--text-secondary);
-            border-radius: 20px;
+            border-radius: var(--radius-pill);
             transition: all 0.3s;
         }
 
@@ -1339,7 +1415,7 @@
             padding: 0 10px;
             border: 1.5px solid var(--border);
             background: var(--bg-surface);
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             cursor: pointer;
             font-size: 0.85rem;
             font-weight: 600;
@@ -1382,7 +1458,7 @@
             margin-bottom: 12px;
             padding: 10px 16px;
             background: var(--bg-surface-alt);
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             border: 1px solid var(--border);
         }
 
@@ -1403,7 +1479,7 @@
             padding: 6px 32px 6px 12px;
             border: 1.5px solid var(--border);
             background: var(--bg-surface);
-            border-radius: 20px;
+            border-radius: var(--radius-pill);
             font-size: 0.8rem;
             font-weight: 600;
             color: var(--text-secondary);
@@ -1454,7 +1530,7 @@
             padding: 6px 32px 6px 12px;
             border: 1.5px solid var(--border);
             background: var(--bg-surface);
-            border-radius: 20px;
+            border-radius: var(--radius-pill);
             font-size: 0.8rem;
             font-weight: 600;
             color: var(--text-secondary);
@@ -1603,7 +1679,7 @@
             width: 60px;
             padding: 3px 6px;
             border: 1.5px solid var(--border);
-            border-radius: 12px;
+            border-radius: var(--radius-lg);
             font-size: 0.7rem;
             font-weight: 700;
             text-align: center;
@@ -1632,19 +1708,19 @@
 
         .btn-clear-filters {
             padding: 5px 12px;
-            border: 1.5px solid #e74c3c;
+            border: 1.5px solid var(--danger);
             background: transparent;
-            border-radius: 20px;
+            border-radius: var(--radius-pill);
             cursor: pointer;
             font-size: 0.75rem;
             font-weight: 600;
-            color: #e74c3c;
+            color: var(--danger);
             transition: all 0.2s;
             white-space: nowrap;
         }
 
         .btn-clear-filters:hover {
-            background: #e74c3c;
+            background: var(--danger);
             color: white;
         }
 
@@ -1658,7 +1734,7 @@
         .order-item {
             padding: 15px;
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             margin-bottom: 10px;
             box-shadow: var(--shadow-sm);
         }
@@ -1679,7 +1755,7 @@
             align-items: center;
             gap: 6px;
             padding: 4px 10px;
-            border-radius: 999px;
+            border-radius: var(--radius-pill);
             font-size: 0.72rem;
             font-weight: 700;
             letter-spacing: 0.4px;
@@ -1695,49 +1771,19 @@
             flex-shrink: 0;
         }
 
-        .status-pending {
-            background: rgba(255, 179, 38, 0.16);
-            color: #92600a;
-        }
-
-        .status-processing {
-            background: rgba(59, 130, 246, 0.14);
-            color: #1d4ed8;
-        }
-
-        .status-shipped {
-            background: rgba(139, 92, 246, 0.14);
-            color: #7c3aed;
-        }
-
-        .status-delivered {
-            background: rgba(6, 214, 160, 0.16);
-            color: #047857;
-        }
-
-        .status-completed {
-            background: rgba(5, 150, 105, 0.14);
-            color: #047857;
-        }
-
-        .status-cancelled {
-            background: rgba(239, 71, 111, 0.14);
-            color: #d63a5e;
-        }
-
-        [data-theme="dark"] .status-pending { background: rgba(255, 209, 102, 0.16); color: #ffd166; }
-        [data-theme="dark"] .status-processing { background: rgba(96, 165, 250, 0.16); color: #93c5fd; }
-        [data-theme="dark"] .status-shipped { background: rgba(167, 139, 250, 0.16); color: #c4b5fd; }
-        [data-theme="dark"] .status-delivered { background: rgba(6, 214, 160, 0.14); color: #6ee7b7; }
-        [data-theme="dark"] .status-completed { background: rgba(16, 185, 129, 0.16); color: #6ee7b7; }
-        [data-theme="dark"] .status-cancelled { background: rgba(239, 71, 111, 0.16); color: #fda4af; }
+        .status-pending { background: var(--status-pending-bg); color: var(--status-pending-text); }
+        .status-processing { background: var(--status-processing-bg); color: var(--status-processing-text); }
+        .status-shipped { background: var(--status-shipped-bg); color: var(--status-shipped-text); }
+        .status-delivered { background: var(--status-delivered-bg); color: var(--status-delivered-text); }
+        .status-completed { background: var(--status-completed-bg); color: var(--status-completed-text); }
+        .status-cancelled { background: var(--status-cancelled-bg); color: var(--status-cancelled-text); }
 
         .btn-complete-order {
-            background: #10b981;
+            background: var(--success);
             color: white;
             border: none;
             padding: 8px 16px;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
@@ -1745,7 +1791,7 @@
         }
 
         .btn-complete-order:hover {
-            background: #059669;
+            background: var(--success-hover);
             transform: translateY(-1px);
         }
 
@@ -1838,7 +1884,7 @@
 
         .toast {
             padding: 12px 20px;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             color: white;
             font-weight: 600;
             max-width: 340px;
@@ -1879,20 +1925,20 @@
         }
 
         .toast.success {
-            background: linear-gradient(135deg, #06d6a0, #05b88a);
+            background: var(--toast-grad-success);
         }
 
         .toast.error {
-            background: linear-gradient(135deg, #ef476f, #d63a5e);
+            background: var(--toast-grad-error);
         }
 
         .toast.info {
-            background: linear-gradient(135deg, #4361ee, #3a56d4);
+            background: var(--toast-grad-info);
         }
 
         .toast.warning {
-            background: linear-gradient(135deg, #ffd166, #e6bc5c);
-            color: #333;
+            background: var(--toast-grad-warning);
+            color: var(--text-on-warning);
         }
 
         .modal-overlay {
@@ -1920,7 +1966,7 @@
 
         .modal {
             background: var(--bg-surface);
-            border-radius: 16px;
+            border-radius: var(--radius-xl);
             padding: 30px;
             max-width: 500px;
             width: 90%;
@@ -1988,7 +2034,7 @@
         .payment-order-summary {
             background: var(--bg-surface-alt);
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             padding: 15px;
             margin-bottom: 20px;
         }
@@ -2043,7 +2089,7 @@
             gap: 12px;
             padding: 14px 16px;
             border: 2px solid var(--border);
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             cursor: pointer;
             transition: all 0.2s ease;
             background: var(--bg-surface);
@@ -2097,7 +2143,7 @@
         .payment-expiry-note {
             background: rgba(255, 209, 102, 0.15);
             border: 1px solid var(--warning);
-            border-radius: 6px;
+            border-radius: var(--radius-sm);
             padding: 10px 14px;
             font-size: 0.85rem;
             color: var(--text-primary);
@@ -2105,6 +2151,64 @@
             align-items: center;
             gap: 8px;
             margin-bottom: 15px;
+        }
+        .card-form {
+            margin-top: 15px;
+            padding: 15px;
+            background: var(--bg-surface-alt, #fff);
+            border: 1px solid var(--border, #dee2e6);
+            border-radius: var(--radius-md);
+        }
+        .card-form-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary, #6c757d);
+            margin: 10px 0 5px;
+        }
+        .card-form-label:first-child {
+            margin-top: 0;
+        }
+        .card-input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px 12px;
+            border: 1px solid var(--border, #dee2e6);
+            border-radius: var(--radius-sm);
+            background: var(--bg-input, #fff);
+            color: var(--text-primary, #1a1a2e);
+            font-size: 0.95rem;
+        }
+        .card-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        .card-form-row {
+            display: flex;
+            gap: 12px;
+        }
+        .card-form-col {
+            flex: 1;
+        }
+        .new-address-form {
+            margin-top: 15px;
+            padding: 15px;
+            background: var(--bg-surface-alt, #fff);
+            border: 1px solid var(--border, #dee2e6);
+            border-radius: var(--radius-md);
+        }
+        .new-address-row {
+            display: flex;
+            gap: 12px;
+        }
+        .new-address-field {
+            flex: 1;
+        }
+        .order-address {
+            font-size: 0.8rem;
+            color: var(--text-secondary, #6c757d);
+            margin-bottom: 8px;
         }
         .payment-actions {
             display: flex;
@@ -2117,22 +2221,22 @@
             align-items: center;
             gap: 6px;
             padding: 6px 14px;
-            border-radius: 20px;
+            border-radius: var(--radius-pill);
             font-size: 0.85rem;
             font-weight: 600;
             margin-bottom: 15px;
         }
         .payment-status-badge.success {
-            background: rgba(6, 214, 160, 0.15);
-            color: #059669;
+            background: var(--pay-success-bg);
+            color: var(--pay-success-text);
         }
         .payment-status-badge.pending {
-            background: rgba(255, 209, 102, 0.15);
-            color: #b8860b;
+            background: var(--pay-pending-bg);
+            color: var(--pay-pending-text);
         }
         .payment-status-badge.error {
-            background: rgba(239, 71, 111, 0.15);
-            color: #dc2626;
+            background: var(--pay-error-bg);
+            color: var(--pay-error-text);
         }
         .payment-transaction-id {
             font-size: 0.8rem;
@@ -2141,7 +2245,7 @@
             font-family: monospace;
             background: var(--bg-surface-alt);
             padding: 8px 12px;
-            border-radius: 6px;
+            border-radius: var(--radius-sm);
         }
 
         /* ===== Article Detail Modal — Wide & Elegant ===== */
@@ -2152,7 +2256,7 @@
             max-height: 96vh;
             padding: 0;
             overflow: hidden;
-            border-radius: 16px;
+            border-radius: var(--radius-xl);
             box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
             display: flex;
             flex-direction: column;
@@ -2252,7 +2356,7 @@
             color: var(--text-secondary);
             background: var(--bg-surface-alt);
             padding: 3px 10px;
-            border-radius: 12px;
+            border-radius: var(--radius-lg);
             border: 1px solid var(--border);
             margin-top: 6px;
         }
@@ -2286,7 +2390,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            border-radius: 12px;
+            border-radius: var(--radius-lg);
             background: var(--bg-image-placeholder);
             box-shadow: 0 2px 12px rgba(0,0,0,0.08);
             border: 2px dashed var(--placeholder-border);
@@ -2361,7 +2465,7 @@
             align-items: center;
             gap: 6px;
             padding: 6px 14px;
-            border-radius: 20px;
+            border-radius: var(--radius-pill);
             font-size: 0.85rem;
             font-weight: 600;
             border: 2px solid;
@@ -2425,7 +2529,7 @@
             font-size: 1.1rem;
             font-weight: 700;
             cursor: pointer;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             transition: background 0.15s ease;
         }
 
@@ -2577,6 +2681,13 @@
             .detail-price {
                 font-size: 1.4rem;
             }
+
+            /* Toast su mobile: in basso a destra, per non coprire menu/header fissi in alto */
+            #toastQueue {
+                top: auto;
+                bottom: 20px;
+                right: 20px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -2606,6 +2717,17 @@
                 padding: 6px 10px;
                 font-size: 0.85rem;
             }
+
+            .action-bar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .action-bar .search-bar {
+                flex: 1;
+                margin: 0;
+            }
         }
 
         @media (max-width: 600px) {
@@ -2627,7 +2749,7 @@
             gap: 4px;
             transition: color 0.2s;
             padding: 2px 4px;
-            border-radius: 4px;
+            border-radius: var(--radius-xs);
         }
 
         .admin-sortable-header:hover {
@@ -2658,7 +2780,7 @@
             padding: 5px 12px;
             border: 2px solid var(--border);
             background: var(--bg-filter);
-            border-radius: 20px;
+            border-radius: var(--radius-pill);
             cursor: pointer;
             font-size: 0.8rem;
             font-weight: 600;
@@ -2697,7 +2819,7 @@
         .badge {
             display: inline-block;
             padding: 2px 6px;
-            border-radius: 4px;
+            border-radius: var(--radius-xs);
             font-size: 0.75rem;
             font-weight: 600;
             margin-left: 5px;
@@ -2739,7 +2861,7 @@
         .stat-card {
             background: var(--bg-stat-card);
             padding: 10px 12px;
-            border-radius: 12px;
+            border-radius: var(--radius-lg);
             text-align: center;
             border: 1px solid var(--border);
             box-shadow: var(--shadow-sm);
@@ -2782,7 +2904,7 @@
         .stat-summary-card {
             background: var(--bg-stat-card);
             padding: 20px;
-            border-radius: 12px;
+            border-radius: var(--radius-lg);
             text-align: center;
             border: 1px solid var(--border);
             box-shadow: var(--shadow-sm);
@@ -2826,7 +2948,7 @@
         .stats-status-section {
             background: var(--bg-surface-alt);
             padding: 20px;
-            border-radius: 12px;
+            border-radius: var(--radius-lg);
             border: 1px solid var(--border);
         }
 
@@ -2842,7 +2964,7 @@
             gap: 10px;
             background: var(--bg-card);
             padding: 10px 16px;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             border: 1px solid var(--border);
         }
 
@@ -2900,6 +3022,55 @@
     </style>
 </head>
 <body>
+    <!-- Icon sprite (stroke-based, viewBox 24x24) -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;" aria-hidden="true">
+        <symbol id="i-cart" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></symbol>
+        <symbol id="i-box" viewBox="0 0 24 24"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></symbol>
+        <symbol id="i-check" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><path d="m9 11 3 3L22 4"></path></symbol>
+        <symbol id="i-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></symbol>
+        <symbol id="i-warning" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></symbol>
+        <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></symbol>
+        <symbol id="i-list" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></symbol>
+        <symbol id="i-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></symbol>
+        <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></symbol>
+        <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></symbol>
+        <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></symbol>
+        <symbol id="i-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></symbol>
+        <symbol id="i-menu" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></symbol>
+        <symbol id="i-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></symbol>
+        <symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></symbol>
+        <symbol id="i-chart" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></symbol>
+        <symbol id="i-log" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></symbol>
+        <symbol id="i-key" viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"></circle><path d="M11.5 11.5L21 2"></path><path d="M16 7l3 3"></path><path d="M19 4l2 2"></path></symbol>
+        <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></symbol>
+        <symbol id="i-truck" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></symbol>
+        <symbol id="i-smartphone" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></symbol>
+        <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></symbol>
+        <symbol id="i-tag" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.83z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></symbol>
+        <symbol id="i-card" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></symbol>
+        <symbol id="i-dollar" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></symbol>
+        <symbol id="i-edit" viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></symbol>
+        <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></symbol>
+        <symbol id="i-pin" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></symbol>
+        <symbol id="i-flag" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></symbol>
+        <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></symbol>
+        <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6L14.18 15.86a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></symbol>
+        <!-- Additional icons: lucide v0.460.0 (ISC) -->
+        <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></symbol>
+        <symbol id="i-search" viewBox="0 0 24 24"> <circle cx="11" cy="11" r="8" /> <path d="m21 21-4.3-4.3" /> </symbol>
+        <symbol id="i-laptop" viewBox="0 0 24 24"> <path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16" /> </symbol>
+        <symbol id="i-tablet" viewBox="0 0 24 24"> <rect width="16" height="20" x="4" y="2" rx="2" ry="2" /> <line x1="12" x2="12.01" y1="18" y2="18" /> </symbol>
+        <symbol id="i-headphones" viewBox="0 0 24 24"> <path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3" /> </symbol>
+        <symbol id="i-watch" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="6" /> <polyline points="12 10 12 12 13 13" /> <path d="m16.13 7.66-.81-4.05a2 2 0 0 0-2-1.61h-2.68a2 2 0 0 0-2 1.61l-.78 4.05" /> <path d="m7.88 16.36.8 4a2 2 0 0 0 2 1.61h2.72a2 2 0 0 0 2-1.61l.81-4.05" /> </symbol>
+        <symbol id="i-mouse" viewBox="0 0 24 24"> <rect x="5" y="2" width="14" height="20" rx="7" /> <path d="M12 6v4" /> </symbol>
+        <symbol id="i-keyboard" viewBox="0 0 24 24"> <path d="M10 8h.01" /> <path d="M12 12h.01" /> <path d="M14 8h.01" /> <path d="M16 12h.01" /> <path d="M18 8h.01" /> <path d="M6 8h.01" /> <path d="M7 16h10" /> <path d="M8 12h.01" /> <rect width="20" height="16" x="2" y="4" rx="2" /> </symbol>
+        <symbol id="i-camera" viewBox="0 0 24 24"> <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /> <circle cx="12" cy="13" r="3" /> </symbol>
+        <symbol id="i-tv" viewBox="0 0 24 24"> <rect width="20" height="15" x="2" y="7" rx="2" ry="2" /> <polyline points="17 2 12 7 7 2" /> </symbol>
+        <symbol id="i-gamepad" viewBox="0 0 24 24"> <line x1="6" x2="10" y1="12" y2="12" /> <line x1="8" x2="8" y1="10" y2="14" /> <line x1="15" x2="15.01" y1="13" y2="13" /> <line x1="18" x2="18.01" y1="11" y2="11" /> <rect width="20" height="12" x="2" y="6" rx="2" /> </symbol>
+        <symbol id="i-footprints" viewBox="0 0 24 24"> <path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z" /> <path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z" /> <path d="M16 17h4" /> <path d="M4 13h4" /> </symbol>
+        <symbol id="i-shirt" viewBox="0 0 24 24"> <path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z" /> </symbol>
+        <symbol id="i-paypal" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"></rect><path d="M9 16V8h2.5a2.5 2.5 0 0 1 0 5H9"></path></symbol>
+    </svg>
     <!-- Toast Queue -->
     <div id="toastQueue"></div>
 
@@ -2907,7 +3078,7 @@
     <div id="authSection" class="auth-section">
         <div class="auth-card">
             <div class="logo" style="justify-content: center; margin-bottom: 30px;">
-                🛒 E-Shop
+                <svg class="icon"><use href="#i-cart"></use></svg> E-Shop
             </div>
             <h1 id="authTitle" class="auth-title">Accedi</h1>
             <form id="authForm" novalidate>
@@ -2931,6 +3102,9 @@
                 <span id="authToggleText">Non hai un account?</span>
                 <a id="authToggleLink" onclick="toggleAuthMode()">Registrati</a>
             </div>
+            <div class="auth-toggle" id="authGuestLink" style="display: none;">
+                <a onclick="showGuest()" style="cursor: pointer;">← Torna al catalogo</a>
+            </div>
         </div>
     </div>
 
@@ -2938,23 +3112,23 @@
     <div id="appSection" class="hidden">
         <header>
             <div class="logo" onclick="reloadPage()">
-                🛒 E-Shop
+                <svg class="icon"><use href="#i-cart"></use></svg> E-Shop
                 <span class="badge badge-admin" id="adminBadge" style="display: none;">ADMIN</span>
             </div>
             <div class="user-info">
                 <button class="theme-toggle" onclick="toggleTheme()" title="Cambia tema" aria-label="Cambia tema">
-                    <span class="icon-sun">☀️</span>
-                    <span class="icon-moon">🌙</span>
+                    <svg class="icon icon-sun"><use href="#i-sun"></use></svg>
+                    <svg class="icon icon-moon"><use href="#i-moon"></use></svg>
                 </button>
                 <!-- Cart Toggle Button & Modal -->
-                <div class="cart-wrapper">
+                <div class="cart-wrapper" id="cartWrapper">
                     <button class="cart-toggle-btn" id="cartToggleBtn" onclick="toggleCartModal()" aria-label="Carrello">
-                        🛒
+                        <svg class="icon"><use href="#i-cart"></use></svg>
                         <span class="cart-badge" id="cartBadge">0</span>
                     </button>
                     <div class="cart-modal" id="cartModal">
                         <div class="cart-modal-header">
-                            <h3>🛒 Il tuo carrello</h3>
+                            <h3><svg class="icon"><use href="#i-cart"></use></svg> Il tuo carrello</h3>
                             <button class="cart-modal-close" onclick="toggleCartModal()">×</button>
                         </div>
                         <div class="cart-modal-body" id="cartModalBody">
@@ -2977,8 +3151,9 @@
                 </div>
                 <!-- Cart Modal Overlay -->
                 <div class="cart-modal-overlay" id="cartModalOverlay"></div>
+                <button class="btn btn-primary btn-sm" id="guestLoginBtn" style="display: none;" onclick="showAuth()">Accedi</button>
                 <button class="menu-btn" onclick="toggleMenu()" aria-label="Menu">
-                    ☰
+                    <svg class="icon"><use href="#i-menu"></use></svg>
                 </button>
                 <span class="username" id="currentUsername" style="display: none;">User</span>
             </div>
@@ -2986,20 +3161,23 @@
 
         <!-- Mobile Menu — positioned fixed to avoid header clipping -->
         <div class="menu menu-fixed" id="listMenu">
-            <div class="menu-item" onclick="openCart(); closeMenu();">
-                <span>🛒</span> Carrello
+            <div class="menu-item" id="cartMenuItem" onclick="openCart(); closeMenu();">
+                <span><svg class="icon"><use href="#i-cart"></use></svg></span> Carrello
             </div>
-            <div class="menu-item" onclick="showSettings(); closeMenu();">
-                <span>⚙️</span> Impostazioni
+            <div class="menu-item" id="settingsMenuItem" onclick="showSettings(); closeMenu();">
+                <span><svg class="icon"><use href="#i-gear"></use></svg></span> Impostazioni
             </div>
             <div class="menu-item" onclick="toggleTheme(); closeMenu();">
-                <span id="themeIcon">🌙</span> <span id="themeText">Tema Scuro</span>
+                <span id="themeIcon"><svg class="icon"><use href="#i-moon"></use></svg></span> <span id="themeText">Tema Scuro</span>
             </div>
             <div class="menu-item admin-only" id="statsMenuItem" onclick="openStatsPage(); closeMenu();" style="display: none;">
-                <span>📊</span> Statistiche
+                <span><svg class="icon"><use href="#i-chart"></use></svg></span> Statistiche
             </div>
-            <div class="menu-item" onclick="showLogoutConfirm(); closeMenu();">
-                <span>🚪</span> Esci
+            <div class="menu-item" id="logoutMenuItem" onclick="showLogoutConfirm(); closeMenu();">
+                <span><svg class="icon"><use href="#i-log"></use></svg></span> Esci
+            </div>
+            <div class="menu-item" id="loginMenuItem" style="display: none;" onclick="showAuth(); closeMenu();">
+                <span><svg class="icon"><use href="#i-key"></use></svg></span> Accedi / Registrati
             </div>
         </div>
 
@@ -3008,11 +3186,11 @@
             <div class="cart-screen-backdrop"></div>
             <div class="cart-screen-content">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="margin: 0;">🛒 Il Tuo Carrello</h2>
+                    <h2 style="margin: 0;"><svg class="icon"><use href="#i-cart"></use></svg> Il Tuo Carrello</h2>
                     <button class="btn btn-secondary btn-sm" onclick="closeCart()">← Indietro</button>
                 </div>
                 <div id="cartScreenEmpty" class="empty-state">
-                    <div class="empty-state-icon">🛒</div>
+                    <div class="empty-state-icon"><svg class="icon"><use href="#i-cart"></use></svg></div>
                     <p>Il tuo carrello è vuoto</p>
                     <button class="btn btn-primary" style="margin-top: 15px;" onclick="closeCart()">Continua lo Shopping</button>
                 </div>
@@ -3021,7 +3199,7 @@
                         <!-- Cart items on left -->
                     </div>
                     <div class="cart-summary" id="cartScreenSummary">
-                        <h3 style="margin: 0 0 15px 0; font-size: 1.1rem;">📋 Riepilogo</h3>
+                        <h3 style="margin: 0 0 15px 0; font-size: 1.1rem;"><svg class="icon"><use href="#i-list"></use></svg> Riepilogo</h3>
                         <div id="cartScreenSummaryItems"></div>
                         <div class="cart-total-row">
                             <span>Totale:</span>
@@ -3041,9 +3219,9 @@
                     <!-- Navigation Tabs -->
                     <div class="nav-tabs-wrapper">
                         <div class="nav-tabs">
-                            <button class="nav-tab active" onclick="switchTab('catalog', event)">📦 Catalogo</button>
-                            <button class="nav-tab" onclick="switchTab('orders', event)">📋 Ordini</button>
-                            <button class="nav-tab" onclick="switchTab('admin', event)" id="adminTab" style="display: none;">⚙️ Admin</button>
+                            <button class="nav-tab active" id="catalogTabBtn" onclick="switchTab('catalog', event)"><svg class="icon"><use href="#i-box"></use></svg> Catalogo</button>
+                            <button class="nav-tab" id="ordersTabBtn" onclick="switchTab('orders', event)"><svg class="icon"><use href="#i-list"></use></svg> Ordini</button>
+                            <button class="nav-tab" onclick="switchTab('admin', event)" id="adminTab" style="display: none;"><svg class="icon"><use href="#i-gear"></use></svg> Admin</button>
                         </div>
                     </div>
 
@@ -3054,7 +3232,7 @@
                                 <h2 class="card-title">Prodotti Disponibili</h2>
                                 <div style="display: flex; gap: 10px; align-items: center;">
                                     <button class="btn btn-success btn-sm" id="sellBtn" style="display: none;" onclick="openSellModal()">
-                                        🏷️ Vendi
+                                        <svg class="icon"><use href="#i-tag"></use></svg> Vendi
                                     </button>
                                     <div class="search-bar" style="margin: 0;">
                                         <input type="text" id="searchInput" placeholder="Cerca prodotti..." oninput="filterProducts()">
@@ -3102,7 +3280,7 @@
                                 </div>
 
                                 <button class="btn-clear-filters" onclick="clearFilters()" style="display:none;" id="clearFiltersBtn">
-                                    ✕ Reset filtri
+                                    <svg class="icon"><use href="#i-x"></use></svg> Reset filtri
                                 </button>
                             </div>
                             <div class="product-grid" id="productGrid">
@@ -3118,9 +3296,16 @@
                             <h2 class="card-title">I Tuoi Ordini</h2>
                             <!-- Search -->
                             <div class="search-bar" style="margin-bottom: 12px;">
-                                <input type="text" id="userOrderSearchInput" placeholder="🔍 Cerca ordine per ID..." 
-                                       style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;"
+
+                                <div style="position: relative;">
+                                <svg class="icon" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--gray); pointer-events: none;"><use href="#i-search"></use></svg>
+                                    
+
+                                <input type="text" id="userOrderSearchInput" placeholder="Cerca ordine per ID..." 
+                                       style="width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius: var(--radius-sm);font-size:0.9rem;"
                                        onkeypress="if(event.key==='Enter') searchUserOrders()">
+
+                                </div>
                             </div>
                             <!-- Status Filter -->
                             <div class="admin-filter-bar" style="margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
@@ -3128,15 +3313,15 @@
                                 <button class="admin-filter-btn admin-order-filter-btn ${currentUserStatusFilter === null ? 'active' : ''}" 
                                         data-filter="null" onclick="filterUserOrders(null, this)">Tutti</button>
                                 <button class="admin-filter-btn admin-order-filter-btn ${currentUserStatusFilter === 'PENDING' ? 'active' : ''}" 
-                                        data-filter="PENDING" onclick="filterUserOrders('PENDING', this)">⏳ In attesa</button>
+                                        data-filter="PENDING" onclick="filterUserOrders('PENDING', this)"><svg class="icon"><use href="#i-clock"></use></svg> In attesa</button>
                                 <button class="admin-filter-btn admin-order-filter-btn ${currentUserStatusFilter === 'PROCESSING' ? 'active' : ''}" 
-                                        data-filter="PROCESSING" onclick="filterUserOrders('PROCESSING', this)">📦 Preparazione</button>
+                                        data-filter="PROCESSING" onclick="filterUserOrders('PROCESSING', this)"><svg class="icon"><use href="#i-box"></use></svg> Preparazione</button>
                                 <button class="admin-filter-btn admin-order-filter-btn ${currentUserStatusFilter === 'SHIPPED' ? 'active' : ''}" 
-                                        data-filter="SHIPPED" onclick="filterUserOrders('SHIPPED', this)">🚚 Spedito</button>
+                                        data-filter="SHIPPED" onclick="filterUserOrders('SHIPPED', this)"><svg class="icon"><use href="#i-truck"></use></svg> Spedito</button>
                                 <button class="admin-filter-btn admin-order-filter-btn ${currentUserStatusFilter === 'DELIVERED' ? 'active' : ''}" 
-                                        data-filter="DELIVERED" onclick="filterUserOrders('DELIVERED', this)">✅ Consegnato</button>
+                                        data-filter="DELIVERED" onclick="filterUserOrders('DELIVERED', this)"><svg class="icon"><use href="#i-check"></use></svg> Consegnato</button>
                                 <button class="admin-filter-btn admin-order-filter-btn ${currentUserStatusFilter === 'CANCELLED' ? 'active' : ''}" 
-                                        data-filter="CANCELLED" onclick="filterUserOrders('CANCELLED', this)">❌ Cancellato</button>
+                                        data-filter="CANCELLED" onclick="filterUserOrders('CANCELLED', this)"><svg class="icon"><use href="#i-x"></use></svg> Cancellato</button>
                                 <span style="margin-left:auto;font-size:0.8rem;color:var(--text-secondary);" id="userOrderCount"></span>
                             </div>
                             <div id="ordersList">
@@ -3155,16 +3340,23 @@
                             </button>
                             <!-- Search -->
                             <div class="search-bar" style="margin-bottom: 12px;">
-                                <input type="text" id="adminSearchInput" placeholder="🔍 Cerca prodotto..." 
-                                       style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;"
+
+                                <div style="position: relative;">
+                                <svg class="icon" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--gray); pointer-events: none;"><use href="#i-search"></use></svg>
+                                    
+
+                                <input type="text" id="adminSearchInput" placeholder="Cerca prodotto..." 
+                                       style="width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius: var(--radius-sm);font-size:0.9rem;"
                                        onkeypress="if(event.key==='Enter') filterAdminProducts()">
+
+                                </div>
                             </div>
                             <!-- Filter + Sort bar -->
                             <div class="admin-filter-bar" style="margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
                                 <span style="font-size:0.85rem;color:var(--text-secondary);font-weight:600;">Filtri:</span>
                                 <button class="admin-filter-btn admin-product-filter-btn ${adminFilter === 'all' ? 'active' : ''}" data-filter="all" onclick="setAdminFilter('all')">Tutti</button>
-                                <button class="admin-filter-btn admin-product-filter-btn ${adminFilter === 'low' ? 'active' : ''}" data-filter="low" onclick="setAdminFilter('low')">⚠️ Stock Basso</button>
-                                <button class="admin-filter-btn admin-product-filter-btn ${adminFilter === 'empty' ? 'active' : ''}" data-filter="empty" onclick="setAdminFilter('empty')">🚫 Esauriti</button>
+                                <button class="admin-filter-btn admin-product-filter-btn ${adminFilter === 'low' ? 'active' : ''}" data-filter="low" onclick="setAdminFilter('low')"><svg class="icon"><use href="#i-warning"></use></svg> Stock Basso</button>
+                                <button class="admin-filter-btn admin-product-filter-btn ${adminFilter === 'empty' ? 'active' : ''}" data-filter="empty" onclick="setAdminFilter('empty')"><svg class="icon"><use href="#i-ban"></use></svg> Esauriti</button>
                                 <span style="margin-left:auto;font-size:0.8rem;color:var(--text-secondary);" id="adminProductCount"></span>
                             </div>
                             <div id="adminProductList">
@@ -3177,13 +3369,20 @@
                         <div class="admin-only" id="adminOrdersSection" style="margin-top: 20px;">
                     <div class="card" style="margin-bottom: 20px;">
                         <div class="card-header">
-                            <h2 class="card-title">📦 Gestione Ordini</h2>
+                            <h2 class="card-title"><svg class="icon"><use href="#i-box"></use></svg> Gestione Ordini</h2>
                         </div>
                         <!-- Search -->
                         <div class="search-bar" style="margin-bottom: 12px;">
-                            <input type="text" id="adminOrderSearchInput" placeholder="🔍 Cerca ordine per ID o cliente..." 
-                                   style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;"
+
+                            <div style="position: relative;">
+                            <svg class="icon" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--gray); pointer-events: none;"><use href="#i-search"></use></svg>
+                                
+
+                            <input type="text" id="adminOrderSearchInput" placeholder="Cerca ordine per ID o cliente..." 
+                                   style="width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius: var(--radius-sm);font-size:0.9rem;"
                                    onkeypress="if(event.key==='Enter') searchAdminOrders()">
+
+                            </div>
                         </div>
                         <!-- Status Filter -->
                         <div class="admin-filter-bar" style="margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
@@ -3191,15 +3390,15 @@
                             <button class="admin-filter-btn admin-order-filter-btn ${currentAdminStatusFilter === null ? 'active' : ''}" 
                                     data-filter="null" onclick="filterAdminOrders(null, this)">Tutti</button>
                             <button class="admin-filter-btn admin-order-filter-btn ${currentAdminStatusFilter === 'PENDING' ? 'active' : ''}" 
-                                    data-filter="PENDING" onclick="filterAdminOrders('PENDING', this)">⏳ In attesa</button>
+                                    data-filter="PENDING" onclick="filterAdminOrders('PENDING', this)"><svg class="icon"><use href="#i-clock"></use></svg> In attesa</button>
                             <button class="admin-filter-btn admin-order-filter-btn ${currentAdminStatusFilter === 'PROCESSING' ? 'active' : ''}" 
-                                    data-filter="PROCESSING" onclick="filterAdminOrders('PROCESSING', this)">📦 Preparazione</button>
+                                    data-filter="PROCESSING" onclick="filterAdminOrders('PROCESSING', this)"><svg class="icon"><use href="#i-box"></use></svg> Preparazione</button>
                             <button class="admin-filter-btn admin-order-filter-btn ${currentAdminStatusFilter === 'SHIPPED' ? 'active' : ''}" 
-                                    data-filter="SHIPPED" onclick="filterAdminOrders('SHIPPED', this)">🚚 Spedito</button>
+                                    data-filter="SHIPPED" onclick="filterAdminOrders('SHIPPED', this)"><svg class="icon"><use href="#i-truck"></use></svg> Spedito</button>
                             <button class="admin-filter-btn admin-order-filter-btn ${currentAdminStatusFilter === 'DELIVERED' ? 'active' : ''}" 
-                                    data-filter="DELIVERED" onclick="filterAdminOrders('DELIVERED', this)">✅ Consegnato</button>
+                                    data-filter="DELIVERED" onclick="filterAdminOrders('DELIVERED', this)"><svg class="icon"><use href="#i-check"></use></svg> Consegnato</button>
                             <button class="admin-filter-btn admin-order-filter-btn ${currentAdminStatusFilter === 'CANCELLED' ? 'active' : ''}" 
-                                    data-filter="CANCELLED" onclick="filterAdminOrders('CANCELLED', this)">❌ Cancellato</button>
+                                    data-filter="CANCELLED" onclick="filterAdminOrders('CANCELLED', this)"><svg class="icon"><use href="#i-x"></use></svg> Cancellato</button>
                             <span style="margin-left:auto;font-size:0.8rem;color:var(--text-secondary);" id="adminOrderCount"></span>
                         </div>
                         <div id="adminOrdersList">
@@ -3216,7 +3415,7 @@
                 <div id="statsPage" class="stats-page" style="display: none;">
                     <div class="card">
                         <div class="card-header">
-                            <h2 class="card-title">📊 Statistiche Sito</h2>
+                            <h2 class="card-title"><svg class="icon"><use href="#i-chart"></use></svg> Statistiche Sito</h2>
                             <button class="btn btn-secondary btn-sm" onclick="closeStatsPage()">← Indietro</button>
                         </div>
                         <div id="statsContent">
@@ -3235,12 +3434,12 @@
     <!-- Settings Modal -->
     <div id="settingsModal" class="modal-overlay hidden">
         <div class="modal" style="max-width: 700px;">
-            <h3 class="modal-title">⚙️ Impostazioni Account</h3>
+            <h3 class="modal-title"><svg class="icon"><use href="#i-gear"></use></svg> Impostazioni Account</h3>
             
             <div class="nav-tabs" style="margin-bottom: 20px;">
-                <button class="nav-tab active" onclick="switchSettingsTab('profile')">👤 Profilo</button>
-                <button class="nav-tab" onclick="switchSettingsTab('phone')">📱 Telefoni</button>
-                <button class="nav-tab" onclick="switchSettingsTab('address')">🏠 Indirizzi</button>
+                <button class="nav-tab active" onclick="switchSettingsTab('profile')"><svg class="icon"><use href="#i-user"></use></svg> Profilo</button>
+                <button class="nav-tab" onclick="switchSettingsTab('phone')"><svg class="icon"><use href="#i-smartphone"></use></svg> Telefoni</button>
+                <button class="nav-tab" onclick="switchSettingsTab('address')"><svg class="icon"><use href="#i-home"></use></svg> Indirizzi</button>
             </div>
 
             <!-- Profile Tab -->
@@ -3275,7 +3474,7 @@
                     <!-- Phone list will be loaded here -->
                 </div>
                 <div style="border-top: 2px solid var(--border); padding-top: 15px;">
-                    <h4 style="margin-bottom: 10px;">➕ Aggiungi Numero</h4>
+                    <h4 style="margin-bottom: 10px;"><svg class="icon"><use href="#i-plus"></use></svg> Aggiungi Numero</h4>
                     <form id="phoneForm" onsubmit="addPhoneNumber(event)">
                         <div class="admin-form">
                             <div class="form-group">
@@ -3308,7 +3507,7 @@
                     <!-- Address list will be loaded here -->
                 </div>
                 <div style="border-top: 2px solid var(--border); padding-top: 15px;">
-                    <h4 style="margin-bottom: 10px;">➕ Aggiungi Indirizzo</h4>
+                    <h4 style="margin-bottom: 10px;"><svg class="icon"><use href="#i-plus"></use></svg> Aggiungi Indirizzo</h4>
                     <form id="addressForm" onsubmit="addAddress(event)">
                         <div class="admin-form">
                             <div class="form-group">
@@ -3386,7 +3585,7 @@
     <!-- Sell Article Modal -->
     <div id="sellModal" class="modal-overlay hidden">
         <div class="modal">
-            <h3 class="modal-title">🏷️ Vendi un Prodotto</h3>
+            <h3 class="modal-title"><svg class="icon"><use href="#i-tag"></use></svg> Vendi un Prodotto</h3>
             <p style="color: var(--gray); margin-bottom: 15px; font-size: 0.9rem;">
                 Compila il form per pubblicare il tuo prodotto. Sarà visibile a tutti nel catalogo.
             </p>
@@ -3451,7 +3650,7 @@
     <!-- Logout Confirmation Modal -->
     <div id="logoutConfirmModal" class="modal-overlay hidden">
         <div class="modal logout-confirm-modal">
-            <h3>⚠️ Conferma Logout</h3>
+            <h3><svg class="icon"><use href="#i-warning"></use></svg> Conferma Logout</h3>
             <p class="logout-confirm-text">Vuoi davvero uscire dall'account?</p>
             <div class="logout-confirm-actions">
                 <button class="btn btn-secondary" onclick="cancelLogout()">Annulla</button>
@@ -3463,7 +3662,7 @@
     <!-- Payment Modal -->
     <div id="paymentModal" class="modal-overlay hidden">
         <div class="modal modal-large">
-            <h3 class="modal-title">💳 Completa il Pagamento</h3>
+            <h3 class="modal-title"><svg class="icon"><use href="#i-card"></use></svg> Completa il Pagamento</h3>
             <div id="paymentModalBody">
                 <div class="payment-loading" style="text-align:center; padding:40px;">
                     <div class="spinner" style="width:50px; height:50px; border-width:4px; margin:0 auto 15px;"></div>
@@ -3690,7 +3889,7 @@
                     showAuth();
                 }
             } else {
-                showAuth();
+                showGuest();
             }
         }
 
@@ -3699,11 +3898,60 @@
             document.getElementById('appSection').classList.add('hidden');
             const usernameEl = document.getElementById('currentUsername');
             usernameEl.style.display = 'none';
+            document.getElementById('authGuestLink').style.display = currentUser ? 'none' : 'block';
+        }
+
+        // Guest mode: browse the catalog without an account
+        function showGuest() {
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('appSection').classList.remove('hidden');
+
+            // Header: guest state
+            document.getElementById('guestLoginBtn').style.display = 'inline-block';
+            document.getElementById('cartWrapper').style.display = 'none';
+            document.getElementById('adminBadge').style.display = 'none';
+
+            // Mobile menu: theme + login only
+            document.getElementById('cartMenuItem').style.display = 'none';
+            document.getElementById('settingsMenuItem').style.display = 'none';
+            document.getElementById('logoutMenuItem').style.display = 'none';
+            document.getElementById('statsMenuItem').style.display = 'none';
+            document.getElementById('loginMenuItem').style.display = 'flex';
+
+            // Catalog tab only
+            document.getElementById('ordersTabBtn').style.display = 'none';
+            document.getElementById('sellBtn').style.display = 'none';
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById('catalogTabBtn').classList.add('active');
+            document.getElementById('catalogTab').classList.add('active');
+
+            // Load public catalog
+            if (!products.length) {
+                loadCategories();
+                loadProducts();
+            }
+        }
+
+        function requireLogin(message) {
+            showToast(message || 'Accedi per continuare', 'warning');
+            showAuth();
         }
 
         async function showApp() {
             document.getElementById('authSection').classList.add('hidden');
             document.getElementById('appSection').classList.remove('hidden');
+
+            // Restore logged-in UI (inverse of guest mode)
+            document.getElementById('guestLoginBtn').style.display = 'none';
+            document.getElementById('cartWrapper').style.display = '';
+            document.getElementById('cartMenuItem').style.display = '';
+            document.getElementById('settingsMenuItem').style.display = '';
+            document.getElementById('logoutMenuItem').style.display = '';
+            document.getElementById('loginMenuItem').style.display = 'none';
+            document.getElementById('ordersTabBtn').style.display = '';
+            document.getElementById('authGuestLink').style.display = 'none';
+
             const usernameEl = document.getElementById('currentUsername');
             usernameEl.textContent = currentUser.username;
             usernameEl.style.display = 'inline-block';
@@ -4006,22 +4254,22 @@
                 statsContent.innerHTML = `
                     <div class="stats-summary-grid">
                         <div class="stat-summary-card">
-                            <div class="stat-summary-icon">📦</div>
+                            <div class="stat-summary-icon"><svg class="icon"><use href="#i-box"></use></svg></div>
                             <div class="stat-summary-value">${totalProducts}</div>
                             <div class="stat-summary-label">Articoli Attivi</div>
                         </div>
                         <div class="stat-summary-card">
-                            <div class="stat-summary-icon">🛒</div>
+                            <div class="stat-summary-icon"><svg class="icon"><use href="#i-cart"></use></svg></div>
                             <div class="stat-summary-value">${totalOrders}</div>
                             <div class="stat-summary-label">Ordini Totali</div>
                         </div>
                         <div class="stat-summary-card">
-                            <div class="stat-summary-icon">📊</div>
+                            <div class="stat-summary-icon"><svg class="icon"><use href="#i-chart"></use></svg></div>
                             <div class="stat-summary-value">${totalItemsSold}</div>
                             <div class="stat-summary-label">Articoli Venduti</div>
                         </div>
                         <div class="stat-summary-card stat-revenue-card">
-                            <div class="stat-summary-icon">💰</div>
+                            <div class="stat-summary-icon"><svg class="icon"><use href="#i-dollar"></use></svg></div>
                             <div class="stat-summary-value">€${totalRevenue.toFixed(2)}</div>
                             <div class="stat-summary-label">Fatturato Totale</div>
                         </div>
@@ -4038,7 +4286,7 @@
             } catch (error) {
                 statsContent.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">⚠️</div>
+                        <div class="empty-state-icon"><svg class="icon"><use href="#i-warning"></use></svg></div>
                         <p>Errore: ${(error && error.message) || 'Errore sconosciuto'}</p>
                     </div>
                 `;
@@ -4083,13 +4331,13 @@
                 document.documentElement.setAttribute('data-theme', 'dark');
                 const themeIcon = document.getElementById('themeIcon');
                 const themeText = document.getElementById('themeText');
-                if (themeIcon) themeIcon.textContent = '☀️';
+                if (themeIcon) themeIcon.innerHTML = icon('sun');
                 if (themeText) themeText.textContent = 'Tema Chiaro';
             } else {
                 document.documentElement.removeAttribute('data-theme');
                 const themeIcon = document.getElementById('themeIcon');
                 const themeText = document.getElementById('themeText');
-                if (themeIcon) themeIcon.textContent = '🌙';
+                if (themeIcon) themeIcon.innerHTML = icon('moon');
                 if (themeText) themeText.textContent = 'Tema Scuro';
             }
             currentTheme = theme;
@@ -4164,7 +4412,7 @@
             if (displayProducts.length === 0) {
                 grid.innerHTML = `
                     <div class="empty-state" style="grid-column: 1/-1;">
-                        <div class="empty-state-icon">📦</div>
+                        <div class="empty-state-icon"><svg class="icon"><use href="#i-box"></use></svg></div>
                         <p>Nessun prodotto trovato</p>
                     </div>
                 `;
@@ -4255,6 +4503,11 @@
             return `Disponibile`;
         }
 
+        // SVG icon helper (sprite <use>)
+        function icon(name) {
+            return `<svg class="icon"><use href="#i-${name}"></use></svg>`;
+        }
+
         // Detect product category from name/description for placeholder icon
         function detectProductCategory(name, description) {
             const text = `${name} ${description || ''}`.toLowerCase();
@@ -4275,14 +4528,14 @@
             for (const [cat, keywords] of Object.entries(categoryMap)) {
                 if (keywords.some(kw => text.includes(kw))) {
                     const icons = {
-                        phone: '📱', laptop: '💻', tablet: '📟', audio: '🎧', watch: '⌚',
-                        mouse: '🖱️', keyboard: '⌨️', camera: '📷', tv: '📺', gaming: '🎮',
-                        shoe: '👟', clothing: '👕'
+                        phone: 'smartphone', laptop: 'laptop', tablet: 'tablet', audio: 'headphones', watch: 'watch',
+                        mouse: 'mouse', keyboard: 'keyboard', camera: 'camera', tv: 'tv', gaming: 'gamepad',
+                        shoe: 'footprints', clothing: 'shirt'
                     };
-                    return icons[cat] || '📦';
+                    return icon(icons[cat]);
                 }
             }
-            return '📦'; // Default fallback
+            return icon('box'); // Default fallback
         }
 
         function filterProducts() {
@@ -4387,22 +4640,30 @@
             updateSliderFill();
         }
 
-        function initPriceSlider() {
+        // Massimo prezzo del catalogo: 1 richiesta leggera (size=1, ordinato per prezzo desc)
+        async function fetchCatalogMaxPrice() {
+            try {
+                const res = await fetch(`${API_BASE}/articles?page=0&size=1&sort=price,desc`);
+                const data = await res.json();
+                const maxPrice = data.content?.[0]?.price;
+                return (maxPrice != null && maxPrice > 0) ? Number(maxPrice) : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        async function initPriceSlider() {
             const minSlider = document.getElementById('priceMinSlider');
             const maxSlider = document.getElementById('priceMaxSlider');
             if (!minSlider || !maxSlider) return;
 
-            const maxProductPrice = products.length > 0 
-                ? Math.max(...products.map(p => p.price || 0)) 
-                : 2500;
-            const roundedMax = Math.ceil(maxProductPrice / 100) * 100 || 2500;
+            const maxProductPrice = (await fetchCatalogMaxPrice()) || 2500;
+            const roundedMax = Math.max(10, Math.ceil(maxProductPrice / 10) * 10);
             
             minSlider.max = roundedMax;
             maxSlider.max = roundedMax;
-            if (maxProductPrice > 0) {
-                maxSlider.value = roundedMax;
-                document.getElementById('priceMaxInput').value = roundedMax;
-            }
+            maxSlider.value = roundedMax;
+            document.getElementById('priceMaxInput').value = roundedMax;
             updateSliderFill();
 
             minSlider.addEventListener('input', () => {
@@ -4437,7 +4698,7 @@
                 onPriceSliderChange();
             });
 
-            minPrice = '0' ? '' : minSlider.value;
+            minPrice = '';
             maxPrice = '';
         }
 
@@ -4493,7 +4754,7 @@
                     <div class="detail-hero">
                         <div style="flex: 1; min-width: 0;">
                             <h2 class="detail-name">${product.name}</h2>
-                            <div class="detail-id-badge">👤 Venduto da: ${product.authorUsername || 'Sconosciuto'}</div>
+                            <div class="detail-id-badge">${icon('user')} Venduto da: ${product.authorUsername || 'Sconosciuto'}</div>
                         </div>
                         <div class="detail-price">€${product.price.toFixed(2)}</div>
                     </div>
@@ -4524,7 +4785,7 @@
                     <div class="detail-actions">
                         ${currentUser && currentUser.role === 'ADMIN' ? `
                             <button class="btn btn-secondary" onclick="editProductFromDetail(${product.id})">
-                                ✏️ Modifica
+                                ${icon('edit')} Modifica
                             </button>
                         ` : ''}
                         <div class="detail-qty-picker" data-max="${product.stock}">
@@ -4535,7 +4796,7 @@
                         <button class="btn btn-primary" 
                                 onclick="addToCartFromDetail(${product.id})"
                                 ${product.stock === 0 ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
-                            ${product.stock === 0 ? '⛔ Esaurito' : '🛒 Aggiungi al Carrello'}
+                            ${product.stock === 0 ? `${icon('ban')} Esaurito` : `${icon('cart')} Aggiungi al Carrello`}
                         </button>
                     </div>
                 `;
@@ -4603,6 +4864,7 @@
         }
 
         function toggleCartModal() {
+            if (!currentUser) { requireLogin('Accedi per consultare il carrello'); return; }
             const modal = document.getElementById('cartModal');
             const overlay = document.getElementById('cartModalOverlay');
             const isOpen = modal.classList.contains('open');
@@ -4666,7 +4928,7 @@
                         <button class="cart-modal-item-qty-btn" onclick="updateQuantity(${item.articles.id}, ${item.quantity - 1})">−</button>
                         <span class="cart-modal-item-qty">${item.quantity}</span>
                         <button class="cart-modal-item-qty-btn" onclick="updateQuantity(${item.articles.id}, ${item.quantity + 1})">+</button>
-                        <button class="cart-modal-item-remove" onclick="removeFromCart(${item.articles.id})">🗑️</button>
+                        <button class="cart-modal-item-remove" onclick="removeFromCart(${item.articles.id})">${icon('trash')}</button>
                     </div>
                     <div class="cart-modal-item-total">€${(item.unitPrice * item.quantity).toFixed(2)}</div>
                 </div>
@@ -4700,6 +4962,7 @@
                     ${item.articles?.previewImage ? `<img class="cart-thumb" src="${item.articles.previewImage}" alt="">` : ''}
                     <div>
                         <div class="cart-item-name">${item.articles?.name || 'Articolo'}</div>
+                        <div class="cart-item-price">€${item.unitPrice.toFixed(2)} cad.</div>
                     </div>
                     <div class="cart-item-qty">
                         <button class="qty-btn" onclick="updateQuantity(${item.articles.id}, ${item.quantity - 1})">-</button>
@@ -4745,6 +5008,7 @@
         }
 
         function openCart() {
+            if (!currentUser) { requireLogin('Accedi per consultare il carrello'); return; }
             document.getElementById('cartScreen').classList.add('active');
             updateCart();
         }
@@ -4759,7 +5023,7 @@
         }
 
         async function addToCart(productId, quantity = 1) {
-            if (!currentUser) return;
+            if (!currentUser) { requireLogin('Accedi per aggiungere al carrello'); return; }
             
             // Find product card for animation
             const productCard = document.getElementById(`productCard-${productId}`);
@@ -4783,7 +5047,7 @@
             // Create flyer element
             const flyer = document.createElement('div');
             flyer.className = 'flying-item';
-            flyer.textContent = '🛒';
+            flyer.innerHTML = icon('cart');
             flyer.style.left = flyStartX + 'px';
             flyer.style.top = flyStartY + 'px';
             document.body.appendChild(flyer);
@@ -4893,9 +5157,12 @@
         // ===== PAYMENT SYSTEM (2-step checkout) =====
         let currentPaymentOrderId = null;
         let currentPaymentData = null;
+        let checkoutAddresses = [];
+        let selectedCheckoutAddressId = null;
+        let showNewAddressForm = false;
 
         async function checkout() {
-            if (!currentUser) return;
+            if (!currentUser) { requireLogin('Accedi per procedere al checkout'); return; }
             if (!cart.items || cart.items.length === 0) {
                 showToast('Il carrello è vuoto', 'warning');
                 return;
@@ -4913,6 +5180,7 @@
                 if (response.ok) {
                     currentPaymentData = await response.json();
                     currentPaymentOrderId = currentPaymentData.orderId;
+                    await loadCheckoutAddresses();
                     renderPaymentSelection();
                 } else {
                     const error = await response.json();
@@ -4938,7 +5206,7 @@
                 <div class="payment-order-items">
                     ${items.map(item => `
                         <div class="payment-order-item">
-                            <span>${item.quantity}x ${item.articleName || 'Articolo'}</span>
+                            <span>${item.quantity}x ${item.name || 'Articolo'}</span>
                             <span>€${(item.unitPrice * item.quantity).toFixed(2)}</span>
                         </div>
                     `).join('')}
@@ -4947,15 +5215,72 @@
             
             const expiryNote = expiresAt ? `
                 <div class="payment-expiry-note">
-                    <span>⏰</span>
+                    <span>${icon('clock')}</span>
                     <span>Pagamento richiesto entro <strong>${new Date(expiresAt).toLocaleString('it-IT')}</strong></span>
                 </div>
             ` : '';
             
+            const addressOptionsHtml = checkoutAddresses.map(addr => `
+                <div class="payment-method-option">
+                    <input type="radio" name="checkoutAddress" id="addr_${addr.id}" value="${addr.id}" ${selectedCheckoutAddressId === addr.id ? 'checked' : ''} onchange="onCheckoutAddressChange()">
+                    <label for="addr_${addr.id}">
+                        <span class="payment-method-icon"><svg class="icon"><use href="#i-home"></use></svg></span>
+                        <div class="payment-method-info">
+                            <div class="payment-method-name">${addr.street} ${addr.streetNumber}</div>
+                            <div class="payment-method-desc">${addr.postalCode} ${addr.city} (${addr.country})</div>
+                        </div>
+                        <div class="payment-radio-circle"></div>
+                    </label>
+                </div>
+            `).join('');
+            
+            const addressHtml = `
+                <div class="payment-method-section">
+                    <h4>${icon('pin')} Indirizzo di consegna</h4>
+                    <div class="payment-method-options">\n                        ${addressOptionsHtml}
+                        <div class="payment-method-option">
+                            <input type="radio" name="checkoutAddress" id="addr_new" value="new" ${showNewAddressForm ? 'checked' : ''} onchange="onCheckoutAddressChange()">
+                            <label for="addr_new">
+                                <span class="payment-method-icon">${icon('edit')}</span>
+                                <div class="payment-method-info">
+                                    <div class="payment-method-name">Nuovo indirizzo</div>
+                                    <div class="payment-method-desc">Inserisci un indirizzo di consegna</div>
+                                </div>
+                                <div class="payment-radio-circle"></div>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="newAddressFormSection" class="new-address-form${showNewAddressForm ? '' : ' hidden'}">
+                        <label class="card-form-label" for="naStreet">Via</label>
+                        <input type="text" id="naStreet" class="card-input" placeholder="Es. Via Roma">
+                        <div class="new-address-row">
+                            <div class="new-address-field">
+                                <label class="card-form-label" for="naStreetNumber">N° civico</label>
+                                <input type="number" id="naStreetNumber" class="card-input" min="1" placeholder="12">
+                            </div>
+                            <div class="new-address-field">
+                                <label class="card-form-label" for="naPostalCode">CAP</label>
+                                <input type="text" id="naPostalCode" class="card-input" placeholder="20100">
+                            </div>
+                        </div>
+                        <div class="new-address-row">
+                            <div class="new-address-field">
+                                <label class="card-form-label" for="naCity">Comune</label>
+                                <input type="text" id="naCity" class="card-input" placeholder="Milano">
+                            </div>
+                            <div class="new-address-field">
+                                <label class="card-form-label" for="naCountry">Nazione</label>
+                                <input type="text" id="naCountry" class="card-input" value="Italia">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
             document.getElementById('paymentModalBody').innerHTML = `
                 <div class="payment-modal-body">
                     <div class="payment-order-summary">
-                        <h4 style="margin-bottom:10px; font-size:0.95rem;">📋 Riepilogo Ordine</h4>
+                        <h4 style="margin-bottom:10px; font-size:0.95rem;">${icon('list')} Riepilogo Ordine</h4>
                         ${itemsHtml}
                         <div class="summary-row">
                             <span>Totale:</span>
@@ -4967,13 +5292,15 @@
                         </div>
                     </div>
                     
+                    ${addressHtml}
+                    
                     <div class="payment-method-section">
                         <h4>Metodo di pagamento</h4>
                         <div class="payment-method-options">
                             <div class="payment-method-option">
-                                <input type="radio" name="paymentMethod" id="pm_credit" value="CREDIT_CARD" ${paymentMethod === 'CREDIT_CARD' ? 'checked' : ''}>
+                                <input type="radio" name="paymentMethod" id="pm_credit" value="CREDIT_CARD" ${paymentMethod === 'CREDIT_CARD' ? 'checked' : ''} onchange="onPaymentMethodChange()">
                                 <label for="pm_credit">
-                                    <span class="payment-method-icon">💳</span>
+                                    <span class="payment-method-icon">${icon('card')}</span>
                                     <div class="payment-method-info">
                                         <div class="payment-method-name">Carta di Credito / Debito</div>
                                         <div class="payment-method-desc">Visa, Mastercard, Maestro</div>
@@ -4982,9 +5309,9 @@
                                 </label>
                             </div>
                             <div class="payment-method-option">
-                                <input type="radio" name="paymentMethod" id="pm_paypal" value="PAYPAL" ${paymentMethod === 'PAYPAL' ? 'checked' : ''}>
+                                <input type="radio" name="paymentMethod" id="pm_paypal" value="PAYPAL" ${paymentMethod === 'PAYPAL' ? 'checked' : ''} onchange="onPaymentMethodChange()">
                                 <label for="pm_paypal">
-                                    <span class="payment-method-icon">🅿️</span>
+                                    <span class="payment-method-icon">${icon('paypal')}</span>
                                     <div class="payment-method-info">
                                         <div class="payment-method-name">PayPal</div>
                                         <div class="payment-method-desc">Paga con il tuo account PayPal</div>
@@ -4993,15 +5320,29 @@
                                 </label>
                             </div>
                             <div class="payment-method-option">
-                                <input type="radio" name="paymentMethod" id="pm_cod" value="COD" ${paymentMethod === 'COD' ? 'checked' : ''}>
+                                <input type="radio" name="paymentMethod" id="pm_cod" value="COD" ${paymentMethod === 'COD' ? 'checked' : ''} onchange="onPaymentMethodChange()">
                                 <label for="pm_cod">
-                                    <span class="payment-method-icon">💵</span>
+                                    <span class="payment-method-icon">${icon('dollar')}</span>
                                     <div class="payment-method-info">
                                         <div class="payment-method-name">Contrassegno</div>
                                         <div class="payment-method-desc">Paga in contanti alla consegna</div>
                                     </div>
                                     <div class="payment-radio-circle"></div>
                                 </label>
+                            </div>
+                            <div id="cardFormSection" class="card-form${paymentMethod === 'CREDIT_CARD' ? '' : ' hidden'}">
+                                <label class="card-form-label" for="cardNumber">Numero carta</label>
+                                <input type="text" id="cardNumber" class="card-input" placeholder="1234 5678 9012 3456" inputmode="numeric" maxlength="23" autocomplete="off" oninput="formatCardNumberInput(event)">
+                                <div class="card-form-row">
+                                    <div class="card-form-col">
+                                        <label class="card-form-label" for="cardExpiry">Scadenza</label>
+                                        <input type="text" id="cardExpiry" class="card-input" placeholder="MM/AA" maxlength="5" inputmode="numeric" autocomplete="off" oninput="formatCardExpiryInput(event)">
+                                    </div>
+                                    <div class="card-form-col">
+                                        <label class="card-form-label" for="cardCvv">CVV</label>
+                                        <input type="text" id="cardCvv" class="card-input" placeholder="123" maxlength="4" inputmode="numeric" autocomplete="off" oninput="formatCvvInput(event)">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -5011,11 +5352,83 @@
                     <div class="payment-actions">
                         <button class="btn btn-secondary" onclick="closePaymentModal()">Annulla</button>
                         <button class="btn btn-success" onclick="payOrder()" id="payBtn">
-                            🔒 Paga €${total.toFixed(2)}
+                            ${icon('lock')} Paga €${total.toFixed(2)}
                         </button>
                     </div>
                 </div>
             `;
+        }
+
+        function onPaymentMethodChange() {
+            const section = document.getElementById('cardFormSection');
+            const isCard = document.querySelector('input[name="paymentMethod"]:checked')?.value === 'CREDIT_CARD';
+            if (section) section.classList.toggle('hidden', !isCard);
+        }
+
+        function formatCardNumberInput(event) {
+            const el = event.target;
+            const digits = el.value.replace(/\D/g, '').slice(0, 19);
+            el.value = digits.replace(/(\d{4})(?=\d)/g, '$1 ');
+        }
+
+        function formatCardExpiryInput(event) {
+            const el = event.target;
+            const digits = el.value.replace(/\D/g, '').slice(0, 4);
+            el.value = digits.length > 2 ? digits.slice(0, 2) + '/' + digits.slice(2) : digits;
+        }
+
+        function formatCvvInput(event) {
+            event.target.value = event.target.value.replace(/\D/g, '').slice(0, 4);
+        }
+
+        function validateCardFields() {
+            const number = (document.getElementById('cardNumber')?.value || '').replace(/\s/g, '');
+            const expiry = (document.getElementById('cardExpiry')?.value || '');
+            const cvv = (document.getElementById('cardCvv')?.value || '');
+
+            if (number.length < 13 || number.length > 19) {
+                return 'Numero carta non valido (13-19 cifre)';
+            }
+            const match = expiry.match(/^(\d{2})\/(\d{2})$/);
+            if (!match) {
+                return 'Data di scadenza non valida (formato MM/AA)';
+            }
+            const month = parseInt(match[1], 10);
+            const year = 2000 + parseInt(match[2], 10);
+            if (month < 1 || month > 12) {
+                return 'Mese di scadenza non valido';
+            }
+            const now = new Date();
+            if (year < now.getFullYear() || (year === now.getFullYear() && month < now.getMonth() + 1)) {
+                return 'Carta scaduta';
+            }
+            if (cvv.length < 3) {
+                return 'CVV non valido (almeno 3 cifre)';
+            }
+            return null;
+        }
+
+        async function loadCheckoutAddresses() {
+            try {
+                const response = await apiFetch('/users/me/address/me');
+                if (response.ok) {
+                    checkoutAddresses = await response.json();
+                } else {
+                    checkoutAddresses = [];
+                }
+            } catch (error) {
+                checkoutAddresses = [];
+            }
+            selectedCheckoutAddressId = checkoutAddresses.length === 1 ? checkoutAddresses[0].id : null;
+            showNewAddressForm = checkoutAddresses.length === 0;
+        }
+
+        function onCheckoutAddressChange() {
+            const checked = document.querySelector('input[name="checkoutAddress"]:checked');
+            if (!checked) return;
+            showNewAddressForm = checked.value === 'new';
+            const section = document.getElementById('newAddressFormSection');
+            if (section) section.classList.toggle('hidden', !showNewAddressForm);
         }
 
         async function payOrder() {
@@ -5031,15 +5444,56 @@
                 return;
             }
             
+            const details = {};
+            if (selectedMethod === 'CREDIT_CARD') {
+                const cardError = validateCardFields();
+                if (cardError) {
+                    showToast(cardError, 'error');
+                    return;
+                }
+                const cardNumber = (document.getElementById('cardNumber').value || '').replace(/\s/g, '');
+                details.card = '**** ' + cardNumber.slice(-4);
+            }
+            
+            const addressSelection = document.querySelector('input[name="checkoutAddress"]:checked')?.value;
+            if (!addressSelection) {
+                showToast('Seleziona un indirizzo di consegna', 'warning');
+                return;
+            }
+            let addressId;
+            if (addressSelection === 'new') {
+                const street = (document.getElementById('naStreet').value || '').trim();
+                const streetNumber = parseInt(document.getElementById('naStreetNumber').value, 10);
+                const postalCode = (document.getElementById('naPostalCode').value || '').trim();
+                const city = (document.getElementById('naCity').value || '').trim();
+                const country = (document.getElementById('naCountry').value || '').trim();
+                if (!street || !streetNumber || !postalCode || !city || !country) {
+                    showToast("Completa tutti i campi dell'indirizzo", 'warning');
+                    return;
+                }
+                const addressResponse = await apiFetch('/users/me/address/me', {
+                    method: 'POST',
+                    body: JSON.stringify({ street, streetNumber, postalCode, city, country })
+                });
+                if (!addressResponse.ok) {
+                    const error = await addressResponse.json().catch(() => ({}));
+                    showToast(error.message || "Errore nel salvataggio dell'indirizzo", 'error');
+                    return;
+                }
+                addressId = (await addressResponse.json()).id;
+            } else {
+                addressId = Number(addressSelection);
+            }
+            
             const payBtn = document.getElementById('payBtn');
             payBtn.disabled = true;
-            payBtn.textContent = '⏳ Elaborazione...';
+            payBtn.innerHTML = `${icon('clock')} Elaborazione...`;
             
             try {
                 const response = await apiFetch(`/orders/${orderId}/pay`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ method: selectedMethod })
+                    body: JSON.stringify({ method: selectedMethod, details, addressId })
                 });
                 
                 if (response.ok) {
@@ -5056,12 +5510,12 @@
                     const error = await response.json();
                     showToast(error.message || 'Errore nel pagamento', 'error');
                     payBtn.disabled = false;
-                    payBtn.textContent = '🔒 Riprova';
+                    payBtn.innerHTML = `${icon('lock')} Riprova`;
                 }
             } catch (error) {
                 showToast('Errore di connessione', 'error');
                 payBtn.disabled = false;
-                payBtn.textContent = '🔒 Riprova';
+                payBtn.innerHTML = `${icon('lock')} Riprova`;
             }
         }
 
@@ -5071,13 +5525,13 @@
             document.getElementById('paymentModalBody').innerHTML = `
                 <div class="payment-modal-body" style="text-align:center; padding:20px 0;">
                     <div class="payment-status-badge success">
-                        <span>✅</span> Pagamento completato!
+                        <span>${icon('check')}</span> Pagamento completato!
                     </div>
                     <h4 style="margin:15px 0 10px; color:var(--text-primary);">Ordine confermato</h4>
                     <p style="color:var(--text-secondary); margin-bottom:20px;">
                         Il tuo ordine #${result.orderId || currentPaymentOrderId} è stato pagato con successo.
                     </p>
-                    <div style="text-align:left; background:var(--bg-surface-alt); border:1px solid var(--border); border-radius:8px; padding:15px; margin-bottom:15px;">
+                    <div style="text-align:left; background:var(--bg-surface-alt); border:1px solid var(--border); border-radius: var(--radius-md); padding:15px; margin-bottom:15px;">
                         <div class="summary-row" style="display:flex; justify-content:space-between; padding:5px 0; font-size:0.9rem;">
                             <span style="color:var(--text-secondary);">Importo pagato:</span>
                             <span style="font-weight:600;">€${result.amount?.toFixed(2) || '0.00'}</span>
@@ -5174,13 +5628,26 @@
             }
         }
 
+        // Centralita: mappatura stato ordine (enum) -> etichetta in italiano
+        const STATUS_LABELS = {
+            PENDING: 'In attesa',
+            PROCESSING: 'In preparazione',
+            SHIPPED: 'Spedito',
+            DELIVERED: 'Consegnato',
+            COMPLETED: 'Completato',
+            CANCELLED: 'Cancellato'
+        };
+        function statusLabel(status) {
+            return STATUS_LABELS[status] || status || '';
+        }
+
         function renderOrders() {
             const ordersList = document.getElementById('ordersList');
             
             if (orders.length === 0) {
                 ordersList.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">📋</div>
+                        <div class="empty-state-icon"><svg class="icon"><use href="#i-list"></use></svg></div>
                         <p>${userOrderSearchQuery || currentUserStatusFilter ? 'Nessun ordine trovato con i filtri selezionati' : 'Nessun ordine effettuato'}</p>
                     </div>
                 `;
@@ -5191,15 +5658,16 @@
                 <div class="order-item">
                     <div class="order-header">
                         <span class="order-id">Ordine #${order.id}</span>
-                        <span class="order-status status-${order.status.toLowerCase()}">${order.status}</span>
+                        <span class="order-status status-${order.status.toLowerCase()}">${statusLabel(order.status)}</span>
                     </div>
                     <div class="order-items">
                         ${order.items?.map(item => 
                             `• ${item.articles?.name || 'Articolo'} x${item.quantity}`
                         ).join('<br>') || 'Nessun articolo'}
                     </div>
+                    ${order.shippingAddress ? `<div class="order-address">${icon('pin')} ${order.shippingAddress.street} ${order.shippingAddress.streetNumber}, ${order.shippingAddress.postalCode} ${order.shippingAddress.city} (${order.shippingAddress.country})</div>` : ''}
                     <div class="order-total">Totale: €${order.total?.toFixed(2) || '0.00'}</div>
-                    ${order.status === 'DELIVERED' ? `<button class="btn-complete-order" onclick="completeOrder(${order.id})">🏁 Completa Ordine</button>` : ''}
+                    ${order.status === 'DELIVERED' ? `<button class="btn-complete-order" onclick="completeOrder(${order.id})">${icon('flag')} Completa Ordine</button>` : ''}
                 </div>
             `).join('');
             renderOrdersPagination();
@@ -5264,7 +5732,7 @@
                     throw new Error(error.message || 'Errore nel completamento ordine');
                 }
                 
-                showToast('Ordine completato con successo! 🏁', 'success');
+                showToast('Ordine completato con successo!', 'success');
                 await loadOrders();
             } catch (error) {
                 showToast(error.message, 'error');
@@ -5373,40 +5841,41 @@
             if (adminOrders.length === 0) {
                 ordersList.innerHTML = `
                     <div class="empty-state" style="padding:30px;">
-                        <div class="empty-state-icon">📦</div>
+                        <div class="empty-state-icon"><svg class="icon"><use href="#i-box"></use></svg></div>
                         <p>${adminOrderSearchQuery || currentAdminStatusFilter ? 'Nessun ordine trovato con i filtri selezionati' : 'Nessun ordine presente'}</p>
                     </div>`;
                 return;
             }
             
             ordersList.innerHTML = adminOrders.map(order => `
-                <div class="admin-order-item" style="border: 1px solid var(--border); border-radius: 8px; padding: 15px; margin-bottom: 12px; background: var(--bg-surface);">
+                <div class="admin-order-item" style="border: 1px solid var(--border); border-radius: var(--radius-md); padding: 15px; margin-bottom: 12px; background: var(--bg-surface);">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
                         <div>
                             <span class="order-id">Ordine #${order.id}</span>
                             <span style="margin-left: 10px; color: var(--gray); font-size: 0.85rem;">
-                                📅 ${new Date(order.orderDate).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                ${icon('cal')} ${new Date(order.orderDate).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                             </span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <span class="order-status status-${order.status.toLowerCase()}">${order.status}</span>
+                            <span class="order-status status-${order.status.toLowerCase()}">${statusLabel(order.status)}</span>
                             <select onchange="updateOrderStatus(${order.id}, this.value)" 
-                                    style="padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); font-size: 0.85rem; background: var(--bg-surface); color: var(--text-primary); cursor: pointer;">
-                                <option value="PENDING" ${order.status === 'PENDING' ? 'selected' : ''}>⏳ In attesa</option>
-                                <option value="PROCESSING" ${order.status === 'PROCESSING' ? 'selected' : ''}>📦 In preparazione</option>
-                                <option value="SHIPPED" ${order.status === 'SHIPPED' ? 'selected' : ''}>🚚 Spedito</option>
-                                <option value="DELIVERED" ${order.status === 'DELIVERED' ? 'selected' : ''}>✅ Consegnato</option>
-                                <option value="COMPLETED" ${order.status === 'COMPLETED' ? 'selected' : ''}>🏁 Completato</option>
-                                <option value="CANCELLED" ${order.status === 'CANCELLED' ? 'selected' : ''}>❌ Cancellato</option>
+                                    style="padding: 6px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); font-size: 0.85rem; background: var(--bg-surface); color: var(--text-primary); cursor: pointer;">
+                                <option value="PENDING" ${order.status === 'PENDING' ? 'selected' : ''}>In attesa</option>
+                                <option value="PROCESSING" ${order.status === 'PROCESSING' ? 'selected' : ''}>In preparazione</option>
+                                <option value="SHIPPED" ${order.status === 'SHIPPED' ? 'selected' : ''}>Spedito</option>
+                                <option value="DELIVERED" ${order.status === 'DELIVERED' ? 'selected' : ''}>Consegnato</option>
+                                <option value="COMPLETED" ${order.status === 'COMPLETED' ? 'selected' : ''}>Completato</option>
+                                <option value="CANCELLED" ${order.status === 'CANCELLED' ? 'selected' : ''}>Cancellato</option>
                             </select>
                         </div>
                     </div>
                     <div style="font-size: 0.9rem; color: var(--gray); margin-bottom: 8px;">
-                        Utente: <strong style="color: var(--text-primary);">${order.user?.username || 'N/A'}</strong>
+                        Utente: <strong style="color: var(--text-primary);">${order.username || 'N/A'}</strong>
                     </div>
+                    ${order.shippingAddress ? `<div style="font-size: 0.85rem; color: var(--gray); margin-bottom: 8px;">${icon('pin')} ${order.shippingAddress}</div>` : ''}
                     <div style="font-size: 0.9rem; color: var(--text-primary); margin-bottom: 8px;">
                         ${order.items?.map(item => 
-                            `• ${item.articles?.name || 'Articolo'} x${item.quantity} @ €${item.unitPrice?.toFixed(2)}`
+                            `• ${item.articleName || 'Articolo'} x${item.quantity} @ €${item.unitPrice?.toFixed(2)}`
                         ).join('<br>') || 'Nessun articolo'}
                     </div>
                     <div style="font-weight: 700; color: var(--primary);">Totale: €${order.total?.toFixed(2)}</div>
@@ -5545,7 +6014,7 @@
                     if (f === 'all') count = adminTotalElements;
                     else if (f === 'low') count = products.filter(p => p.stock > 0 && p.stock < 5).length;
                     else count = products.filter(p => p.stock === 0).length;
-                    btn.textContent = f === 'all' ? `Tutti (${count})` : f === 'low' ? `⚠️ Stock Basso (${count})` : `🚫 Esauriti (${count})`;
+                    btn.innerHTML = f === 'all' ? `Tutti (${count})` : f === 'low' ? `${icon('warning')} Stock Basso (${count})` : `${icon('ban')} Esauriti (${count})`;
                 });
 
                 const listEl = document.getElementById('adminProductList');
@@ -5558,19 +6027,19 @@
 
                 if (filtered.length === 0) {
                     listEl.innerHTML = `
-                        <div style="display:flex;gap:5px;margin-bottom:10px;padding:8px 10px;background:var(--bg-admin-bar);border-radius:6px;font-size:0.8rem;color:var(--text-secondary);font-weight:600;">
+                        <div style="display:flex;gap:5px;margin-bottom:10px;padding:8px 10px;background:var(--bg-admin-bar);border-radius: var(--radius-sm);font-size:0.8rem;color:var(--text-secondary);font-weight:600;">
                             <span style="flex:2;cursor:pointer" onclick="toggleAdminSort('name')">Nome ${sortArrow('name')}</span>
                             <span style="flex:1;cursor:pointer" onclick="toggleAdminSort('price')">Prezzo ${sortArrow('price')}</span>
                             <span style="flex:1;cursor:pointer" onclick="toggleAdminSort('stock')">Stock ${sortArrow('stock')}</span>
                             <span style="flex:1.5;text-align:right;">Azioni</span>
                         </div>
                         <div class="empty-state" style="padding:30px;">
-                            <div class="empty-state-icon">📦</div>
+                            <div class="empty-state-icon"><svg class="icon"><use href="#i-box"></use></svg></div>
                             <p>${adminSearchQuery || adminFilter !== 'all' ? 'Nessun prodotto trovato con i filtri selezionati' : 'Nessun prodotto disponibile'}</p>
                         </div>`;
                 } else {
                     listEl.innerHTML = `
-                        <div style="display:flex;gap:5px;margin-bottom:10px;padding:8px 10px;background:var(--bg-admin-bar);border-radius:6px;font-size:0.8rem;color:var(--text-secondary);font-weight:600;">
+                        <div style="display:flex;gap:5px;margin-bottom:10px;padding:8px 10px;background:var(--bg-admin-bar);border-radius: var(--radius-sm);font-size:0.8rem;color:var(--text-secondary);font-weight:600;">
                             <span style="flex:2;cursor:pointer" onclick="toggleAdminSort('name')">Nome ${sortArrow('name')}</span>
                             <span style="flex:1;cursor:pointer" onclick="toggleAdminSort('price')">Prezzo ${sortArrow('price')}</span>
                             <span style="flex:1;cursor:pointer" onclick="toggleAdminSort('stock')">Stock ${sortArrow('stock')}</span>
@@ -5578,10 +6047,10 @@
                         </div>
                         ${filtered.map(product => {
                             const stockBadge = product.stock === 0
-                                ? '<span style="color:var(--danger);font-size:0.75rem;">🚫 Esaurito</span>'
+                                ? `<span style="color:var(--danger);font-size:0.75rem;">${icon('ban')} Esaurito</span>`
                                 : product.stock < 5
-                                    ? `<span style="color:var(--warning);font-size:0.75rem;">⚠️ ${product.stock}</span>`
-                                    : `<span style="color:var(--success);font-size:0.75rem;">✅ ${product.stock}</span>`;
+                                    ? `<span style="color:var(--warning);font-size:0.75rem;">${icon('warning')} ${product.stock}</span>`
+                                    : `<span style="color:var(--success);font-size:0.75rem;">${icon('check')} ${product.stock}</span>`;
                             return `
                                 <div class="order-item admin-product-row" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px;">
                                     <span style="flex:2;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><strong>${escapeHtml(product.name)}</strong></span>
@@ -5603,7 +6072,7 @@
                 if (el) {
                     el.innerHTML = `
                         <div class="empty-state" style="padding:30px;">
-                            <div class="empty-state-icon">❌</div>
+                            <div class="empty-state-icon"><svg class="icon"><use href="#i-x"></use></svg></div>
                             <p>Errore: ${error.message}</p>
                         </div>`;
                 }
@@ -5717,7 +6186,7 @@
             (existingImages || []).forEach(img => {
                 const div = document.createElement('div');
                 div.className = 'img-preview';
-                div.innerHTML = `<img src="${img.url}" alt=""><button type="button" title="Elimina immagine">✕</button>`;
+                div.innerHTML = `<img src="${img.url}" alt=""><button type="button" title="Elimina immagine">${icon('x')}</button>`;
                 div.querySelector('button').onclick = async () => {
                     if (!confirm('Eliminare questa immagine?')) return;
                     const r = await apiFetch(`/articles/images/${img.id}`, { method: 'DELETE' });
@@ -5735,7 +6204,7 @@
                 const div = document.createElement('div');
                 div.className = 'img-preview';
                 const url = URL.createObjectURL(file);
-                div.innerHTML = `<img src="${url}" alt=""><button type="button" title="Rimuovi">✕</button>`;
+                div.innerHTML = `<img src="${url}" alt=""><button type="button" title="Rimuovi">${icon('x')}</button>`;
                 div.querySelector('button').onclick = () => {
                     // Rimuove il file dalla FileList mantenendo gli altri
                     const dt = new DataTransfer();
@@ -5855,7 +6324,7 @@
 
             const saveBtn = document.getElementById('sellSaveBtn');
             saveBtn.disabled = true;
-            saveBtn.textContent = '⏳ Pubblicazione...';
+            saveBtn.innerHTML = `${icon('clock')} Pubblicazione...`;
 
             const fd = new FormData();
             fd.append('name', document.getElementById('sellName').value);
@@ -6077,7 +6546,7 @@
             
             // Disable button during request (double-submit prevention)
             saveBtn.disabled = true;
-            saveBtn.textContent = '⏳ Salvataggio...';
+            saveBtn.innerHTML = `${icon('clock')} Salvataggio...`;
             
             const newFiles = Array.from(document.getElementById('productImages').files);
 
@@ -6172,6 +6641,7 @@
 
         // Tab switching
         function switchTab(tabName, evt) {
+            if (tabName !== 'catalog' && !currentUser) { requireLogin('Accedi per continuare'); return; }
             const btn = evt?.currentTarget || evt?.target;
             document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
@@ -6223,9 +6693,9 @@
             toast.id = `toast-${entry.id}`;
             
             // Icon based on type
-            const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
-            const icon = icons[entry.type] || 'ℹ️';
-            toast.innerHTML = `<span style="font-size:1.1rem">${icon}</span><span>${escapeHtml(entry.message)}</span>`;
+            const icons = { success: icon('check'), error: icon('x'), info: icon('info'), warning: icon('warning') };
+            const toastIcon = icons[entry.type] || icon('info');
+            toast.innerHTML = `<span style="font-size:1.1rem">${toastIcon}</span><span>${escapeHtml(entry.message)}</span>`;
             
             queue.appendChild(toast);
             
@@ -6339,7 +6809,7 @@
                 if (phones.length === 0) {
                     phoneList.innerHTML = `
                         <div class="empty-state" style="padding: 20px;">
-                            <div class="empty-state-icon">📱</div>
+                            <div class="empty-state-icon"><svg class="icon"><use href="#i-smartphone"></use></svg></div>
                             <p>Nessun numero di telefono</p>
                         </div>
                     `;
@@ -6350,7 +6820,7 @@
                     <div class="order-item" style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <strong>${phone.countryPrefix} ${phone.number}</strong>
-                            <span class="badge badge-admin" style="margin-left: 10px;">${phone.phoneType === 'MOBILE' ? '📱 Mobile' : '☎️ Fisso'}</span>
+                            <span class="badge badge-admin" style="margin-left: 10px;">${phone.phoneType === 'MOBILE' ? `${icon('smartphone')} Mobile` : `${icon('phone')} Fisso`}</span>
                         </div>
                         <button class="btn btn-danger btn-sm" onclick="deletePhoneNumber(${phone.id})">Elimina</button>
                     </div>
@@ -6417,7 +6887,7 @@
                 if (addresses.length === 0) {
                     addressList.innerHTML = `
                         <div class="empty-state" style="padding: 20px;">
-                            <div class="empty-state-icon">🏠</div>
+                            <div class="empty-state-icon"><svg class="icon"><use href="#i-home"></use></svg></div>
                             <p>Nessun indirizzo salvato</p>
                         </div>
                     `;
@@ -6686,7 +7156,7 @@
     <div id="sessionWarningModal" class="modal-overlay hidden">
         <div class="modal session-warning-modal">
             <div style="text-align: center; padding: 20px 0;">
-                <div style="font-size: 3.5rem; margin-bottom: 15px;">⏰</div>
+                <div style="font-size: 3.5rem; margin-bottom: 15px;"><svg class="icon"><use href="#i-clock"></use></svg></div>
                 <h2 style="margin-bottom: 10px; color: var(--text-primary);">Sessione in scadenza</h2>
                 <p style="color: var(--text-secondary); margin-bottom: 25px; font-size: 1.05rem; line-height: 1.5;">
                     La tua sessione scadrà tra <strong>5 minuti</strong> per inattività.<br>
@@ -6694,10 +7164,10 @@
                 </p>
                 <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
                     <button onclick="extendSession()" class="btn btn-success" style="padding: 12px 28px; font-size: 1rem;">
-                        ⏳ Prosegui
+                        <svg class="icon"><use href="#i-clock"></use></svg> Prosegui
                     </button>
                     <button onclick="handleSessionTimeout()" class="btn btn-secondary" style="padding: 12px 28px; font-size: 1rem;">
-                        🚪 Esci
+                        <svg class="icon"><use href="#i-log"></use></svg> Esci
                     </button>
                 </div>
             </div>
