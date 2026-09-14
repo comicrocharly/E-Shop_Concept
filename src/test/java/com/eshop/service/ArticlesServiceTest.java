@@ -3,6 +3,7 @@ package com.eshop.service;
 import com.eshop.dto.CreateArticlesRequest;
 import com.eshop.entity.Articles;
 import com.eshop.entity.User;
+import com.eshop.repository.ArticleImageRepository;
 import com.eshop.repository.ArticlesRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,6 +37,9 @@ class ArticlesServiceTest {
 
     @Mock
     private ArticlesRepository articlesRepository;
+
+    @Mock
+    private ArticleImageRepository articleImageRepository;
 
     @InjectMocks
     private ArticlesService articlesService;
@@ -194,6 +198,7 @@ class ArticlesServiceTest {
         @DisplayName("delete existing article")
         void deleteExisting() {
             when(articlesRepository.existsById(1L)).thenReturn(true);
+            when(articlesRepository.findById(1L)).thenReturn(Optional.of(article(1L)));
 
             articlesService.delete(1L);
 

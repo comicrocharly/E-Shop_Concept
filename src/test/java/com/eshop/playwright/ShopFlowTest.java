@@ -8,6 +8,7 @@ import com.microsoft.playwright.options.WaitForSelectorState;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 import java.util.regex.Pattern;
 
@@ -33,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * A fresh browser context is used per test; the shared buyer is created once per class
  * via the API (keeps register rate-limit pressure low across the suite).
  */
+@EnabledIfSystemProperty(named = "e2e.enabled", matches = "true")
 class ShopFlowTest extends PlaywrightBase {
 
     private static final String BUYER_PASSWORD = "E2ePass!123";

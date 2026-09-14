@@ -1,6 +1,7 @@
 package com.eshop.playwright;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
@@ -9,6 +10,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
  *
  * <p>Disabled by default; see {@link PlaywrightBase} for how to run the S5 suite manually.
  */
+@EnabledIfSystemProperty(named = "e2e.enabled", matches = "true")
 class PlaywrightSmokeTest extends PlaywrightBase {
 
     @Test
