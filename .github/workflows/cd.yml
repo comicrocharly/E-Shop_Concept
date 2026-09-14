@@ -1,0 +1,63 @@
+# =============================================================================
+# CD — Deploy sul cluster dev (main only)
+# Gira su self-hosted runner "eshop-dev" su questa macchina: solo da qui
+# si vede il cluster kind e il docker locale.
+#
+# Pre-requisimo (una tantum, vedi README-K8S.md):
+#   - secret GITHUB_TOKEN / runner registrato sulla repo
+#   - kubectl configurato (kind) e cluster `eshop` accceso
+# =============================================================================
+name: CD
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-eshop-dev
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy dev
+    runs-on: [self-hosted, eshop-dev]
+    steps:
+      - uses: actions/checkout@v4
+
+      # 0) Cluster presente (altrimenti lo crea)
+      - name: Ensure kind cluster
+        run: |
+          if ! docker ps --format '{{.Names}}' | grep -q '^kind-eshop-control-plane$'; then
+            make cluster
+            make deps
+          fi
+
+      # 1) Build locale tagata col commit (nessun registry: kind load)
+      - name: Build image
+        run: docker build -t eshop:${{ github.sha }} .
+
+      - name: Load image into kind
+        run: kind load docker-image eshop:${{ github.sha }} --name eshop
+
+      # 2) Deploy: immagine tagata nel manifest via env → rollout + health gate
+      - name: Deploy
+        run: |
+          kubectl -n eshop set image deployment/eshop eshop=eshop:${{ github.sha }}
+          kubectl -n eshop rollout status deployment/eshop --timeout=180s
+
+      # 3) Smoke test: l'ingresso nginx deve rispondere
+      - name: Smoke test
+        run: |
+          for i in $(seq 1 10); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/)
+            [ "$code" = "200" ] && break
+            sleep 3
+          done
+          [ "$code" = "200" ] || { echo "❌ smoke test fallito (http $code)"; exit 1; }
+
+      # 4) Rollback automatico se il rollout non è sano (doppia sicurezza:
+      #    il rollout status sopra fallisce già, qui copriamo lo smoke test)
+      - name: Rollback on failure
+        if: failure()
+        run: kubectl -n eshop rollout undo deployment/eshop || true

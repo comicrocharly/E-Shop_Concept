@@ -1,0 +1,15 @@
+# Cluster kind locale per lo sviluppo E-Shop
+#   1 control-plane + 2 worker (le repliche si distribuiscono sui worker)
+#   Port mapping: host 8080 → NodePort 3080 (nginx)
+#   Per accendere il cluster:  kind create cluster --config kind/cluster.yaml
+apiVersion: kind.x-k8s.io/v1alpha4
+kind: Cluster
+name: eshop
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      - containerPort: 30080
+        hostPort: 8080
+        protocol: TCP
+  - role: worker
+  - role: worker

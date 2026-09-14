@@ -61,6 +61,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/", "/index.html", "/favicon.ico").permitAll()
                         
+                        // Kubernetes probes (liveness/readiness) — pubbliche
+                        .requestMatchers("/actuator/health/**").permitAll()
+                        
                         // Static resources - pubblici
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/**/*.png", "/**/*.ico", "/**/*.jpg", "/**/*.jpeg", "/**/*.gif", "/**/*.svg").permitAll()
                         

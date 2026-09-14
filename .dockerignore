@@ -1,0 +1,17 @@
+target/
+data/
+output/
+__pycache__/
+.git/
+.github/
+k8s/
+kind/
+test-results/
+*.log
+Dockerfile
+.dockerignore
+Makefile
+REBUILD_PLAN.md
+CREDENTIALS.md
+*.md
+!README.md

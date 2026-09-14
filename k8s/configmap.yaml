@@ -1,0 +1,18 @@
+# Config non sensibile. I secret (password DB, JWT) vivono in eshop-secret,
+# generato dalla Makefile (mai committato).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eshop-config
+  namespace: eshop
+  labels:
+    app.kubernetes.io/part-of: eshop
+data:
+  # Spring Boot mappa SPRING_* → spring.* e APP_* → app.* automaticamente
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://eshop-db.eshop.svc.cluster.local:5432/eshop"
+  SPRING_DATASOURCE_USERNAME: "eshop"
+  # Le immagini degli articoli vivono su un volume condiviso (hostPath in dev,
+  # NFS/S3 in produzione)
+  APP_ARTICLE_IMAGE_DIR: "/app/data/article-images"
+  # In K8s non serve SQL verboso
+  SPRING_JPA_SHOW_SQL: "false"

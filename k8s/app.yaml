@@ -1,0 +1,97 @@
+# =============================================================================
+# E-Shop API — Deployment 3 repliche
+# Self-healing:
+#   - replica crashata/rimossa  → il controller Deployment la ricrea
+#   - pod malato (liveness)     → K8s lo riavvia
+#   - pod non ready (readiness) → escluso dal load balancing finché non è ok
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eshop
+  namespace: eshop
+  labels:
+    app.kubernetes.io/name: eshop
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: eshop
+  # Rollout senza downtime: i nuovi pod ricevono traffico solo quando sono ready
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: eshop
+    spec:
+      # Distribuzione su più worker (dev: best effort)
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: eshop
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: eshop
+          image: eshop:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8081
+          envFrom:
+            - configMapRef:
+                name: eshop-config
+          env:
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: eshop-secret
+                  key: db-password
+            - name: APP_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: eshop-secret
+                  key: jwt-secret
+          # Boot lento (JVM + Hibernate): startupProbe dà ~2 minuti
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8081
+            periodSeconds: 5
+            failureThreshold: 24
+          # Solo dopo lo startup: liveness riavvia, readiness gestisce il traffico
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8081
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8081
+            periodSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 768Mi
+          volumeMounts:
+            - name: images
+              mountPath: /app/data/article-images
+      volumes:
+        # Dev: hostPath condiviso tra i worker di kind.
+        # Produzione: NFS (RWX) oppure refactor S3/MinIO (pod stateless).
+        - name: images
+          hostPath:
+            path: /host/eshop-article-images
+            type: DirectoryOrCreate

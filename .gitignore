@@ -29,3 +29,10 @@ REBUILD_PLAN.md
 index-original-backup.html
 __pycache__/
 data/article-images/
+
+# Asset generation / script non correlati al deploy
+output/
+articoli-t2i.*
+prompts-comfyui.md
+generate_comfyui.py
+__pycache__/
