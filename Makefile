@@ -40,7 +40,7 @@ deploy: ## da eseguire DOPO cluster + deps
 	$(K) apply -f k8s/app-service.yaml
 	@echo "⏳ rollout..."
 	$(K) rollout status deploy/$(APP) --timeout=180s
-	@echo "✅ E-Shop su http://localhost:8080  (nginx NodePort 3080 → host 8080)"
+	@echo "✅ E-Shop su http://localhost:8080  (nginx NodePort 30080 → host 8080)"
 
 status:
 	$(K) get pods,svc,deploy -o wide

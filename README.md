@@ -208,18 +208,34 @@ Suite **rebuild** completata il 2026-08-17 (vedi `REBUILD_PLAN.md` per dettagli 
 ### Requisiti
 - Java 21
 - Maven 3.x
-- Docker (PostgreSQL 16 per l'app e Testcontainers per i test)
+- Docker
+- `kind` + `kubectl` (solo per lo stack Kubernetes)
 
-### Compilazione e avvio
+### Avvio con il nuovo stack (Kubernetes + nginx + PostgreSQL)
 ```bash
-cd eshop
-mvn clean package -DskipTests
-java -jar target/eshop-0.0.1-SNAPSHOT.jar
+./start-k8s.sh
 ```
+Idempotente: crea il cluster `kind` (1 control-plane + 2 worker), applica
+namespace/secret/PostgreSQL (StatefulSet+PVC)/nginx, builda l'immagine,
+deploya le 3 repliche con rolling update e attende l'ingresso HTTP.
 
 L'applicazione sarà disponibile su:
-- **Frontend**: http://localhost:8081
-- **API**: http://localhost:8081/api
+- **Frontend**: http://localhost:8080 (nginx → 3 replica → PostgreSQL)
+- **API**: http://localhost:8080/api
+
+Comandi utili (`make help` implicita, vedi `Makefile`):
+```bash
+make status     # stato cluster/app
+make logs       # log app in tempo reale
+make rollback   # undo ultimo rollout
+make down       # smonta tutto
+```
+
+### Avvio semplice (senza Kubernetes, per debug)
+```bash
+mvn spring-boot:run   # richiede un PostgreSQL raggiungibile
+```
+Sulle porte locali l'app ascolta su `8081`.
 
 ---
 
@@ -236,6 +252,12 @@ eshop/
 │   ├── repository/       # Spring Data JPA (7)
 │   ├── service/          # Business Logic (6) + PaymentGateway + MockPaymentGateway
 │   └── EshopApplication.java
+├── start-k8s.sh        # avvio stack K8s (idempotente)
+├── Makefile            # cluster/deps/build/deploy/status/logs/rollback/down
+├── Dockerfile          # multi-stage Maven → JRE 21 non-root
+├── kind/cluster.yaml   # cluster dev: control-plane + 2 worker
+├── k8s/                # manifesti: namespace, configmap, postgres, app, nginx
+├── .github/workflows/  # ci.yml (test+immagine) / cd.yml (deploy dev)
 ├── src/main/resources/
 │   ├── static/index.html # Frontend HTML/CSS/JS
 │   └── application*.properties
