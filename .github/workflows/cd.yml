@@ -28,7 +28,7 @@ jobs:
       # 0) Cluster presente (altrimenti lo crea)
       - name: Ensure kind cluster
         run: |
-          if ! docker ps --format '{{.Names}}' | grep -q '^kind-eshop-control-plane$'; then
+          if ! docker ps --format '{{.Names}}' | grep -q '^eshop-control-plane$'; then
             make cluster
             make deps
           fi
