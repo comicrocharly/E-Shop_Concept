@@ -1,0 +1,9 @@
+name: Runner test
+
+on: [workflow_dispatch]
+
+jobs:
+  hello:
+    runs-on: [self-hosted, cachyos-x8664]
+    steps:
+      - run: echo "runner ok: $(hostname)"
