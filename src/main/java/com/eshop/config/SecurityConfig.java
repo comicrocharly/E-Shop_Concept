@@ -33,12 +33,14 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(
-            "http://localhost:8081",
-            "http://localhost",
-            "http://127.0.0.1:8081",
-            "http://127.0.0.1",
-            "null"
+        // Pattern (non origini letterali): il browser invia sempre l'header
+        // Origin sui POST anche same-origin; il CorsFilter di Spring Security
+        // li valida e risponde 403 se l'origin non è consentita.
+        // "http://localhost:*" / "http://127.0.0.1:*" coprono ogni porta
+        // locale (8080 nginx, 8081 backend diretto, 30080 NodePort).
+        config.setAllowedOriginPatterns(List.of(
+            "http://localhost:*",
+            "http://127.0.0.1:*"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
