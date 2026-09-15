@@ -54,6 +54,7 @@ jobs:
 
       # 3) Smoke test: l'ingresso frontend deve rispondere
       - name: Smoke test
+        # (ingresso frontend deve rispondere prima di lanciare gli E2E)
         run: |
           for i in $(seq 1 10); do
             code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/)
@@ -62,8 +63,25 @@ jobs:
           done
           [ "$code" = "200" ] || { echo "❌ smoke test fallito (http $code)"; exit 1; }
 
-      # 4) Rollback automatico se il rollout non è sano (doppia sicurezza:
-      #    il rollout status sopra fallisce già, qui copriamo lo smoke test)
+      # 4) E2E (Playwright, S5): flow reali contro il cluster via l'ingresso
+      #    frontend (nginx :8080, /api → backend). Disattivati by design in
+      #    `mvn test`; qui li riattiviamo col flag. Credenziali admin:
+      #    default CREDENTIALS.md, override via vars/secrets della repo.
+      - name: E2E Playwright
+        run: |
+          if ! ls "${HOME}/.cache/ms-playwright" 2>/dev/null | grep -q '^chromium'; then
+            npx -y playwright@1.55.0 install chromium
+          fi
+          mvn -B test \
+            -Dtest='com.eshop.playwright.*' \
+            -De2e.enabled=true \
+            -De2e.baseUrl=http://localhost:8080 \
+            -De2e.adminUsername="${{ vars.E2E_ADMIN_USERNAME || 'adminuser' }}" \
+            -De2e.adminPassword="${{ secrets.E2E_ADMIN_PASSWORD || 'admin123' }}"
+
+      # 5) Rollback automatico se rollout/smoke/E2E non sono sani (doppia
+      #    sicurezza: il rollout status sopra fallisce già, qui copriamo
+      #    smoke test ed E2E)
       - name: Rollback on failure
         if: failure()
         run: |
