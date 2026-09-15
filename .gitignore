@@ -36,3 +36,6 @@ articoli-t2i.*
 prompts-comfyui.md
 generate_comfyui.py
 __pycache__/
+
+# Seed script locale (non pushare)
+seed.sh
