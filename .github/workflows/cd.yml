@@ -1,6 +1,6 @@
 # =============================================================================
 # CD — Deploy sul cluster dev (main only)
-# Gira su self-hosted runner "eshop-dev" su questa macchina: solo da qui
+# Gira su self-hosted runner "cachyos-x8664" su questa macchina: solo da qui
 # si vede il cluster kind e il docker locale.
 #
 # Pre-requisimo (una tantum, vedi README-K8S.md):
@@ -21,7 +21,7 @@ concurrency:
 jobs:
   deploy:
     name: Deploy dev
-    runs-on: [self-hosted, eshop-dev]
+    runs-on: [self-hosted, cachyos-x8664]
     steps:
       - uses: actions/checkout@v4
 

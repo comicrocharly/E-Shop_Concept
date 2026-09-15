@@ -83,7 +83,7 @@ kubectl -n eshop rollout status deployment/eshop
 | Workflow | Quando | Cosa fa | Runner |
 |---|---|---|---|
 | `ci.yml` | PR + push main | `mvn verify` (Testcontainers → PostgreSQL reale) + build immagine; su main pubblica su **GHCR** tagata col SHA | GitHub-hosted |
-| `cd.yml` | push main | build immagine locale → `kind load` → `set image` → `rollout status` → smoke test su `:8080` → **rollback automatico** su fallimento | **self-hosted** `eshop-dev` |
+| `cd.yml` | push main | build immagine locale → `kind load` → `set image` → `rollout status` → smoke test su `:8080` → **rollback automatico** su fallimento | **self-hosted** `cachyos-x8664` |
 
 ### Setup runner (una tantum, su questa macchina)
 
@@ -92,7 +92,7 @@ kubectl -n eshop rollout status deployment/eshop
    ```bash
    # scarica l'archivio del runner, poi registra con il token della repo:
    ./config.sh --url https://github.com/comicrocharly/E-Shop_Concept \
-               --token <token> --name eshop-dev --labels eshop-dev
+               --token <token> --name cachyos-x8664 --labels cachyos-x8664
    ./run.sh   # tenere in foreground (o systemd/autostart)
    ```
 3. Il runner vede `docker`, `kind`, `kubectl` → il CD gira direttamente
