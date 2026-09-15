@@ -6,4 +6,4 @@ jobs:
   hello:
     runs-on: [self-hosted, cachyos-x8664]
     steps:
-      - run: echo "runner ok: $(hostname)"
+      - run: 'echo runner ok on $(hostname)'
