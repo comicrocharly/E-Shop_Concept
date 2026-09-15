@@ -1,0 +1,89 @@
+# =============================================================================
+# Frontend — nginx statico, punto d'ingresso unico (sostituisce nginx.yaml)
+#   - serve index.html + asset (niente JVM, ~5 MB)
+#   - proxy /api/ + /images/ → Service eshop-api (3 replica backend)
+#   - NodePort 30080 → mappato su host 8080 dal cluster kind
+#
+#   NB: il ConfigMap `frontend-config` NON è qui: viene sempre rigenerato da
+#   frontend/nginx.conf da `make configmap-web` (un'unica fonte di verità,
+#   con checksum sul pod template → rollout automatico solo se cambia).
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: eshop
+  labels:
+    app.kubernetes.io/name: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: frontend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: frontend
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: frontend
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: frontend
+          image: eshop-web:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 64Mi
+          volumeMounts:
+            - name: config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: frontend-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: eshop
+  labels:
+    app.kubernetes.io/name: frontend
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: frontend
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30080

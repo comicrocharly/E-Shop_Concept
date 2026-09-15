@@ -37,13 +37,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build image
+      - name: Build images
         run: |
-          docker build -t eshop:${{ github.sha }} --label com.eshop.sha=${{ github.sha }} .
           # tag GHCR (pacchetto minuscolo: i reference Docker non ammettono maiuscole)
-          docker tag eshop:${{ github.sha }} ghcr.io/comicrocharly/e-shop_concept:latest
+          docker build -t eshop-api:${{ github.sha }} -t ghcr.io/comicrocharly/e-shop_api:latest \
+            --label com.eshop.sha=${{ github.sha }} .
+          docker build -f frontend/Dockerfile \
+            -t eshop-web:${{ github.sha }} -t ghcr.io/comicrocharly/e-shop_web:latest frontend/
 
-      # Su main: pubblica l'immagine su GHCR (docker push classico, niente buildx)
+      # Su main: pubblica le immagini su GHCR (docker push classico, niente buildx)
       - if: github.ref == 'refs/heads/main'
         uses: docker/login-action@v3
         with:
@@ -52,5 +54,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - if: github.ref == 'refs/heads/main'
-        name: Push image to GHCR
-        run: docker push ghcr.io/comicrocharly/e-shop_concept:latest
+        name: Push images to GHCR
+        run: |
+          docker push ghcr.io/comicrocharly/e-shop_api:latest
+          docker push ghcr.io/comicrocharly/e-shop_web:latest

@@ -34,19 +34,25 @@ jobs:
           fi
 
       # 1) Build locale tagata col commit (nessun registry: kind load)
-      - name: Build image
-        run: docker build -t eshop:${{ github.sha }} .
+      - name: Build images
+        run: |
+          docker build -t eshop-api:${{ github.sha }} .
+          docker build -f frontend/Dockerfile -t eshop-web:${{ github.sha }} frontend/
 
-      - name: Load image into kind
-        run: kind load docker-image eshop:${{ github.sha }} --name eshop
+      - name: Load images into kind
+        run: |
+          kind load docker-image eshop-api:${{ github.sha }} --name eshop
+          kind load docker-image eshop-web:${{ github.sha }} --name eshop
 
-      # 2) Deploy: immagine tagata nel manifest via env → rollout + health gate
+      # 2) Deploy: immagini tagate → rollout + health gate (backend prima, poi frontend)
       - name: Deploy
         run: |
-          kubectl -n eshop set image deployment/eshop eshop=eshop:${{ github.sha }}
+          kubectl -n eshop set image deployment/eshop eshop=eshop-api:${{ github.sha }}
           kubectl -n eshop rollout status deployment/eshop --timeout=180s
+          kubectl -n eshop set image deployment/frontend frontend=eshop-web:${{ github.sha }}
+          kubectl -n eshop rollout status deployment/frontend --timeout=120s
 
-      # 3) Smoke test: l'ingresso nginx deve rispondere
+      # 3) Smoke test: l'ingresso frontend deve rispondere
       - name: Smoke test
         run: |
           for i in $(seq 1 10); do
@@ -60,4 +66,6 @@ jobs:
       #    il rollout status sopra fallisce già, qui copriamo lo smoke test)
       - name: Rollback on failure
         if: failure()
-        run: kubectl -n eshop rollout undo deployment/eshop || true
+        run: |
+          kubectl -n eshop rollout undo deployment/frontend || true
+          kubectl -n eshop rollout undo deployment/eshop || true

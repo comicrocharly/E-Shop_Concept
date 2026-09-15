@@ -1,6 +1,6 @@
 # =============================================================================
 # Service interno: endpoint stabile + load balancing sulle 3 repliche.
-# nginx (vedi nginx.yaml) puntano qui; il balancing effettivo verso i pod
+# Il frontend (vedi frontend.yaml) proxypassa /api/ qui; il balancing effettivo verso i pod
 # lo fa la rete K8s (iptables/ipvs) — ogni replica è raggiunta in parallelo.
 # =============================================================================
 apiVersion: v1

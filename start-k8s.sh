@@ -5,7 +5,8 @@
 #   ./start-k8s.sh
 #
 # Idempotente: crea il cluster e applica i manifesti solo se non ci sono,
-# builda l'immagine, deploya le 3 repliche e attende che l'ingresso risponda.
+# builda le immagini (backend + frontend), deploya il tutto e attende che
+# l'ingresso risponda.
 #
 # Fine: http://localhost:8080
 # =============================================================================
@@ -28,13 +29,13 @@ if ! kubectl get nodes >/dev/null 2>&1; then
     make cluster
 fi
 
-# --- 2) dipendenze: namespace, secret, configmap, postgres, nginx --------------
+# --- 2) dipendenze: namespace, secret, configmap, postgres (x3), frontend -------
 if ! kubectl get ns eshop >/dev/null 2>&1 || ! kubectl -n eshop get deploy eshop >/dev/null 2>&1; then
-    echo "📦 applico namespace + secret + postgres + nginx..."
+    echo "📦 applico namespace + secret + postgres (primary + 2 replica) + frontend..."
     make deps
 fi
 
-# --- 3) build immagine + deploy app ---------------------------------------------
+# --- 3) build immagini (backend + frontend) + deploy ------------------------------
 make deploy
 
 # --- 4) attesa ingresso HTTP ----------------------------------------------------
@@ -46,7 +47,9 @@ for i in $(seq 1 30); do
     sleep 2
 done
 if [ "$code" = "200" ]; then
-    echo "✅ E-Shop online → http://localhost:8080"
+    # --- 5) dati demo (idempotente): immagini + admin + catalogo -------------
+    make seed
+    echo "✅ E-Shop online → http://localhost:8080  (login demo: admin / admin123)"
     kubectl -n eshop get pods
 else
     echo "❌ l'app non risponde (http ${code:-n/a}) — make logs / kubectl -n eshop get pods" >&2

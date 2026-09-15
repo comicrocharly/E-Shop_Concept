@@ -1,0 +1,128 @@
+# =============================================================================
+# PostgreSQL — 2 read-replicas (streaming replication)
+#
+#   primary (eshop-db, 1 pod, PVC eshop-db-data)  ← scrive l'app
+#      │  WAL streaming
+#      ▼
+#   replica ×2 (StatefulSet, PVC dedicati per pod) ← standby read-only
+#
+# Nota: NON è un Deployment con replicas:3 (3 DB indipendenti dietro un solo
+# Service = scritture "a caso" → divergenza dei dati). Qui ogni replica è uno
+# standby sincronizzato via WAL: se il primary muore, un replica lo sostituisce
+# (promozione manuale in dev: standby.signal rimosso + apply).
+# =============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: eshop-db-ro
+  namespace: eshop
+  labels:
+    app.kubernetes.io/name: eshop-db-replica
+spec:
+  selector:
+    app.kubernetes.io/name: eshop-db-replica
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: eshop-db-replica
+  namespace: eshop
+  labels:
+    app.kubernetes.io/name: eshop-db-replica
+spec:
+  serviceName: eshop-db-ro
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: eshop-db-replica
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: eshop-db-replica
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: eshop-db-replica
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: postgres
+          image: postgres:16
+          ports:
+            - containerPort: 5432
+          # POSTGRES_PASSWORD è richiesto dall'immagine per l'initdb di
+          # bootstrap dello standby (poi il replay WAL usa primary_conninfo)
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: eshop-secret
+                  key: db-password
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: eshop-secret
+                  key: db-user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: eshop-secret
+                  key: db-password
+          # Standby: segnala che è una replica, aspetta il primary, poi parte
+          # con primary_conninfo (l'immagine postgres fa il resto: initdb
+          # pulito + replay WAL dal primary).
+          command:
+            - bash
+            - -c
+            - |
+              set -e
+              DATA=/var/lib/postgresql/data
+              if [ -f "$DATA/PG_VERSION" ]; then
+                # standby già esistente (riavvio/ripresa): riparte in recovery
+                echo "standby esistente, riavvio"
+              else
+                echo "attendo il primary (eshop-db)..."
+                until pg_isready -h eshop-db -p 5432; do sleep 2; done
+                echo "base backup dal primary..."
+                find "$DATA" -mindepth 1 -delete 2>/dev/null || true
+                # -R crea standby.signal + scrive primary_conninfo (con password)
+                pg_basebackup \
+                  -d "host=eshop-db port=5432 user=${DB_USER} password=${DB_PASSWORD} application_name=eshop-replica" \
+                  -D "$DATA" -X stream -R -P
+              fi
+              exec docker-entrypoint.sh postgres
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-h", "localhost"]
+            periodSeconds: 5
+            failureThreshold: 6
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-h", "localhost"]
+            periodSeconds: 15
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 2Gi

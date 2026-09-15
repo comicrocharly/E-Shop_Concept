@@ -40,7 +40,7 @@ spec:
                 topologyKey: kubernetes.io/hostname
       containers:
         - name: eshop
-          image: eshop:local
+          image: eshop-api:local
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8081
