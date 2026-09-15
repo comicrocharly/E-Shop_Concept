@@ -271,3 +271,9 @@ eshop/
 ├── REBUILD_PLAN.md      # Piano test rebuild + bug B1–B8 + note tecniche
 └── pom.xml
 ```
+
+---
+
+## 📚 Documenti correlati
+
+- [**Kubernetes (dev locale)**](README-K8S.md) — stack kind, self-healing, CI/CD, dati demo (seed), note/limiti
