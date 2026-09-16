@@ -1,11 +1,18 @@
 # =============================================================================
-# CD — Deploy sul cluster dev (main only)
-# Gira su self-hosted runner "cachyos-x8664" su questa macchina: solo da qui
-# si vede il cluster kind e il docker locale.
+# CD — Deployment su cluster Kubernetes EPHEMERAL (100% cloud-native)
 #
-# Pre-requisimo (una tantum, vedi README-K8S.md):
-#   - secret GITHUB_TOKEN / runner registrato sulla repo
-#   - kubectl configurato (kind) e cluster `eshop` accceso
+#   Ogni deploy nasce un cluster kind fresco sul runner GitHub-hosted:
+#   nessun self-hosted runner (i PR di contributor non eseguiti più su
+#   macchine del team), nessun stato persistente da gestire.
+#
+#   Flusso: kind cluster → deps (PostgreSQL 16 primary + 2 replica)
+#           → build immagini → kind load → deploy (rollout)
+#           → seed demo → smoke test HTTP → E2E Playwright
+#
+#   Secrets (Settings → Secrets and variables → Actions):
+#     ESHOP_DB_PASSWORD   password PostgreSQL (default dev: eshop123)
+#     ESHOP_JWT_SECRET    firma JWT, 32 byte hex (default dev nel Makefile)
+#     E2E_ADMIN_PASSWORD  password utente admin (default dev: admin123)
 # =============================================================================
 name: CD
 
@@ -14,80 +21,109 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+# Un solo deploy alla volta (dev cluster): i push in coda non cancellano
+# l'deploy in corso, si allineano dopo.
 concurrency:
   group: deploy-eshop-dev
   cancel-in-progress: false
 
 jobs:
   deploy:
-    name: Deploy dev
-    runs-on: [self-hosted, cachyos-x8664]
+    name: Deploy & Verify (kind)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      # Fallback dev solo se il secret non è definito (documentato nel README)
+      DB_PASSWORD: ${{ secrets.ESHOP_DB_PASSWORD || 'eshop123' }}
+      JWT_SECRET: ${{ secrets.ESHOP_JWT_SECRET || '404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970' }}
+      ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD || 'admin123' }}
     steps:
       - uses: actions/checkout@v4
 
-      # 0) Cluster presente (altrimenti lo crea)
-      - name: Ensure kind cluster
-        run: |
-          if ! docker ps --format '{{.Names}}' | grep -q '^eshop-control-plane$'; then
-            make cluster
-            make deps
-          fi
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
 
-      # 1) Build locale tagata col commit (nessun registry: kind load)
-      - name: Build images
+      - name: Install kind
         run: |
-          docker build -t eshop-api:${{ github.sha }} .
-          docker build -f frontend/Dockerfile -t eshop-web:${{ github.sha }} frontend/
+          KIND_VERSION=v0.23.0
+          curl -fsSL "https://kind.sigs.k8s.io/dl/${KIND_VERSION}/kind-linux-amd64" -o /usr/local/bin/kind
+          chmod +x /usr/local/bin/kind
+          kind version
+          kubectl version --client
+
+      - name: Create kind cluster (1 control-plane + 2 workers)
+        run: make cluster
+
+      - name: Install dependencies (namespace, secret, PostgreSQL 16)
+        run: make deps
+
+      - name: "Build images (tag local + SHA)"
+        run: |
+          docker build -t eshop-api:local -t eshop-api:${{ github.sha }} \
+            --label com.eshop.sha=${{ github.sha }} .
+          docker build -f frontend/Dockerfile \
+            -t eshop-web:local -t eshop-web:${{ github.sha }} \
+            --label com.eshop.sha=${{ github.sha }} frontend/
 
       - name: Load images into kind
         run: |
+          kind load docker-image eshop-api:local --name eshop
           kind load docker-image eshop-api:${{ github.sha }} --name eshop
+          kind load docker-image eshop-web:local --name eshop
           kind load docker-image eshop-web:${{ github.sha }} --name eshop
 
-      # 2) Deploy: immagini tagate → rollout + health gate (backend prima, poi frontend)
-      - name: Deploy
-        run: |
-          kubectl -n eshop set image deployment/eshop eshop=eshop-api:${{ github.sha }}
-          kubectl -n eshop rollout status deployment/eshop --timeout=180s
-          kubectl -n eshop set image deployment/frontend frontend=eshop-web:${{ github.sha }}
-          kubectl -n eshop rollout status deployment/frontend --timeout=120s
+      - name: Deploy (apply + rollout)
+        run: make deploy-loaded
 
-      # 3) Smoke test: l'ingresso frontend deve rispondere
-      - name: Smoke test
-        # (ingresso frontend deve rispondere prima di lanciare gli E2E)
-        # NB: il shell di default è bash -e → la chiamata curl non può
-        # fallire in modo "nudo" (abortirebbe lo script e il retry loop),
-        # da qui il `|| true` e il --max-time.
+      - name: "Seed demo data (idempotente)"
+        run: make seed
+
+      - name: Smoke test (HTTP)
         run: |
-          code=""
-          for i in $(seq 1 10); do
-            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 http://localhost:8080/ || true)
+          code="000"
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/)
             [ "$code" = "200" ] && break
-            sleep 3
+            sleep 5
           done
-          [ "$code" = "200" ] || { echo "❌ smoke test fallito (http $code)"; exit 1; }
+          echo "Frontend HTTP $code"
+          [ "$code" = "200" ]
 
-      # 4) E2E (Playwright, S5): flow reali contro il cluster via l'ingresso
-      #    frontend (nginx :8080, /api → backend). Disattivati by design in
-      #    `mvn test`; qui li riattiviamo col flag. Credenziali admin:
-      #    default CREDENTIALS.md, override via vars/secrets della repo.
-      - name: E2E Playwright
+      # Playwright: cache browser tra i run (il runner è effimero, la cache no)
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-1.55.0-${{ runner.os }}
+
+      - name: Install Playwright chromium
+        run: npx -y playwright@1.55.0 install --with-deps chromium
+
+      - name: E2E (Playwright)
         run: |
-          if ! ls "${HOME}/.cache/ms-playwright" 2>/dev/null | grep -q '^chromium'; then
-            npx -y playwright@1.55.0 install chromium
-          fi
           mvn -B test \
             -Dtest='PlaywrightSmokeTest,ShopFlowTest' \
             -De2e.enabled=true \
             -De2e.baseUrl=http://localhost:8080 \
-            -De2e.adminUsername="admin" \
-            -De2e.adminPassword="${{ secrets.E2E_ADMIN_PASSWORD || 'admin123' }}"
+            -De2e.adminUsername=admin \
+            -De2e.adminPassword=${ADMIN_PASSWORD}
 
-      # 5) Rollback automatico se rollout/smoke/E2E non sono sani (doppia
-      #    sicurezza: il rollout status sopra fallisce già, qui copriamo
-      #    smoke test ed E2E)
-      - name: Rollback on failure
+      - name: Upload test reports (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-reports-${{ github.sha }}
+          path: target/surefire-reports/
+          retention-days: 7
+
+      - name: Rollback (best-effort)
         if: failure()
         run: |
-          kubectl -n eshop rollout undo deployment/frontend || true
-          kubectl -n eshop rollout undo deployment/eshop || true
+          kubectl -n eshop rollout undo deploy/eshop || true
+          kubectl -n eshop rollout undo deploy/frontend || true
