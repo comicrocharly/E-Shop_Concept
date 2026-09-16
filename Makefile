@@ -40,8 +40,10 @@ deps: ## namespace + secret + configmap + postgres (primary + 2 replica) + front
 	$(K) apply -f k8s/configmap.yaml
 	$(K) apply -f k8s/postgres.yaml
 	$(K) apply -f k8s/postgres-replicas.yaml
-	$(MAKE) configmap-web
+	# frontend PRIMA di configmap-web: la patch di checksum richiede che
+	# il deployment esista (cluster fresh: non esiste ancora)
 	$(K) apply -f k8s/frontend.yaml
+	$(MAKE) configmap-web
 	# Aspetta che il DB sia pronto
 	@for i in $$(seq 1 60); do $(K) get pods -l app.kubernetes.io/name=eshop-db -o jsonpath='{.items[0].status.containerStatuses[0].ready}' 2>/dev/null | grep -q true && break; sleep 2; done; echo "DB ready"
 	# Streaming replication: abilita le connessioni replication in pg_hba.conf (idempotente)
