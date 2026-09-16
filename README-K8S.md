@@ -11,7 +11,7 @@ via GitHub Actions.
                 │  (kind host-port → NodePort 30080)
              ┌──▼────────────────────────────────────────────┐
              │ namespace eshop                               │
-             │  frontend (3 replica, NodePort 30080)        │
+             │  frontend (3 repliche, NodePort 30080)       │
              │   • nginx statico: index.html + asset         │
              │   • proxy /api/ + /images/ →                │
              │  Service eshop-api:8081  ◄── load balancing  │
@@ -42,7 +42,7 @@ via GitHub Actions.
 ## Uso
 
 ```bash
-make cluster    # 1. crea il cluster kind (kind-eshop-*)
+make cluster    # 1. crea il cluster kind (nome: eshop)
 make deps       # 2. namespace, secret, configmap, postgres (primary + 2 replica), frontend
 make deploy     # 3. build immagini + load + deployment → http://localhost:8080
 make status     # stato
@@ -83,7 +83,22 @@ kubectl -n eshop rollout status deployment/eshop
 | Workflow | Quando | Cosa fa | Runner |
 |---|---|---|---|
 | `ci.yml` | PR + push main | `mvn verify` (Testcontainers → PostgreSQL reale) + build immagine; su main pubblica su **GHCR** tagata col SHA | GitHub-hosted |
-| `cd.yml` | push main | build immagine locale → `kind load` → `set image` → `rollout status` → smoke test su `:8080` → **rollback automatico** su fallimento | **self-hosted** `cachyos-x8664` |
+| `cd.yml` | push main | build immagini (backend + frontend) → `kind load` → `set image` → `rollout status` → smoke test su `:8080` → **E2E Playwright (12 test)** → **rollback automatico** (`rollout undo`) su qualsiasi fallimento | **self-hosted** `cachyos-x8664` |
+
+### E2E Playwright (S5) — prerequisiti sul runner
+
+Il CD esegue i **12 test E2E** dopo il deploy (post-smoke):
+
+- **Chromium** già in `~/.cache/ms-playwright` (Playwright Java 1.55, revisione 1187);
+  se manca, il workflow fa fallback `npx playwright install chromium` prima dei test
+- Test **gated**: `@EnabledIfSystemProperty("e2e.enabled")` — `mvn verify` in CI **non li esegue**
+  (runner GitHub-hosted senza cluster); in CD partono con
+  `-De2e.enabled=true -De2e.baseUrl=http://localhost:8080`
+- Base URL = **frontend** (`:8080`): i test coprono la catena completa
+  browser → nginx → API → PostgreSQL
+- Credenziali admin: env `E2E_ADMIN_USERNAME`/`E2E_ADMIN_PASSWORD`
+  (fallback `admin`/`admin123`, i dati del seed), override via repo vars/secrets
+- Fallimento E2E → **rollback automatico** (come per il smoke test)
 
 ### Setup runner (una tantum, su questa macchina)
 

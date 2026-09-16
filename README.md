@@ -24,9 +24,12 @@ E-Shop è un'applicazione backend REST completa che gestisce un intero flusso e-
 | **Database** | PostgreSQL | 16 (Docker) |
 | **Sicurezza** | Spring Security | JWT + Role-based |
 | **Validazione** | Jakarta Validation | Bean Validation 3.0 |
-| **Testing** | Testcontainers | 1.21.4 + JUnit 5 |
+| **Testing** | Testcontainers + JUnit 5 | 1.21.4 |
+| **E2E Testing** | Playwright (driver Java) + Chromium | 1.55 |
 | **Build** | Maven | 3.x |
-| **Frontend** | HTML5 / CSS3 / Vanilla JS | — |
+| **Frontend** | HTML5 / CSS3 / Vanilla JS (single page) | — |
+| **Frontend serving** | nginx | 1.27-alpine |
+| **Infra dev** | Kubernetes (kind) + PostgreSQL 16 (primary + 2 replica) | — |
 
 ---
 
@@ -174,7 +177,7 @@ Category (gerarchia parent) ↔ Articles
 - ✅ **Telefono e indirizzi** — CRUD per utente
 - ✅ **Gestione errori globale** — Mapping errori HTTP (400/403/404/409/500)
 - ✅ **Prevenzione cicli Jackson** — `@JsonIgnore` su relazioni bidirezionali
-- ✅ **Frontend responsive** — HTML/CSS/JS con design moderno (modal pagamento, admin panel, settings)
+- ✅ **Frontend responsive** — single page HTML/CSS/JS con design moderno (modal pagamento, admin panel, settings); in K8s servita da nginx (`frontend/`), che fa da proxy `/api/` e `/images/` verso il backend
 - ✅ **Immagini articoli** — più immagini per articolo (tabella `article_images`), servite su `/images/articles/**`, con miniatura hover e lightbox navigabile nella scheda dettaglio
 
 > **🖼️ Crediti immagini (frontend mockup)** — le immagini prodotto di questo progetto sono state generate con
@@ -186,7 +189,7 @@ Category (gerarchia parent) ↔ Articles
 ## 🧪 Testing
 
 Suite **rebuild** completata il 2026-08-17 (vedi `REBUILD_PLAN.md` per dettagli e note tecniche):
-**302/302 test verdi** con `mvn test` (serve Docker per Testcontainers PostgreSQL 16).
+**302/302 test verdi** con `mvn test` (serve Docker per Testcontainers PostgreSQL 16), **più 12 test E2E browser (S5)**.
 
 | Sezione | Pacch. | Test | Descrizione |
 |---------|--------|------|-------------|
@@ -195,11 +198,29 @@ Suite **rebuild** completata il 2026-08-17 (vedi `REBUILD_PLAN.md` per dettagli 
 | S2 | `com.eshop.service` | 113 | Services (Mockito) + transizioni OrderStatus |
 | S3 | `com.eshop.controller` | 83 | `@WebMvcTest` per i 8 controller (services mockati) |
 | S4 | `com.eshop.integration` | 92 | Full-stack `@SpringBootTest` + Testcontainers + MockMvc (Auth 19, Articles 14, Cart 12, Orders 28, User 18, Gateway 1) |
+| S5 | `com.eshop.playwright` | 12 | **E2E browser** (Playwright Java 1.55, Chromium): 3 smoke + 9 flow utente completo |
 
 - Profilo test: `@ActiveProfiles("test")` → `SecurityTestConfig` (`permitAll` + param `?testUser=`), rate limit alzati in `application-test.properties`
 - DB test: Testcontainers PostgreSQL 16 (`jdbc:tc:postgresql:16:///eshop`, `create-drop`, container condiviso per JVM)
 - I bug noti dell'app (B1–B8) sono documentati da test che asseriscono il comportamento attuale (sezione §2.5 di `REBUILD_PLAN.md`)
-- E2E browser (Playwright): pending (S5 del piano, `@Disabled` di default)
+
+### E2E browser (S5 — Playwright)
+
+| Classe | Test | Cosa copre |
+|--------|------|------------|
+| `PlaywrightSmokeTest` | 3 | App reachable, rendering catalogo, login |
+| `ShopFlowTest` | 9 | Flussi utente completi: registrazione, CRUD admin, ricerca, carrello, **checkout + pagamento** (carta e COD), stati ordine, pannello admin |
+
+- **Gated**: `@EnabledIfSystemProperty(named = "e2e.enabled", matches = "true")` → `mvn verify` normale **non li esegue mai** (servono un'app up e Chromium)
+- Base URL = **ingresso frontend** (`http://localhost:8080`), non il backend: i test passano per nginx come un utente reale
+- Credenziali admin da env `E2E_ADMIN_USERNAME`/`E2E_ADMIN_PASSWORD` (fallback `admin`/`admin123`, i dati del seed)
+- `MockPaymentGateway` simula un **1% di fallimenti random**: i test di pagamento ritentano fino a 3 volte per non essere flaky
+- In locale (con lo stack K8s up):
+  ```bash
+  mvn test -Dtest='PlaywrightSmokeTest,ShopFlowTest' \
+      -De2e.enabled=true -De2e.baseUrl=http://localhost:8080
+  ```
+- In CI **non girano** (runner GitHub-hosted senza cluster); girano in **CD** sul self-hosted runner, dopo il deploy
 
 ---
 
@@ -235,7 +256,29 @@ make down       # smonta tutto
 ```bash
 mvn spring-boot:run   # richiede un PostgreSQL raggiungibile
 ```
-Sulle porte locali l'app ascolta su `8081`.
+Sulle porte locali l'app ascolta su `8081` (solo API: la SPA è servita da `frontend/` nel flusso K8s).
+
+### Test
+
+```bash
+# unit + controller + integration (302 test; serve Docker per Testcontainers)
+mvn test
+
+# E2E browser (12 test) — richiede stack K8s up su :8080 + Chromium
+mvn test -Dtest='PlaywrightSmokeTest,ShopFlowTest' \
+    -De2e.enabled=true -De2e.baseUrl=http://localhost:8080
+```
+
+---
+
+## 🔄 CI/CD
+
+| Workflow | Trigger | Cosa fa | Runner |
+|----------|---------|---------|--------|
+| `ci.yml` | PR + push main | `mvn verify` (302 test, Testcontainers → PostgreSQL reale) + build immagine; su main push su **GHCR** tagata col SHA | GitHub-hosted |
+| `cd.yml` | push main | Build immagini → `kind load` → `kubectl set image` → `rollout status` → **smoke test** su `:8080` → **E2E Playwright (12 test)** → **rollback automatico** (`rollout undo`) su qualsiasi fallimento | **self-hosted** (`cachyos-x8664`) |
+
+Dettagli (setup runner, manifesti K8s, note di produzione) in [README-K8S.md](README-K8S.md).
 
 ---
 
@@ -252,22 +295,23 @@ eshop/
 │   ├── repository/       # Spring Data JPA (7)
 │   ├── service/          # Business Logic (6) + PaymentGateway + MockPaymentGateway
 │   └── EshopApplication.java
+├── frontend/           # SPA single page: index.html + nginx.conf + Dockerfile (immagine eshop-web)
 ├── start-k8s.sh        # avvio stack K8s (idempotente)
+├── seed.sh             # dati demo idempotenti: 9 articoli SVG + admin/admin123
 ├── Makefile            # cluster/deps/build/deploy/status/logs/rollback/down
 ├── Dockerfile          # multi-stage Maven → JRE 21 non-root
 ├── kind/cluster.yaml   # cluster dev: control-plane + 2 worker
-├── k8s/                # manifesti: namespace, configmap, postgres, app, nginx
-├── .github/workflows/  # ci.yml (test+immagine) / cd.yml (deploy dev)
-├── src/main/resources/
-│   ├── static/index.html # Frontend HTML/CSS/JS
-│   └── application*.properties
+├── k8s/                # manifesti: namespace, configmap, postgres (primary+replica), app, frontend
+├── .github/workflows/  # ci.yml (test+immagine) / cd.yml (deploy dev + smoke + E2E + rollback)
+├── src/main/resources/ # application*.properties (DB/JWT/rate limit per ambiente)
 ├── src/test/java/com/eshop/
 │   ├── EshopApplicationSmokeTest.java   # S0
 │   ├── AbstractIntegrationTest.java     # base full-context
 │   ├── config/          # S1 — JwtTokenProviderTest
 │   ├── service/         # S2 — service tests (Mockito)
 │   ├── controller/      # S3 — @WebMvcTest (+ControllerTestSupport)
-│   └── integration/     # S4 — full-stack Testcontainers (+IntegrationTestSupport)
+│   └── playwright/      # S5 — E2E browser: PlaywrightBase, PlaywrightSmokeTest, ShopFlowTest
+├── CREDENTIALS.md      # credenziali di test (file LOCALE, git-ignorado): admin seedato + utente demo
 ├── REBUILD_PLAN.md      # Piano test rebuild + bug B1–B8 + note tecniche
 └── pom.xml
 ```
@@ -277,3 +321,4 @@ eshop/
 ## 📚 Documenti correlati
 
 - [**Kubernetes (dev locale)**](README-K8S.md) — stack kind, self-healing, CI/CD, dati demo (seed), note/limiti
+- **CREDENTIALS.md** — credenziali di test (file locale, git-ignorado): account admin seedato e utente demo, come crearli
