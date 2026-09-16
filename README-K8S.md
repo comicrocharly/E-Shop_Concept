@@ -82,36 +82,40 @@ kubectl -n eshop rollout status deployment/eshop
 
 | Workflow | Quando | Cosa fa | Runner |
 |---|---|---|---|
-| `ci.yml` | PR + push main | `mvn verify` (Testcontainers → PostgreSQL reale) + build immagine; su main pubblica su **GHCR** tagata col SHA | GitHub-hosted |
-| `cd.yml` | push main | build immagini (backend + frontend) → `kind load` → `set image` → `rollout status` → smoke test su `:8080` → **E2E Playwright (12 test)** → **rollback automatico** (`rollout undo`) su qualsiasi fallimento | **self-hosted** `cachyos-x8664` |
+| `ci.yml` | PR + push main | **Lint gate** (Checkstyle + ESLint) → `mvn verify` (Testcontainers → PostgreSQL reale) + build immagine; su main pubblica su **GHCR** tagata col SHA | GitHub-hosted |
+| `cd.yml` | push main | cluster **kind effimero** (1 CP + 2 workers) → PostgreSQL 16 (primary + 2 replica) → build → `kind load` → rollout → seed demo → smoke test su `:8080` → **E2E Playwright** → rollback best-effort (`rollout undo`) su fallimento | GitHub-hosted |
 
-### E2E Playwright (S5) — prerequisiti sul runner
+> **Perché più self-hosted runner?** Prima il CD girava su un runner self-hosted
+> (`cachyos-x8664`): un PR di un contributor avrebbe potuto eseguire codice
+> arbitrario su questa macchina. Ora ogni deploy nasce un cluster **kind
+> effimero** su un runner `ubuntu-latest` di GitHub: il codice di terzi gira
+> solo in sandbox di GitHub, il cluster viene smontato a fine run.
 
-Il CD esegue i **12 test E2E** dopo il deploy (post-smoke):
+### E2E Playwright (S5)
 
-- **Chromium** già in `~/.cache/ms-playwright` (Playwright Java 1.55, revisione 1187);
-  se manca, il workflow fa fallback `npx playwright install chromium` prima dei test
+Il CD esegue i **test E2E** dopo il deploy (post-smoke):
+
+- **Chromium** (Playwright 1.55) scaricato in `~/.cache/ms-playwright` con
+  **cache GitHub Actions** riutilizzata tra i run del progetto
 - Test **gated**: `@EnabledIfSystemProperty("e2e.enabled")` — `mvn verify` in CI **non li esegue**
-  (runner GitHub-hosted senza cluster); in CD partono con
+  (nessun cluster); in CD partono con
   `-De2e.enabled=true -De2e.baseUrl=http://localhost:8080`
-- Base URL = **frontend** (`:8080`): i test coprono la catena completa
-  browser → nginx → API → PostgreSQL
-- Credenziali admin: env `E2E_ADMIN_USERNAME`/`E2E_ADMIN_PASSWORD`
-  (fallback `admin`/`admin123`, i dati del seed), override via repo vars/secrets
-- Fallimento E2E → **rollback automatico** (come per il smoke test)
+- Base URL = **frontend** (`:8080`, host-port mapping del cluster kind):
+  i test coprono la catena completa browser → nginx → API → PostgreSQL
+- Credenziali admin: secret **`E2E_ADMIN_PASSWORD`** (iniettato anche nel seed,
+  così E2E e dati demo sono coerenti; fallback dev `admin123`)
+- Fallimento E2E → **rollback best-effort** + upload dei report Surefire come artifact
 
-### Setup runner (una tantum, su questa macchina)
+### Secrets (GitHub → Settings → Secrets and variables → Actions)
 
-1. Repo GitHub → **Settings → Actions → Self-hosted runners → New self-hosted runner**
-2. Copia i 3 comandi che genera (o in alternativa):
-   ```bash
-   # scarica l'archivio del runner, poi registra con il token della repo:
-   ./config.sh --url https://github.com/comicrocharly/E-Shop_Concept \
-               --token <token> --name cachyos-x8664 --labels cachyos-x8664
-   ./run.sh   # tenere in foreground (o systemd/autostart)
-   ```
-3. Il runner vede `docker`, `kind`, `kubectl` → il CD gira direttamente
-   sul cluster locale.
+| Secret | A cosa serve | Fallback dev |
+|--------|-------------|--------------|
+| `ESHOP_DB_PASSWORD` | Password PostgreSQL (secret K8s `eshop-secret`) | `eshop123` |
+| `ESHOP_JWT_SECRET` | Firma JWT (32 byte hex) | default nel `Makefile` |
+| `E2E_ADMIN_PASSWORD` | Password utente `admin` (seed + E2E) | `admin123` |
+
+I fallback dev esistono solo perché il repo resti runnable da chiunque:
+in un deploy reale i secret vanno definiti.
 
 ## Note / limiti dev
 

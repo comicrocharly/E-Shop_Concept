@@ -13,7 +13,13 @@ API_IMG  := eshop-api:local
 WEB_IMG  := eshop-web:local
 K        := kubectl -n $(NS)
 
-.PHONY: cluster deps build deploy status logs rollback down seed
+# Secret di runtime. I default valgono solo per lo sviluppo locale:
+# in CI/CD vengono sovrascritti da variabili d'ambiente (GitHub Secrets).
+DB_PASSWORD  ?= eshop123
+JWT_SECRET   ?= 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+ADMIN_PASSWORD ?= admin123
+
+.PHONY: cluster deps build deploy deploy-loaded status logs rollback down seed
 
 configmap-web: ## ConfigMap frontend sempre in sync con frontend/nginx.conf (+ rollout solo se cambia)
 	@kubectl create configmap frontend-config -n $(NS) --from-file=nginx.conf=frontend/nginx.conf --dry-run=client -o yaml | $(K) apply -f -
@@ -28,8 +34,8 @@ deps: ## namespace + secret + configmap + postgres (primary + 2 replica) + front
 	# Secret generati in modo dichiarativo (mai committati)
 	kubectl -n $(NS) create secret generic eshop-secret \
 		--from-literal=db-user=eshop \
-		--from-literal=db-password=eshop123 \
-		--from-literal=jwt-secret=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970 \
+		--from-literal=db-password=$(DB_PASSWORD) \
+		--from-literal=jwt-secret=$(JWT_SECRET) \
 		--dry-run=client -o yaml | $(K) apply -f -
 	$(K) apply -f k8s/configmap.yaml
 	$(K) apply -f k8s/postgres.yaml
@@ -45,10 +51,13 @@ build:
 	docker build -t $(API_IMG) .
 	docker build -t $(WEB_IMG) -f frontend/Dockerfile frontend/
 
-deploy: ## da eseguire DOPO cluster + deps
+deploy: ## da eseguire DOPO cluster + deps (build + load + apply)
 	$(MAKE) build
 	kind load docker-image $(API_IMG) --name eshop
 	kind load docker-image $(WEB_IMG) --name eshop
+	@$(MAKE) deploy-loaded
+
+deploy-loaded: ## apply + rollout SENZA rebuild (immagini già caricate in kind)
 	$(K) apply -f k8s/app.yaml
 	$(K) apply -f k8s/app-service.yaml
 	@echo "⏳ rollout backend..."
@@ -66,7 +75,7 @@ logs:
 	$(K) logs -l app.kubernetes.io/name=eshop -f
 
 seed: ## dati demo idempotenti: immagini + admin + catalogo
-	@bash seed.sh
+	@ADMIN_PASSWORD=$(ADMIN_PASSWORD) bash seed.sh
 
 rollback:
 	$(K) rollout undo deploy/$(APP)
