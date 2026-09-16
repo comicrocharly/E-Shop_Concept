@@ -3768,6 +3768,7 @@
         let cart = [];
         let isLoginMode = true;
         let products = [];
+        let productsFetchSeq = 0; // monotonic counter to drop out-of-order catalog responses
         let orders = [];
         
         // User Orders pagination state
@@ -4360,6 +4361,7 @@
 
         async function loadProducts(force = false) {
             try {
+                const seq = ++productsFetchSeq;
                 const params = new URLSearchParams({
                     page: currentPage,
                     size: CATALOG_PAGE_SIZE
@@ -4376,6 +4378,7 @@
                 }
                 const response = await fetch(url, { cache: force ? 'no-store' : 'default' });
                 const data = await response.json();
+                if (seq !== productsFetchSeq) return; // stale response: a newer load took over
                 products = data.content || [];
                 totalPages = data.totalPages || 1;
                 totalElements = data.totalElements || 0;
