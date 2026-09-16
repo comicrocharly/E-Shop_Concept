@@ -52,7 +52,7 @@ class CartIntegrationTest extends IntegrationTestSupport {
     // ==================== LECTURA ====================
 
     @Test
-    void getCart_emptyCart_200() throws Exception {
+    void getCartEmptyCart200() throws Exception {
         Auth a = newUser();
         mockMvc.perform(get("/api/cart/me").param("testUserId", String.valueOf(a.id())))
                 .andExpect(status().isOk())
@@ -62,7 +62,7 @@ class CartIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void emptyCartTotal_0() throws Exception {
+    void emptyCartTotal0() throws Exception {
         Auth a = newUser();
         assertThat(cartTotal(a.id())).contains("0");
     }
@@ -70,7 +70,7 @@ class CartIntegrationTest extends IntegrationTestSupport {
     // ==================== ADD / TOTALE ====================
 
     @Test
-    void addToCart_200_totalMatches() throws Exception {
+    void addToCart200TotalMatches() throws Exception {
         Auth a = newUser();
         long articleId = createArticle("cart-art", "10.50", 10);
 
@@ -89,7 +89,7 @@ class CartIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void reAddSameArticle_incrementsQuantity() throws Exception {
+    void reAddSameArticleIncrementsQuantity() throws Exception {
         Auth a = newUser();
         long articleId = createArticle("cart-art2", "5.00", 10);
 
@@ -106,7 +106,7 @@ class CartIntegrationTest extends IntegrationTestSupport {
     // ==================== PREZZO (S2 rule 2: listener @PreUpdate) ====================
 
     @Test
-    void articlePriceChange_syncsCartItemOnNextCartSave() throws Exception {
+    void articlePriceChangeSyncsCartItemOnNextCartSave() throws Exception {
         Auth a = newUser();
         long articleId = createArticle("cart-priced", "10.00", 10);
         add(a.id(), articleId, 1);
@@ -135,7 +135,7 @@ class CartIntegrationTest extends IntegrationTestSupport {
     // ==================== REMOVE / CLEAR ====================
 
     @Test
-    void removeFromCart_200() throws Exception {
+    void removeFromCart200() throws Exception {
         Auth a = newUser();
         long articleId = createArticle("cart-rem", "7.00", 10);
         add(a.id(), articleId, 1);
@@ -151,7 +151,7 @@ class CartIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void clearCart_200() throws Exception {
+    void clearCart200() throws Exception {
         Auth a = newUser();
         long articleId = createArticle("cart-clear", "7.00", 10);
         add(a.id(), articleId, 3);
@@ -166,7 +166,7 @@ class CartIntegrationTest extends IntegrationTestSupport {
     // ==================== ERRORI ====================
 
     @Test
-    void addInsufficientStock_409() throws Exception {
+    void addInsufficientStock409() throws Exception {
         Auth a = newUser();
         long articleId = createArticle("cart-lowstock", "3.00", 10);
         add(a.id(), articleId, 9);          // stock residuo 1
@@ -182,7 +182,7 @@ class CartIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void addUnknownArticle_404() throws Exception {
+    void addUnknownArticle404() throws Exception {
         Auth a = newUser();
         mockMvc.perform(post("/api/cart/items")
                         .param("testUserId", String.valueOf(a.id()))
@@ -193,7 +193,7 @@ class CartIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void addZeroQuantity_400_validation() throws Exception {
+    void addZeroQuantity400Validation() throws Exception {
         Auth a = newUser();
         long articleId = createArticle("cart-val", "3.00", 10);
         mockMvc.perform(post("/api/cart/items")
@@ -205,7 +205,7 @@ class CartIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void addMissingFields_400_validation() throws Exception {
+    void addMissingFields400Validation() throws Exception {
         Auth a = newUser();
         mockMvc.perform(post("/api/cart/items")
                         .param("testUserId", String.valueOf(a.id()))

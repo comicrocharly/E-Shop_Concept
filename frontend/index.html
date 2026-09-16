@@ -5725,9 +5725,14 @@
             if (!confirm('Confermi di aver ricevuto l\'ordine? Non potrai più modificarne lo stato.')) return;
             
             try {
+                const accessToken = localStorage.getItem('eshopAccessToken');
+                const headers = { 'Content-Type': 'application/json' };
+                if (accessToken) {
+                    headers['Authorization'] = `Bearer ${accessToken}`;
+                }
                 const response = await fetch(`${API_BASE}/orders/${orderId}/complete`, {
                     method: 'PUT',
-                    headers: apiFetchHeaders()
+                    headers
                 });
                 
                 if (!response.ok) {

@@ -32,7 +32,7 @@ class ArticlesIntegrationTest extends IntegrationTestSupport {
     // ==================== CREATE ====================
 
     @Test
-    void create_asAdmin_201_persistedWithAuthor() throws Exception {
+    void createAsAdmin201PersistedWithAuthor() throws Exception {
         Auth admin = admin();
         String name = searchToken() + "-art";
 
@@ -57,7 +57,7 @@ class ArticlesIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void create_negativePrice_400() throws Exception {
+    void createNegativePrice400() throws Exception {
         mockMvc.perform(post("/api/articles")
                         .header("Authorization", "Bearer " + admin().accessToken())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -70,7 +70,7 @@ class ArticlesIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void create_negativeStock_400() throws Exception {
+    void createNegativeStock400() throws Exception {
         mockMvc.perform(post("/api/articles")
                         .header("Authorization", "Bearer " + admin().accessToken())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -83,7 +83,7 @@ class ArticlesIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void create_missingName_400_validation() throws Exception {
+    void createMissingName400Validation() throws Exception {
         mockMvc.perform(post("/api/articles")
                         .header("Authorization", "Bearer " + admin().accessToken())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -97,7 +97,7 @@ class ArticlesIntegrationTest extends IntegrationTestSupport {
     // ==================== READ / FILTRI / PAGINAZIONE ====================
 
     @Test
-    void findAll_searchAndPagination_shape() throws Exception {
+    void findAllSearchAndPaginationShape() throws Exception {
         String token = searchToken();
         createArticle(token + "-alpha", "5.00", 1);
         createArticle(token + "-beta", "10.00", 2);
@@ -125,7 +125,7 @@ class ArticlesIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void findAll_priceFilters() throws Exception {
+    void findAllPriceFilters() throws Exception {
         // Range "impossibile" per altri test: il DB è condiviso nel JVM, quindi
         // filtri globali (senza search) devono usare prezzi unici.
         String token = searchToken();
@@ -153,7 +153,7 @@ class ArticlesIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void findAll_categoryFilter() throws Exception {
+    void findAllCategoryFilter() throws Exception {
         String category = "cat-" + searchToken();
         createArticleWithCategory(searchToken() + "-cated", category, "15.00", 4);
 
@@ -168,7 +168,7 @@ class ArticlesIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void categories_endpoint_containsNewCategory() throws Exception {
+    void categoriesEndpointContainsNewCategory() throws Exception {
         String category = "cat-" + searchToken();
         createArticleWithCategory(searchToken() + "-cated2", category, "9.00", 2);
 
@@ -178,7 +178,7 @@ class ArticlesIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void findById_200() throws Exception {
+    void findById200() throws Exception {
         long id = createArticle(searchToken() + "-byid", "8.00", 3);
         mockMvc.perform(get("/api/articles/" + id))
                 .andExpect(status().isOk())
@@ -187,14 +187,14 @@ class ArticlesIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void findById_unknown_404() throws Exception {
+    void findByIdUnknown404() throws Exception {
         mockMvc.perform(get("/api/articles/999999999"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Articolo non trovato: 999999999"));
     }
 
     @Test
-    void findByAuthor_returnsOwnArticles() throws Exception {
+    void findByAuthorReturnsOwnArticles() throws Exception {
         Auth adminAuth = admin();
         String token = searchToken();
         createArticle(token + "-authored", "4.00", 1);
@@ -211,7 +211,7 @@ class ArticlesIntegrationTest extends IntegrationTestSupport {
     // ==================== UPDATE / DELETE ====================
 
     @Test
-    void update_asAdmin_200_priceAndStockChanged() throws Exception {
+    void updateAsAdmin200PriceAndStockChanged() throws Exception {
         long id = createArticle(searchToken() + "-upd", "10.00", 10);
 
         Map<String, Object> body = new LinkedHashMap<>();
@@ -232,7 +232,7 @@ class ArticlesIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void update_missingArticle_404() throws Exception {
+    void updateMissingArticle404() throws Exception {
         mockMvc.perform(put("/api/articles/999999999")
                         .header("Authorization", "Bearer " + admin().accessToken())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -244,7 +244,7 @@ class ArticlesIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void delete_asAdmin_204_thenNotFound() throws Exception {
+    void deleteAsAdmin204ThenNotFound() throws Exception {
         long id = createArticle(searchToken() + "-del", "3.00", 2);
 
         mockMvc.perform(delete("/api/articles/" + id)

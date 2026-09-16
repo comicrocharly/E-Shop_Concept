@@ -54,7 +54,9 @@ public class AddressService {
                 .filter(addr -> addr.getUser().getId().equals(userId))
                 .ifPresentOrElse(
                         addressRepository::delete,
-                        () -> { throw new EntityNotFoundException("Address not found or not owned by user"); }
+                        () -> {
+                            throw new EntityNotFoundException("Address not found or not owned by user");
+                        }
                 );
     }
 

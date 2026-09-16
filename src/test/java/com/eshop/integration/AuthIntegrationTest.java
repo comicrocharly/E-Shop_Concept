@@ -31,7 +31,7 @@ class AuthIntegrationTest extends IntegrationTestSupport {
     // ==================== REGISTER ====================
 
     @Test
-    void register_success_201_persistedWithBcryptAndCart() throws Exception {
+    void registerSuccess201PersistedWithBcryptAndCart() throws Exception {
         String username = unique("reg");
         String email = username + "@auth.test";
 
@@ -59,7 +59,7 @@ class AuthIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void register_missingFields_400_fieldErrors() throws Exception {
+    void registerMissingFields400FieldErrors() throws Exception {
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
@@ -70,7 +70,7 @@ class AuthIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void register_shortPassword_400() throws Exception {
+    void registerShortPassword400() throws Exception {
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json(Map.of(
@@ -82,7 +82,7 @@ class AuthIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void register_invalidEmail_400() throws Exception {
+    void registerInvalidEmail400() throws Exception {
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json(Map.of(
@@ -94,7 +94,7 @@ class AuthIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void register_duplicateUsername_400() throws Exception {
+    void registerDuplicateUsername400() throws Exception {
         String username = register("secret123");
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -107,7 +107,7 @@ class AuthIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void register_duplicateEmail_400() throws Exception {
+    void registerDuplicateEmail400() throws Exception {
         String username = register("secret123");
         String email = userRepository.findByUsername(username).orElseThrow().getEmail();
         mockMvc.perform(post("/api/auth/register")
@@ -123,7 +123,7 @@ class AuthIntegrationTest extends IntegrationTestSupport {
     // ==================== LOGIN ====================
 
     @Test
-    void login_success_200_tokensWithValidClaims() throws Exception {
+    void loginSuccess200TokensWithValidClaims() throws Exception {
         String username = register("secret123");
 
         MvcResult res = mockMvc.perform(post("/api/auth/login")
@@ -149,7 +149,7 @@ class AuthIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void login_wrongPassword_400() throws Exception {
+    void loginWrongPassword400() throws Exception {
         String username = register("secret123");
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -161,7 +161,7 @@ class AuthIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void login_unknownUser_400() throws Exception {
+    void loginUnknownUser400() throws Exception {
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json(Map.of(
@@ -172,7 +172,7 @@ class AuthIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void login_missingFields_400() throws Exception {
+    void loginMissingFields400() throws Exception {
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
@@ -182,7 +182,7 @@ class AuthIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void login_admin_200_roleClaimAdmin() throws Exception {
+    void loginAdmin200RoleClaimAdmin() throws Exception {
         Auth a = admin();
         assertThat(a.role()).isEqualTo("ADMIN");
         assertThat(jwtTokenProvider.getRoleFromToken(a.accessToken())).isEqualTo("ADMIN");
@@ -192,7 +192,7 @@ class AuthIntegrationTest extends IntegrationTestSupport {
     // ==================== REFRESH ====================
 
     @Test
-    void refresh_validToken_200_newPair() throws Exception {
+    void refreshValidToken200NewPair() throws Exception {
         String username = register("secret123");
         Auth a = login(username, "secret123");
 
@@ -206,7 +206,7 @@ class AuthIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void refresh_missingToken_401() throws Exception {
+    void refreshMissingToken401() throws Exception {
         mockMvc.perform(post("/api/auth/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
@@ -214,7 +214,7 @@ class AuthIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void refresh_invalidToken_401() throws Exception {
+    void refreshInvalidToken401() throws Exception {
         mockMvc.perform(post("/api/auth/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json(Map.of("refreshToken", "not-a-jwt"))))
@@ -222,7 +222,7 @@ class AuthIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void refresh_orphanUser_500_currentBehavior() throws Exception {
+    void refreshOrphanUser500CurrentBehavior() throws Exception {
         // ⚠ Comportamento attuale documentato: token valido ma utente inesistente
         // → RuntimeException("User not found") → handler generico → 500.
         String ghostToken = jwtTokenProvider.createRefreshToken(unique("ghost"));
@@ -236,7 +236,7 @@ class AuthIntegrationTest extends IntegrationTestSupport {
     // ==================== AUTHE E2E (probe A/B/C formalizzati) ====================
 
     @Test
-    void e2e_bearerJwt_usersMe_200() throws Exception {
+    void e2eBearerJwtUsersMe200() throws Exception {
         // PROVA-B (formalizzata): JwtAuthenticationFilter attivo nel contesto test,
         // il Bearer JWT autentica end-to-end.
         String username = register("secret123");
@@ -249,7 +249,7 @@ class AuthIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void e2e_testUserParam_usersMe_200() throws Exception {
+    void e2eTestUserParamUsersMe200() throws Exception {
         // PROVA-A (formalizzata): SecurityTestConfig.TestAuthFilter (param ?testUser=).
         String username = register("secret123");
         mockMvc.perform(get("/api/users/me").param("testUser", username))
@@ -258,7 +258,7 @@ class AuthIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void e2e_anonymousAdminEndpoint_403() throws Exception {
+    void e2eAnonymousAdminEndpoint403() throws Exception {
         // PROVA-C (formalizzata): @PreAuthorize enforced nel contesto test-profile.
         // Qui: endpoint admin SENZA autenticazione → AccessDeniedException → 403
         // (handler GlobalExceptionHandler, non il 500 del context slice S3).
@@ -270,7 +270,7 @@ class AuthIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void e2e_userBearerOnAdminEndpoint_403() throws Exception {
+    void e2eUserBearerOnAdminEndpoint403() throws Exception {
         Auth a = login(register("secret123"), "secret123");
         mockMvc.perform(post("/api/articles")
                         .header("Authorization", "Bearer " + a.accessToken())

@@ -61,7 +61,7 @@ class CartControllerTest {
     // ==================== GET /me ====================
 
     @Test
-    void getCart_success_returns200() throws Exception {
+    void getCartSuccessReturns200() throws Exception {
         when(currentUser.getCurrentUserId()).thenReturn(1L);
         when(cartService.getCartByUserId(1L))
                 .thenReturn(TestFixtures.cart(1L, USER_1,
@@ -77,7 +77,7 @@ class CartControllerTest {
     }
 
     @Test
-    void getCart_withTestUserIdParam_usesParam() throws Exception {
+    void getCartWithTestUserIdParamUsesParam() throws Exception {
         when(cartService.getCartByUserId(7L)).thenReturn(TestFixtures.cart(7L, USER_1));
 
         mockMvc.perform(get("/api/cart/me").param("testUserId", "7"))
@@ -88,7 +88,7 @@ class CartControllerTest {
     }
 
     @Test
-    void getCart_userNotFound_returns404() throws Exception {
+    void getCartUserNotFoundReturns404() throws Exception {
         when(currentUser.getCurrentUserId()).thenReturn(1L);
         when(cartService.getCartByUserId(1L))
                 .thenThrow(new IllegalArgumentException("Utente non trovato: 1"));
@@ -99,7 +99,7 @@ class CartControllerTest {
     }
 
     @Test
-    void getCart_cartNotFound_returns409() throws Exception {
+    void getCartCartNotFoundReturns409() throws Exception {
         when(currentUser.getCurrentUserId()).thenReturn(1L);
         when(cartService.getCartByUserId(1L))
                 .thenThrow(new IllegalStateException("Carrello non trovato per utente: 1"));
@@ -112,7 +112,7 @@ class CartControllerTest {
     // ==================== POST /items ====================
 
     @Test
-    void addToCart_success_returns200() throws Exception {
+    void addToCartSuccessReturns200() throws Exception {
         when(currentUser.getCurrentUserId()).thenReturn(1L);
         when(cartService.addToCart(eq(1L), any()))
                 .thenReturn(TestFixtures.cart(1L, USER_1,
@@ -127,7 +127,7 @@ class CartControllerTest {
     }
 
     @Test
-    void addToCart_zeroQuantity_returns400() throws Exception {
+    void addToCartZeroQuantityReturns400() throws Exception {
         mockMvc.perform(post("/api/cart/items")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"articleId\":5,\"quantity\":0}"))
@@ -138,7 +138,7 @@ class CartControllerTest {
     }
 
     @Test
-    void addToCart_missingArticleId_returns400() throws Exception {
+    void addToCartMissingArticleIdReturns400() throws Exception {
         mockMvc.perform(post("/api/cart/items")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"quantity\":1}"))
@@ -147,7 +147,7 @@ class CartControllerTest {
     }
 
     @Test
-    void addToCart_insufficientStock_returns409() throws Exception {
+    void addToCartInsufficientStockReturns409() throws Exception {
         when(currentUser.getCurrentUserId()).thenReturn(1L);
         when(cartService.addToCart(eq(1L), any()))
                 .thenThrow(new IllegalStateException(
@@ -164,7 +164,7 @@ class CartControllerTest {
     // ==================== DELETE ====================
 
     @Test
-    void removeFromCart_success_returns200() throws Exception {
+    void removeFromCartSuccessReturns200() throws Exception {
         when(currentUser.getCurrentUserId()).thenReturn(1L);
         when(cartService.removeFromCart(1L, 5L)).thenReturn(TestFixtures.cart(1L, USER_1));
 
@@ -176,7 +176,7 @@ class CartControllerTest {
     }
 
     @Test
-    void clearCart_success_returns200() throws Exception {
+    void clearCartSuccessReturns200() throws Exception {
         when(currentUser.getCurrentUserId()).thenReturn(1L);
         when(cartService.clearCart(1L)).thenReturn(TestFixtures.cart(1L, USER_1));
 
@@ -188,7 +188,7 @@ class CartControllerTest {
     // ==================== GET /total ====================
 
     @Test
-    void calculateTotal_success_returns200() throws Exception {
+    void calculateTotalSuccessReturns200() throws Exception {
         when(currentUser.getCurrentUserId()).thenReturn(1L);
         when(cartService.getCartByUserId(1L))
                 .thenReturn(TestFixtures.cart(1L, USER_1,

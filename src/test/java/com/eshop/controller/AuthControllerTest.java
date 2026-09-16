@@ -21,8 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -58,7 +56,7 @@ class AuthControllerTest {
     // ==================== REGISTER ====================
 
     @Test
-    void register_success_returns201() throws Exception {
+    void registerSuccessReturns201() throws Exception {
         User user = TestFixtures.user(1L, "alice", false);
         when(userService.register(any())).thenReturn(user);
 
@@ -73,7 +71,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void register_missingFields_returns400() throws Exception {
+    void registerMissingFieldsReturns400() throws Exception {
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"username\":\"\",\"password\":\"123\",\"email\":\"not-an-email\"}"))
@@ -87,7 +85,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void register_duplicateUsername_returns400() throws Exception {
+    void registerDuplicateUsernameReturns400() throws Exception {
         when(userService.register(any()))
                 .thenThrow(new IllegalArgumentException("Username già in uso: alice"));
 
@@ -101,7 +99,7 @@ class AuthControllerTest {
     // ==================== LOGIN ====================
 
     @Test
-    void login_success_returns200WithTokens() throws Exception {
+    void loginSuccessReturns200WithTokens() throws Exception {
         User user = TestFixtures.user(1L, "alice", false);
         when(userService.authenticate(any())).thenReturn(user);
         when(jwtTokenProvider.createAccessToken("alice", "USER")).thenReturn("access-token");
@@ -118,7 +116,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void login_wrongCredentials_returns400() throws Exception {
+    void loginWrongCredentialsReturns400() throws Exception {
         when(userService.authenticate(any()))
                 .thenThrow(new IllegalArgumentException("Credenziali non valide"));
 
@@ -130,7 +128,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void login_missingFields_returns400() throws Exception {
+    void loginMissingFieldsReturns400() throws Exception {
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
@@ -142,7 +140,7 @@ class AuthControllerTest {
     // ==================== REFRESH ====================
 
     @Test
-    void refresh_missingToken_returns401() throws Exception {
+    void refreshMissingTokenReturns401() throws Exception {
         mockMvc.perform(post("/api/auth/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
@@ -150,7 +148,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void refresh_invalidToken_returns401() throws Exception {
+    void refreshInvalidTokenReturns401() throws Exception {
         when(jwtTokenProvider.validateToken("bad-token")).thenReturn(false);
 
         mockMvc.perform(post("/api/auth/refresh")
@@ -160,7 +158,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void refresh_success_returns200WithNewTokens() throws Exception {
+    void refreshSuccessReturns200WithNewTokens() throws Exception {
         User user = TestFixtures.user(1L, "alice", false);
         when(jwtTokenProvider.validateToken("valid-refresh")).thenReturn(true);
         when(jwtTokenProvider.getUsernameFromToken("valid-refresh")).thenReturn("alice");
@@ -178,7 +176,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void refresh_userNotFound_returns500() throws Exception {
+    void refreshUserNotFoundReturns500() throws Exception {
         // ⚠ Comportamento attuale documentato: RuntimeException → handler generico → 500
         when(jwtTokenProvider.validateToken("orphan-token")).thenReturn(true);
         when(jwtTokenProvider.getUsernameFromToken("orphan-token")).thenReturn("ghost");

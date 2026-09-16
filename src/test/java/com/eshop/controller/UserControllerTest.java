@@ -18,14 +18,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -60,7 +56,7 @@ class UserControllerTest {
     private static final User ALICE = TestFixtures.user(1L, "alice", false);
 
     @Test
-    void getCurrentUser_success_returns200() throws Exception {
+    void getCurrentUserSuccessReturns200() throws Exception {
         when(currentUser.getCurrentUserId()).thenReturn(1L);
         when(userService.findById(1L)).thenReturn(Optional.of(ALICE));
         when(userService.toUserResponse(ALICE))
@@ -75,7 +71,7 @@ class UserControllerTest {
     }
 
     @Test
-    void getCurrentUser_withTestUserIdParam_usesParam() throws Exception {
+    void getCurrentUserWithTestUserIdParamUsesParam() throws Exception {
         User bob = TestFixtures.user(7L, "bob", false);
         when(userService.findById(7L)).thenReturn(Optional.of(bob));
         when(userService.toUserResponse(bob)).thenReturn(TestFixtures.userResponse(bob));
@@ -88,7 +84,7 @@ class UserControllerTest {
     }
 
     @Test
-    void getCurrentUser_notFound_returns500() throws Exception {
+    void getCurrentUserNotFoundReturns500() throws Exception {
         // ⚠ Comportamento attuale documentato: RuntimeException → handler generico → 500
         when(currentUser.getCurrentUserId()).thenReturn(1L);
         when(userService.findById(1L)).thenReturn(Optional.empty());
@@ -98,7 +94,7 @@ class UserControllerTest {
     }
 
     @Test
-    void updateProfile_success_returns200() throws Exception {
+    void updateProfileSuccessReturns200() throws Exception {
         User updated = TestFixtures.user(1L, "alice", false);
         updated.setEmail("new@example.com");
         when(currentUser.getCurrentUserId()).thenReturn(1L);
@@ -114,7 +110,7 @@ class UserControllerTest {
     }
 
     @Test
-    void updateProfile_changingPasswordWithoutCurrent_returns400() throws Exception {
+    void updateProfileChangingPasswordWithoutCurrentReturns400() throws Exception {
         when(currentUser.getCurrentUserId()).thenReturn(1L);
         when(userService.updateProfile(eq(1L), anyMap()))
                 .thenThrow(new IllegalArgumentException(
@@ -129,7 +125,7 @@ class UserControllerTest {
     }
 
     @Test
-    void updateProfile_wrongCurrentPassword_returns400() throws Exception {
+    void updateProfileWrongCurrentPasswordReturns400() throws Exception {
         when(currentUser.getCurrentUserId()).thenReturn(1L);
         when(userService.updateProfile(eq(1L), anyMap()))
                 .thenThrow(new IllegalArgumentException("La password corrente non è corretta"));

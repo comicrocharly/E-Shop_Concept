@@ -1,7 +1,16 @@
 package com.eshop.service;
 
-import com.eshop.dto.*;
-import com.eshop.entity.*;
+import com.eshop.dto.GatewayResult;
+import com.eshop.dto.PayOrderResponse;
+import com.eshop.dto.PrepareCheckoutResponse;
+import com.eshop.entity.Address;
+import com.eshop.entity.Articles;
+import com.eshop.entity.Cart;
+import com.eshop.entity.CartItem;
+import com.eshop.entity.Order;
+import com.eshop.entity.OrderItem;
+import com.eshop.entity.OrderPayment;
+import com.eshop.entity.User;
 import com.eshop.enums.OrderStatus;
 import com.eshop.enums.PaymentMethod;
 import com.eshop.enums.PaymentStatus;
