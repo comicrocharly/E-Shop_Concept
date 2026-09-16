@@ -278,7 +278,12 @@ mvn test -Dtest='PlaywrightSmokeTest,ShopFlowTest' \
 
 ## 🔄 CI/CD
 
-Tutto gira su **runner GitHub-hosted** (`ubuntu-latest`): nessun self-hosted runner, quindi il codice di un PR (anche da un contributor esterno) **non viene mai eseguito sulle macchine del team**.
+> ⚠️ **I workflow usano esclusivamente runner GitHub-hosted (cloud, `ubuntu-latest`).**
+> Nessun self-hosted runner, nessun servizio né cluster locale: il codice di un PR
+> (anche da un contributor esterno) **non viene mai eseguito sulle macchine del team**,
+> gira solo nella sandbox di GitHub e ogni cluster kind viene smontato a fine run.
+> Implicazione pratica: ogni deploy consuma minuti GitHub Actions del piano
+> (un run CD completo dura ~15 min).
 
 | Workflow | Trigger | Cosa fa | Runner |
 |----------|---------|---------|--------|

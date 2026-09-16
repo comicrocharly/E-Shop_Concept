@@ -85,7 +85,7 @@ kubectl -n eshop rollout status deployment/eshop
 | `ci.yml` | PR + push main | **Lint gate** (Checkstyle + ESLint) → `mvn verify` (Testcontainers → PostgreSQL reale) + build immagine; su main pubblica su **GHCR** tagata col SHA | GitHub-hosted |
 | `cd.yml` | push main | cluster **kind effimero** (1 CP + 2 workers) → PostgreSQL 16 (primary + 2 replica) → build → `kind load` → rollout → seed demo → smoke test su `:8080` → **E2E Playwright** → rollback best-effort (`rollout undo`) su fallimento | GitHub-hosted |
 
-> **Perché più self-hosted runner?** Prima il CD girava su un runner self-hosted
+> **Perché non più self-hosted runner?** Prima il CD girava su un runner self-hosted
 > (`cachyos-x8664`): un PR di un contributor avrebbe potuto eseguire codice
 > arbitrario su questa macchina. Ora ogni deploy nasce un cluster **kind
 > effimero** su un runner `ubuntu-latest` di GitHub: il codice di terzi gira
