@@ -52,8 +52,8 @@ jobs:
       - name: Install kind
         run: |
           KIND_VERSION=v0.23.0
-          curl -fsSL "https://kind.sigs.k8s.io/dl/${KIND_VERSION}/kind-linux-amd64" -o /usr/local/bin/kind
-          chmod +x /usr/local/bin/kind
+          sudo curl -fsSL "https://kind.sigs.k8s.io/dl/${KIND_VERSION}/kind-linux-amd64" -o /usr/local/bin/kind
+          sudo chmod 755 /usr/local/bin/kind
           kind version
           kubectl version --client
 
