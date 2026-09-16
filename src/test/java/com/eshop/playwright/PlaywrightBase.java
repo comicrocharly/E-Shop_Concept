@@ -56,8 +56,8 @@ import static org.junit.jupiter.api.Assertions.fail;
  *   <li>{@code e2e.enabled} — required to run at all</li>
  *   <li>{@code e2e.baseUrl} — default {@code http://localhost:8081}</li>
  *   <li>{@code e2e.headed} — default {@code false}</li>
- *   <li>{@code e2e.adminUsername} / {@code e2e.adminPassword} — admin seed user from
- *       CREDENTIALS.md (article creation + admin-tab checks)</li>
+ *   <li>{@code e2e.adminUsername} / {@code e2e.adminPassword} — admin seed user (seed.sh:
+ *       *admin* / admin123; article creation + admin-tab checks)</li>
  * </ul>
  *
  * <p>Conventions: every test gets a <b>fresh BrowserContext</b> (clean localStorage,
@@ -73,7 +73,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 abstract class PlaywrightBase {
 
     protected static final String BASE_URL = System.getProperty("e2e.baseUrl", "http://localhost:8081");
-    protected static final String ADMIN_USERNAME = System.getProperty("e2e.adminUsername", "adminuser");
+    protected static final String ADMIN_USERNAME = System.getProperty("e2e.adminUsername", "admin");
     protected static final String ADMIN_PASSWORD = System.getProperty("e2e.adminPassword", "admin123");
     protected static final boolean HEADED = Boolean.parseBoolean(System.getProperty("e2e.headed", "false"));
 
@@ -265,8 +265,14 @@ abstract class PlaywrightBase {
      */
     protected void addToCartViaUi(long articleId, int qty, String buyerToken) {
         for (int target = 1; target <= qty; target++) {
-            productCard(articleId).locator(".add-to-cart-btn").click();
+            // Griglia senza bottone add: click sulla card → detail modal (qty
+            // riresa a 1 a ogni apertura), add, poi Escape torna al catalogo.
+            productCard(articleId).click();
+            Locator addBtn = page.locator(".detail-actions .btn-primary");
+            PlaywrightAssertions.assertThat(addBtn).isVisible();
+            addBtn.click();
             waitForCartQuantityViaApi(buyerToken, articleId, target);
+            page.keyboard().press("Escape");
         }
     }
 
@@ -283,6 +289,9 @@ abstract class PlaywrightBase {
      * @param paymentMethodRadioId {@code "#pm_credit"}, {@code "#pm_cod"} or null (default)
      * @return the payment-modal success body, gateway-failure count and checkout totals
      */
+    protected transient String lastPayErrorToast = "(nessun toast)";
+    protected transient String lastPayModalBody = "";
+
     protected CheckoutResult completeCheckout(String buyerToken, long[] cartPlan, String paymentMethodRadioId) {
         int failures = 0;
         String cartModalTotal = null;
@@ -310,7 +319,8 @@ abstract class PlaywrightBase {
             // 1% gateway failure: order CANCELLED (rolled back), cart cleared → retry fresh
             page.locator("#paymentModalBody button", new LocatorOptions().setHasText("Annulla")).click();
         }
-        fail("checkout failed 3 times in a row — gateway 1% failure ×3 (probability ~1e-6)");
+        fail("checkout failed 3 times in a row — gateway 1% failure ×3 (probability ~1e-6) "
+                + "[ultimo toast: " + lastPayErrorToast + "] [stato modale: " + lastPayModalBody + "]");
         return null; // unreachable
     }
 
@@ -329,15 +339,47 @@ abstract class PlaywrightBase {
                     ? paymentMethodRadioId.substring(1) : paymentMethodRadioId;
             page.click("label[for='" + radioId + "']");
         }
+        // Card form: visibile solo quando è (ancora) selezionato CREDIT_CARD.
+        // Senza dati validi il client blocca il pagamento con un toast di validazione,
+        // quindi i test devono compilare un numero di carta valido (mock: non addebita).
+        if (page.locator("#cardFormSection").isVisible()) {
+            page.fill("#cardNumber", "4242 4242 4242 4242");
+            page.fill("#cardExpiry", String.format("12/%02d", (java.time.Year.now().getValue() + 1) % 100));
+            page.fill("#cardCvv", "123");
+        }
+        // Indirizzo di consegna obbligatorio: senza indirizzi salvati il modulo
+        // "Nuovo indirizzo" è visibile e deve essere compilato.
+        if (page.locator("#newAddressFormSection").isVisible()) {
+            page.fill("#naStreet", "Via E2E");
+            page.fill("#naStreetNumber", "1");
+            page.fill("#naPostalCode", "20100");
+            page.fill("#naCity", "Milano");
+        }
         page.click("#payBtn");
-        ElementHandle done = page.waitForSelector(".payment-status-badge.success, .toast.error",
-                new WaitForSelectorOptions().setTimeout(30_000));
+        ElementHandle done;
+        try {
+            done = page.waitForSelector(".payment-status-badge.success, .toast.error",
+                    new WaitForSelectorOptions().setTimeout(30_000));
+        } catch (RuntimeException timeout) {
+            // Diagnostic: dump dello stato modale al timeout
+            try {
+                lastPayErrorToast = String.join(" | ", page.locator(".toast").allTextContents());
+                lastPayModalBody = page.locator("#paymentModalBody").innerText();
+            } catch (RuntimeException ignored) { }
+            throw timeout;
+        }
         if (done == null) {
             fail("no payment outcome within 30s");
         }
         String classes = (String) done.evaluate("el => el.className");
         boolean ok = classes != null && classes.contains("payment-status-badge");
         if (!ok) {
+            // Diagnostic: cattura il testo del toast prima di drenarlo
+            try {
+                lastPayErrorToast = String.join(" | ",
+                        page.locator(".toast.error").allTextContents());
+                lastPayModalBody = page.locator("#paymentModalBody").innerText();
+            } catch (RuntimeException ignored) { }
             waitForNoErrorToast();
         }
         return ok;

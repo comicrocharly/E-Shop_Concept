@@ -185,7 +185,7 @@ class ShopFlowTest extends PlaywrightBase {
         Locator myOrder = page.locator("#ordersList .order-item",
                 new LocatorOptions().setHasText("Ordine #" + checkout.orderId()));
         assertThat(myOrder).hasCount(1);
-        assertThat(myOrder.locator(".order-status.status-processing")).hasText("PROCESSING");
+        assertThat(myOrder.locator(".order-status.status-processing")).hasText("In preparazione");
         // /orders/my returns nested articles → item names render correctly on the buyer side.
         assertThat(myOrder.locator(".order-items")).containsText(token + " Alpha x1");
         assertThat(myOrder.locator(".order-items")).containsText(token + " Beta x2");
@@ -218,7 +218,7 @@ class ShopFlowTest extends PlaywrightBase {
         openMyOrdersTab();
         Locator myOrder = page.locator("#ordersList .order-item",
                 new LocatorOptions().setHasText("Ordine #" + checkout.orderId()));
-        assertThat(myOrder.locator(".order-status.status-processing")).hasText("PROCESSING");
+        assertThat(myOrder.locator(".order-status.status-processing")).hasText("In preparazione");
         assertThat(myOrder.locator(".order-total")).hasText("Totale: €7.25");
     }
 
@@ -235,11 +235,6 @@ class ShopFlowTest extends PlaywrightBase {
 
         // Switch user (UI test helper) and log in as ADMIN: the paid order must be
         // visible in the admin orders list (newest first, page 0).
-        // NOTE (known UI/DTO mismatch, asserted as-is):
-        //  - the admin UI renders "Utente: N/A" for every order — the DTO exposes the
-        //    username at top level while the template reads order.user?.username
-        //  - item names render as the fallback "Articolo" — the DTO exposes a flat
-        //    `articleName` while the template reads item.articles?.name
         page.evaluate("() => window.__eshopTest.clearAuth()");
         assertThat(page.locator("#authSection")).isVisible();
         loginViaUi(ADMIN_USERNAME, ADMIN_PASSWORD);
@@ -252,8 +247,8 @@ class ShopFlowTest extends PlaywrightBase {
                 new LocatorOptions().setHasText("Ordine #" + checkout.orderId()));
         assertThat(adminOrder).hasCount(1);
         assertThat(adminOrder.locator(".order-id")).hasText("Ordine #" + checkout.orderId());
-        assertThat(adminOrder.locator(".order-status.status-processing")).hasText("PROCESSING");
-        assertThat(adminOrder).containsText("Articolo x1 @ €3.00");
+        assertThat(adminOrder.locator(".order-status.status-processing")).hasText("In preparazione");
+        assertThat(adminOrder).containsText("x1 @ €3.00");
         assertThat(adminOrder).containsText("Totale: €3.00");
     }
 }

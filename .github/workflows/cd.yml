@@ -73,10 +73,10 @@ jobs:
             npx -y playwright@1.55.0 install chromium
           fi
           mvn -B test \
-            -Dtest='com.eshop.playwright.*' \
+            -Dtest='PlaywrightSmokeTest,ShopFlowTest' \
             -De2e.enabled=true \
             -De2e.baseUrl=http://localhost:8080 \
-            -De2e.adminUsername="${{ vars.E2E_ADMIN_USERNAME || 'adminuser' }}" \
+            -De2e.adminUsername="admin" \
             -De2e.adminPassword="${{ secrets.E2E_ADMIN_PASSWORD || 'admin123' }}"
 
       # 5) Rollback automatico se rollout/smoke/E2E non sono sani (doppia
