@@ -63,7 +63,7 @@ class AddressControllerTest {
     private RateLimitFilter rateLimitFilter;
 
     @Test
-    void findByUser_success_returns200() throws Exception {
+    void findByUserSuccessReturns200() throws Exception {
         when(currentUser.getCurrentUserId()).thenReturn(1L);
         when(addressService.findByUserId(1L))
                 .thenReturn(List.of(TestFixtures.addressResponse(1L)));
@@ -76,7 +76,7 @@ class AddressControllerTest {
     }
 
     @Test
-    void findByUser_empty_returnsEmptyArray() throws Exception {
+    void findByUserEmptyReturnsEmptyArray() throws Exception {
         when(currentUser.getCurrentUserId()).thenReturn(1L);
         when(addressService.findByUserId(1L)).thenReturn(List.of());
 
@@ -86,7 +86,7 @@ class AddressControllerTest {
     }
 
     @Test
-    void add_success_returns200() throws Exception {
+    void addSuccessReturns200() throws Exception {
         when(currentUser.getCurrentUserId()).thenReturn(1L);
         when(addressService.add(eq(1L), any(AddAddressRequest.class)))
                 .thenReturn(TestFixtures.addressResponse(1L));
@@ -100,7 +100,7 @@ class AddressControllerTest {
     }
 
     @Test
-    void add_missingFields_returns400() throws Exception {
+    void addMissingFieldsReturns400() throws Exception {
         mockMvc.perform(post("/api/users/1/address/me")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"streetNumber\":1}"))
@@ -114,7 +114,7 @@ class AddressControllerTest {
     }
 
     @Test
-    void add_streetNumberBelowMin_returns400() throws Exception {
+    void addStreetNumberBelowMinReturns400() throws Exception {
         mockMvc.perform(post("/api/users/1/address/me")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"street\":\"Via Roma\",\"streetNumber\":0,\"postalCode\":\"00100\"," +
@@ -124,7 +124,7 @@ class AddressControllerTest {
     }
 
     @Test
-    void delete_success_returns204() throws Exception {
+    void deleteSuccessReturns204() throws Exception {
         when(currentUser.getCurrentUserId()).thenReturn(1L);
 
         mockMvc.perform(delete("/api/users/1/address/me/9"))
@@ -134,7 +134,7 @@ class AddressControllerTest {
     }
 
     @Test
-    void delete_notFound_returns500() throws Exception {
+    void deleteNotFoundReturns500() throws Exception {
         // ⚠ Comportamento attuale documentato: EntityNotFoundException → handler generico → 500
         when(currentUser.getCurrentUserId()).thenReturn(1L);
         doThrow(new EntityNotFoundException("Address not found or owned by user"))

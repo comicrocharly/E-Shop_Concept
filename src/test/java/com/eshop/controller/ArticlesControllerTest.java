@@ -7,7 +7,6 @@ import com.eshop.config.RateLimitFilter;
 import com.eshop.controller.ControllerTestSupport.MethodSecurityConfig;
 import com.eshop.controller.ControllerTestSupport.TestFixtures;
 import com.eshop.dto.CreateArticlesRequest;
-import com.eshop.entity.Articles;
 import com.eshop.entity.User;
 import com.eshop.service.ArticlesService;
 import org.junit.jupiter.api.Test;
@@ -66,7 +65,7 @@ class ArticlesControllerTest {
     // ==================== GET LIST ====================
 
     @Test
-    void findAll_noParams_returnsPage() throws Exception {
+    void findAllNoParamsReturnsPage() throws Exception {
         when(articlesService.findAll(any(Pageable.class)))
                 .thenReturn(TestFixtures.page(
                         TestFixtures.articles(1L, "PS4", new BigDecimal("399.99"), 10),
@@ -79,7 +78,7 @@ class ArticlesControllerTest {
     }
 
     @Test
-    void findAll_withSearch_usesFindBySearch() throws Exception {
+    void findAllWithSearchUsesFindBySearch() throws Exception {
         when(articlesService.findBySearch(eq("ps4"), any(Pageable.class)))
                 .thenReturn(TestFixtures.page(
                         TestFixtures.articles(1L, "PS4", new BigDecimal("399.99"), 10)));
@@ -93,7 +92,7 @@ class ArticlesControllerTest {
     }
 
     @Test
-    void findAll_withCategory_usesFindByFilters() throws Exception {
+    void findAllWithCategoryUsesFindByFilters() throws Exception {
         when(articlesService.findByFilters(eq("Electronics"), eq(null), eq(null), any(Pageable.class)))
                 .thenReturn(TestFixtures.page(
                         TestFixtures.articles(1L, "PS4", new BigDecimal("399.99"), 10)));
@@ -106,7 +105,7 @@ class ArticlesControllerTest {
     }
 
     @Test
-    void findAll_withSearchAndPriceRange_usesFindBySearchAndFilters() throws Exception {
+    void findAllWithSearchAndPriceRangeUsesFindBySearchAndFilters() throws Exception {
         when(articlesService.findBySearchAndFilters(eq("ps4"), eq(null), eq(new BigDecimal("10")), eq(null), any(Pageable.class)))
                 .thenReturn(TestFixtures.page(
                         TestFixtures.articles(1L, "PS4", new BigDecimal("399.99"), 10)));
@@ -122,7 +121,7 @@ class ArticlesControllerTest {
     // ==================== GET BY ID / AUTHOR ====================
 
     @Test
-    void findById_success_returns200() throws Exception {
+    void findByIdSuccessReturns200() throws Exception {
         when(articlesService.findById(5L))
                 .thenReturn(TestFixtures.articles(5L, "PS4", new BigDecimal("399.99"), 10));
 
@@ -133,7 +132,7 @@ class ArticlesControllerTest {
     }
 
     @Test
-    void findById_notFound_returns404() throws Exception {
+    void findByIdNotFoundReturns404() throws Exception {
         when(articlesService.findById(99L))
                 .thenThrow(new IllegalArgumentException("Articolo non trovato: 99"));
 
@@ -143,7 +142,7 @@ class ArticlesControllerTest {
     }
 
     @Test
-    void findByAuthor_success_returns200() throws Exception {
+    void findByAuthorSuccessReturns200() throws Exception {
         when(articlesService.findByAuthorId(1L))
                 .thenReturn(java.util.List.of(
                         TestFixtures.articles(10L, "Articolo A", new BigDecimal("10.00"), 3)));
@@ -157,7 +156,7 @@ class ArticlesControllerTest {
 
     @WithMockUser(username = "admin", roles = "ADMIN")
     @Test
-    void create_success_returns201() throws Exception {
+    void createSuccessReturns201() throws Exception {
         User author = TestFixtures.user(1L, "admin", true);
         when(currentUser.getCurrentUserId()).thenReturn(1L);
         when(currentUser.getCurrentUser()).thenReturn(author);
@@ -174,7 +173,7 @@ class ArticlesControllerTest {
 
     @WithMockUser(username = "bob", roles = "USER")
     @Test
-    void create_asNonAdmin_returns403() throws Exception {
+    void createAsNonAdminReturns403() throws Exception {
         mockMvc.perform(post("/api/articles")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(VALID_BODY))
@@ -186,7 +185,7 @@ class ArticlesControllerTest {
 
     @WithMockUser(username = "admin", roles = "ADMIN")
     @Test
-    void create_invalidBody_returns400() throws Exception {
+    void createInvalidBodyReturns400() throws Exception {
         mockMvc.perform(post("/api/articles")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"\"}"))
@@ -200,7 +199,7 @@ class ArticlesControllerTest {
 
     @WithMockUser(username = "admin", roles = "ADMIN")
     @Test
-    void create_negativePrice_returns400() throws Exception {
+    void createNegativePriceReturns400() throws Exception {
         User author = TestFixtures.user(1L, "admin", true);
         when(currentUser.getCurrentUserId()).thenReturn(1L);
         when(currentUser.getCurrentUser()).thenReturn(author);
@@ -218,7 +217,7 @@ class ArticlesControllerTest {
 
     @WithMockUser(username = "admin", roles = "ADMIN")
     @Test
-    void update_success_returns200() throws Exception {
+    void updateSuccessReturns200() throws Exception {
         when(articlesService.update(eq(5L), any(CreateArticlesRequest.class)))
                 .thenReturn(TestFixtures.articles(5L, "PS4 Pro", new BigDecimal("449.99"), 8));
 
@@ -231,7 +230,7 @@ class ArticlesControllerTest {
 
     @WithMockUser(username = "admin", roles = "ADMIN")
     @Test
-    void update_notFound_returns404() throws Exception {
+    void updateNotFoundReturns404() throws Exception {
         when(articlesService.update(eq(99L), any(CreateArticlesRequest.class)))
                 .thenThrow(new IllegalArgumentException("Articolo non trovato: 99"));
 
@@ -244,7 +243,7 @@ class ArticlesControllerTest {
 
     @WithMockUser(username = "bob", roles = "USER")
     @Test
-    void update_asNonAdmin_returns403() throws Exception {
+    void updateAsNonAdminReturns403() throws Exception {
         mockMvc.perform(put("/api/articles/5")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(VALID_BODY))
@@ -257,7 +256,7 @@ class ArticlesControllerTest {
 
     @WithMockUser(username = "admin", roles = "ADMIN")
     @Test
-    void delete_success_returns204() throws Exception {
+    void deleteSuccessReturns204() throws Exception {
         mockMvc.perform(delete("/api/articles/5"))
                 .andExpect(status().isNoContent());
 
@@ -266,7 +265,7 @@ class ArticlesControllerTest {
 
     @WithMockUser(username = "admin", roles = "ADMIN")
     @Test
-    void delete_notFound_returns404() throws Exception {
+    void deleteNotFoundReturns404() throws Exception {
         doThrow(new IllegalArgumentException("Articolo non trovato: 99"))
                 .when(articlesService).delete(99L);
 

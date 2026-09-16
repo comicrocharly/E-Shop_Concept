@@ -43,7 +43,7 @@ class CategoryControllerTest {
     private RateLimitFilter rateLimitFilter;
 
     @Test
-    void getCategories_success_returnsCategorySet() throws Exception {
+    void getCategoriesSuccessReturnsCategorySet() throws Exception {
         when(articlesService.findDistinctCategories())
                 .thenReturn(Set.of("Electronics", "Gaming"));
 
@@ -55,7 +55,7 @@ class CategoryControllerTest {
     }
 
     @Test
-    void getCategories_empty_returnsEmptyArray() throws Exception {
+    void getCategoriesEmptyReturnsEmptyArray() throws Exception {
         when(articlesService.findDistinctCategories()).thenReturn(Set.of());
 
         mockMvc.perform(get("/api/categories"))
@@ -64,7 +64,7 @@ class CategoryControllerTest {
     }
 
     @Test
-    void getCategories_multiple_returnsArrayOfStrings() throws Exception {
+    void getCategoriesMultipleReturnsArrayOfStrings() throws Exception {
         when(articlesService.findDistinctCategories())
                 .thenReturn(Set.of("A", "B", "C"));
 

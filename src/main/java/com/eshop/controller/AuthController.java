@@ -1,7 +1,13 @@
 package com.eshop.controller;
 
 import com.eshop.config.JwtTokenProvider;
-import com.eshop.dto.*;
+import com.eshop.dto.AddressResponse;
+import com.eshop.dto.CartResponse;
+import com.eshop.dto.LoginRequest;
+import com.eshop.dto.LoginResponse;
+import com.eshop.dto.PhoneNumberResponse;
+import com.eshop.dto.RegisterRequest;
+import com.eshop.dto.UserResponse;
 import com.eshop.dto.CartResponse.CartItemResponse;
 import com.eshop.dto.CartResponse.CartItemResponse.ArticleShort;
 import com.eshop.entity.User;
@@ -11,7 +17,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Collections;
 import java.util.Map;
@@ -58,7 +67,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         User user = userService.authenticate(request);
-        
+
         String accessToken = jwtTokenProvider.createAccessToken(user.getUsername(), user.isAdmin() ? "ADMIN" : "USER");
         String refreshToken = jwtTokenProvider.createRefreshToken(user.getUsername());
 

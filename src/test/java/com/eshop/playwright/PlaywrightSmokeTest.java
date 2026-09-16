@@ -14,7 +14,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 class PlaywrightSmokeTest extends PlaywrightBase {
 
     @Test
-    void appBoots_authScreenVisible() {
+    void appBootsAuthScreenVisible() {
         assertThat(page.locator("#authSection")).isVisible();
         assertThat(page.locator("#authTitle")).hasText("Accedi");
         assertThat(page.locator("#authForm")).isVisible();
@@ -22,7 +22,7 @@ class PlaywrightSmokeTest extends PlaywrightBase {
     }
 
     @Test
-    void adminLoginViaUi_showsAdminUi() {
+    void adminLoginViaUiShowsAdminUi() {
         loginViaUi(ADMIN_USERNAME, ADMIN_PASSWORD);
         assertThat(page.locator("#appSection")).isVisible();
         assertThat(page.locator("#authSection")).isHidden();
@@ -33,7 +33,7 @@ class PlaywrightSmokeTest extends PlaywrightBase {
     }
 
     @Test
-    void registerViaUi_regularUserGetsNoAdminUi() {
+    void registerViaUiRegularUserGetsNoAdminUi() {
         String user = "e2e-smoke-" + RUN_ID;
         registerViaUi(user, user + "@e2e.local", "E2ePass!123");
         assertThat(page.locator("#appSection")).isVisible();

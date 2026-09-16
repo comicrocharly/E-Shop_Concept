@@ -1,7 +1,11 @@
 package com.eshop.service;
 
-import com.eshop.dto.*;
-import com.eshop.entity.Cart;
+import com.eshop.dto.AddressResponse;
+import com.eshop.dto.CartResponse;
+import com.eshop.dto.LoginRequest;
+import com.eshop.dto.PhoneNumberResponse;
+import com.eshop.dto.RegisterRequest;
+import com.eshop.dto.UserResponse;
 import com.eshop.entity.User;
 
 import com.eshop.repository.CartRepository;
@@ -52,7 +56,8 @@ public class UserService implements org.springframework.security.core.userdetail
 
     @Override
     @Transactional(readOnly = true)
-    public org.springframework.security.core.userdetails.UserDetails loadUserByUsername(String username) throws org.springframework.security.core.userdetails.UsernameNotFoundException {
+    public org.springframework.security.core.userdetails.UserDetails loadUserByUsername(String username)
+            throws org.springframework.security.core.userdetails.UsernameNotFoundException {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new org.springframework.security.core.userdetails.UsernameNotFoundException("User not found: " + username));
 

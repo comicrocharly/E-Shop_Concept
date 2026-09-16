@@ -34,13 +34,11 @@ public class MockPaymentGateway implements PaymentGatewayService {
         // Bonifico: solo autorizzato, cattura manuale dopo
         if (method == PaymentMethod.BANK_TRANSFER) {
             status = PaymentStatus.AUTHORIZED;
-        }
-        // Contrassegno: cattura diretta
-        else if (method == PaymentMethod.COD) {
+        } else if (method == PaymentMethod.COD) {
+            // Contrassegno: cattura diretta
             status = PaymentStatus.CAPTURED;
-        }
-        // Carta e PayPal: cattura diretta nel mock
-        else {
+        } else {
+            // Carta e PayPal: cattura diretta nel mock
             status = PaymentStatus.CAPTURED;
         }
 

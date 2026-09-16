@@ -108,7 +108,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     // ==================== PREPARE ====================
 
     @Test
-    void prepare_200_orderPending_reservedStock() throws Exception {
+    void prepare200OrderPendingReservedStock() throws Exception {
         Auth a = newUser();
         long articleId = createArticle("ord-art", "10.00", 10);
         long orderId = prepareOrder(a, articleId, 2);
@@ -134,7 +134,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void prepare_emptyCart_409() throws Exception {
+    void prepareEmptyCart409() throws Exception {
         // ⚠ Comportamento attuale: la cart esiste (creata al register) ma è vuota;
         // la query JOIN FETCH (inner join) non la trova → 409 "Carrello non
         // trovato per utente: X". Il ramo "Il carrello è vuoto" è in effetti
@@ -147,7 +147,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void prepare_insufficientStock_409_cartUntouched() throws Exception {
+    void prepareInsufficientStock409CartUntouched() throws Exception {
         Auth a = newUser();
         long articleId = createArticle("ord-lowstock", "5.00", 10);
         mockMvc.perform(post("/api/cart/items")
@@ -172,7 +172,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     // ==================== PAY ====================
 
     @Test
-    void prepareThenPay_card_200_processing_stockDecremented() throws Exception {
+    void prepareThenPayCard200ProcessingStockDecremented() throws Exception {
         Auth a = newUser();
         long articleId = createArticle("pay-art", "10.00", 10);
         long orderId = prepareOrder(a, articleId, 2);
@@ -208,7 +208,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void pay_bankTransfer_200_processing_paymentStatusPending_bugB6() throws Exception {
+    void payBankTransfer200ProcessingPaymentStatusPendingBugB6() throws Exception {
         // ⚠ KNOWN BUG B6: il gateway restituisce AUTHORIZED ma @PrePersist di
         // OrderPayment lo sovrascrive con PENDING → la risposta riporta PENDING.
         Auth a = newUser();
@@ -229,7 +229,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void pay_cod_200_processing_paymentStatusPending_bugB6() throws Exception {
+    void payCod200ProcessingPaymentStatusPendingBugB6() throws Exception {
         // ⚠ KNOWN BUG B6: il gateway restituisce CAPTURED ma la risposta riporta
         // PENDING (vedi OrderPayment.@PrePersist).
         Auth a = newUser();
@@ -253,7 +253,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void pay_alreadyPaid_409() throws Exception {
+    void payAlreadyPaid409() throws Exception {
         Auth a = newUser();
         long articleId = createArticle("pay-dup", "5.00", 5);
         long orderId = prepareOrder(a, articleId, 1);
@@ -274,7 +274,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void pay_gatewayFailure_402_orderPersistentlyCancelled() throws Exception {
+    void payGatewayFailure402OrderPersistentlyCancelled() throws Exception {
         Auth a = newUser();
         long articleId = createArticle("pay-fail", "5.00", 10);
         long orderId = prepareOrder(a, articleId, 3);
@@ -298,7 +298,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void pay_missingMethod_500_currentBehavior() throws Exception {
+    void payMissingMethod500CurrentBehavior() throws Exception {
         // ⚠ Comportamento attuale (mirror di S3 pay_missingMethod): body senza
         // "method" (niente @Valid su PayOrderRequest) → OrderPayment con method=NULL
         // su colonna NOT NULL → DataIntegrityViolation a commit → handler generico
@@ -322,7 +322,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void pay_stockRaceGuard_409() throws Exception {
+    void payStockRaceGuard409() throws Exception {
         // Guardia di race condition: stock scende sotto la quantità riservata tra
         // prepare e pay → ISE → 409 + rollback.
         Auth a = newUser();
@@ -346,7 +346,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void pay_notOwner_403() throws Exception {
+    void payNotOwner403() throws Exception {
         Auth a = newUser();
         Auth b = newUser();
         long articleId = createArticle("pay-notmine", "5.00", 5);
@@ -361,7 +361,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void pay_unknownOrder_404() throws Exception {
+    void payUnknownOrder404() throws Exception {
         Auth a = newUser();
         mockMvc.perform(post("/api/orders/999999999/pay")
                         .param("testUserId", String.valueOf(a.id()))
@@ -374,7 +374,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     // ==================== CANCEL ====================
 
     @Test
-    void cancelPending_200_cancelled_stockUntouched() throws Exception {
+    void cancelPending200CancelledStockUntouched() throws Exception {
         Auth a = newUser();
         long articleId = createArticle("canc-art", "10.00", 10);
         long orderId = prepareOrder(a, articleId, 2);
@@ -393,7 +393,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void cancelViaJwt_otherUser_403_orderUntouched() throws Exception {
+    void cancelViaJwtOtherUser403OrderUntouched() throws Exception {
         // Comportamento corretto (security fix): l'ownership check è sempre attivo,
         // anche senza ?testUserId (autenticazione via Bearer) → un altro utente
         // non può cancellare l'ordine di un altro.
@@ -409,7 +409,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void cancelNonPending_200_noop_knownBugB2() throws Exception {
+    void cancelNonPending200NoopKnownBugB2() throws Exception {
         Auth a = newUser();
         long articleId = createArticle("canc-proc", "5.00", 5);
         long orderId = prepareOrder(a, articleId, 1);
@@ -430,7 +430,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void cancel_notOwner_403() throws Exception {
+    void cancelNotOwner403() throws Exception {
         Auth a = newUser();
         Auth b = newUser();
         long articleId = createArticle("canc-notmine", "5.00", 5);
@@ -442,7 +442,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void cancel_unknownOrder_404() throws Exception {
+    void cancelUnknownOrder404() throws Exception {
         Auth a = newUser();
         mockMvc.perform(post("/api/orders/999999999/cancel")
                         .param("testUserId", String.valueOf(a.id())))
@@ -453,7 +453,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     // ==================== MY ORDERS (paginated) ====================
 
     @Test
-    void myOrders_pageWithStatusFilter() throws Exception {
+    void myOrdersPageWithStatusFilter() throws Exception {
         Auth a = newUser();
         Auth b = newUser();
         long articleId = createArticle("my-ord", "5.00", 10);
@@ -494,7 +494,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void findById_jwtOwnership_otherUser403_owner200() throws Exception {
+    void findByIdJwtOwnershipOtherUser403Owner200() throws Exception {
         // Comportamento corretto (security fix): GET /api/orders/{id} verifica
         // sempre l'ownership (anche senza ?testUserId).
         Auth a = newUser();
@@ -518,7 +518,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     // ==================== CHECKOUT LEGACY ====================
 
     @Test
-    void legacyCheckout_200_pending_stockDecrementedNoPayment() throws Exception {
+    void legacyCheckout200PendingStockDecrementedNoPayment() throws Exception {
         Auth a = newUser();
         long articleId = createArticle("legacy-art", "10.00", 10);
         mockMvc.perform(post("/api/cart/items")
@@ -545,7 +545,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void legacyCheckout_emptyCart_409() throws Exception {
+    void legacyCheckoutEmptyCart409() throws Exception {
         // ⚠ Comportamento attuale: cart vuota → JOIN FETCH non la trova →
         // "Carrello non trovato" (il ramo "Il carrello è vuoto" è irraggiungibile).
         Auth a = newUser();
@@ -558,7 +558,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     // ==================== ADMIN ====================
 
     @Test
-    void adminOrders_pageWithUserAndItems() throws Exception {
+    void adminOrdersPageWithUserAndItems() throws Exception {
         Auth a = newUser();
         long articleId = createArticle("adm-art", "7.50", 8);
         long orderId = prepareOrder(a, articleId, 2);
@@ -595,7 +595,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void adminEndpoints_userRole_403() throws Exception {
+    void adminEndpointsUserRole403() throws Exception {
         Auth a = newUser();
         // anonimi (probe C)
         mockMvc.perform(get("/api/orders/admin")).andExpect(status().isForbidden());
@@ -611,7 +611,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void adminGetAllOrders_admin_200() throws Exception {
+    void adminGetAllOrdersAdmin200() throws Exception {
         mockMvc.perform(get("/api/orders").header("Authorization", "Bearer " + admin().accessToken()))
                 .andExpect(status().isOk());
     }
@@ -619,7 +619,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     // ==================== ADMIN STATUS ====================
 
     @Test
-    void adminUpdateStatus_chainAndInvalidTransition() throws Exception {
+    void adminUpdateStatusChainAndInvalidTransition() throws Exception {
         Auth a = newUser();
         long articleId = createArticle("adm-st", "5.00", 5);
         long orderId = prepareOrder(a, articleId, 1);
@@ -652,7 +652,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     // ==================== COMPLETE ====================
 
     @Test
-    void complete_delivered_200_completed() throws Exception {
+    void completeDelivered200Completed() throws Exception {
         Auth a = newUser();
         long articleId = createArticle("done-art", "5.00", 5);
         long orderId = prepareOrder(a, articleId, 1);
@@ -676,7 +676,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void complete_pendingOrder_409() throws Exception {
+    void completePendingOrder409() throws Exception {
         Auth a = newUser();
         long articleId = createArticle("done-pend", "5.00", 5);
         long orderId = prepareOrder(a, articleId, 1);
@@ -689,7 +689,7 @@ class OrdersIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void complete_notOwner_400() throws Exception {
+    void completeNotOwner400() throws Exception {
         Auth a = newUser();
         Auth b = newUser();
         long articleId = createArticle("done-notmine", "5.00", 5);

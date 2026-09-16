@@ -1,6 +1,11 @@
 # 🛒 E-Shop — Spring Boot REST API
 
 <p align="center">
+  <a href="https://github.com/comicrocharly/E-Shop_Concept/actions/workflows/ci.yml"><img src="https://github.com/comicrocharly/E-Shop_Concept/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://github.com/comicrocharly/E-Shop_Concept/actions/workflows/cd.yml"><img src="https://github.com/comicrocharly/E-Shop_Concept/actions/workflows/cd.yml/badge.svg" alt="CD" /></a>
+</p>
+
+<p align="center">
   <img src="docs/Themes.png" alt="Anteprima E-Shop" width="800" />
 </p>
 
@@ -220,7 +225,7 @@ Suite **rebuild** completata il 2026-08-17 (vedi `REBUILD_PLAN.md` per dettagli 
   mvn test -Dtest='PlaywrightSmokeTest,ShopFlowTest' \
       -De2e.enabled=true -De2e.baseUrl=http://localhost:8080
   ```
-- In CI **non girano** (runner GitHub-hosted senza cluster); girano in **CD** sul self-hosted runner, dopo il deploy
+- In CI **non girano** (nessun cluster); girano in **CD** sul runner GitHub-hosted, dopo il deploy su un cluster kind effimero
 
 ---
 
@@ -273,12 +278,24 @@ mvn test -Dtest='PlaywrightSmokeTest,ShopFlowTest' \
 
 ## 🔄 CI/CD
 
+Tutto gira su **runner GitHub-hosted** (`ubuntu-latest`): nessun self-hosted runner, quindi il codice di un PR (anche da un contributor esterno) **non viene mai eseguito sulle macchine del team**.
+
 | Workflow | Trigger | Cosa fa | Runner |
 |----------|---------|---------|--------|
-| `ci.yml` | PR + push main | `mvn verify` (302 test, Testcontainers → PostgreSQL reale) + build immagine; su main push su **GHCR** tagata col SHA | GitHub-hosted |
-| `cd.yml` | push main | Build immagini → `kind load` → `kubectl set image` → `rollout status` → **smoke test** su `:8080` → **E2E Playwright (12 test)** → **rollback automatico** (`rollout undo`) su qualsiasi fallimento | **self-hosted** (`cachyos-x8664`) |
+| `ci.yml` | PR + push main | **Lint gate**: Checkstyle (Java) + ESLint (frontend) → `mvn verify` (315 test, Testcontainers → PostgreSQL reale) → build immagine; su main push su **GHCR** tagata col SHA | GitHub-hosted |
+| `cd.yml` | push main | Cluster **kind effimero** (1 control-plane + 2 workers) → PostgreSQL 16 (primary + 2 replica, streaming replication) → build + `kind load` → rollout → **seed demo** → **smoke test** su `:8080` → **E2E Playwright** → rollback best-effort (`rollout undo`) su fallimento | GitHub-hosted |
 
-Dettagli (setup runner, manifesti K8s, note di produzione) in [README-K8S.md](README-K8S.md).
+### 🔐 Secrets (Settings → Secrets and variables → Actions)
+
+I secret non sono mai hardcoded: in CI/CD vengono iniettati da GitHub Secrets, con fallback dev documentato (solo se il secret non è definito).
+
+| Secret | A cosa serve | Default dev (fallback) |
+|--------|-------------|------------------------|
+| `ESHOP_DB_PASSWORD` | Password PostgreSQL (secret K8s `eshop-secret`) | `eshop123` |
+| `ESHOP_JWT_SECRET` | Firma JWT (32 byte hex) | vedi `JWT_SECRET` nel `Makefile` |
+| `E2E_ADMIN_PASSWORD` | Password utente `admin` (seed + E2E) | `admin123` |
+
+Dettagli (setup locale, manifesti K8s, note di produzione) in [README-K8S.md](README-K8S.md).
 
 ---
 

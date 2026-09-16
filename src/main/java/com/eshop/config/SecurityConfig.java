@@ -7,7 +7,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -62,29 +61,30 @@ public class SecurityConfig {
                         // Auth - pubblici (protetti da rate limiting)
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/", "/index.html", "/favicon.ico").permitAll()
-                        
+
                         // Kubernetes probes (liveness/readiness) — pubbliche
                         .requestMatchers("/actuator/health/**").permitAll()
-                        
+
                         // Static resources - pubblici
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/**/*.png", "/**/*.ico", "/**/*.jpg", "/**/*.jpeg", "/**/*.gif", "/**/*.svg").permitAll()
-                        
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/**/*.png", "/**/*.ico",
+                                "/**/*.jpg", "/**/*.jpeg", "/**/*.gif", "/**/*.svg").permitAll()
+
                         // Catalogo articoli - GET pubblico
                         .requestMatchers("/api/articles").permitAll()
                         .requestMatchers("/api/articles/**").permitAll()
-                        
+
                         // Categorie - pubblico
                         .requestMatchers("/api/categories").permitAll()
-                        
+
                         // Cart - autenticati
                         .requestMatchers("/api/cart/**").hasAnyRole("USER", "ADMIN")
-                        
+
                         // Orders - autenticati
                         .requestMatchers("/api/orders/**").hasAnyRole("USER", "ADMIN")
-                        
+
                         // Admin - solo ADMIN
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        
+
                         // Default: autenticati
                         .anyRequest().authenticated()
                 )

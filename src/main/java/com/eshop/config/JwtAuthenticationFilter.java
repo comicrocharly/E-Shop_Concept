@@ -1,6 +1,5 @@
 package com.eshop.config;
 
-import com.eshop.entity.User;
 import com.eshop.service.UserService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;

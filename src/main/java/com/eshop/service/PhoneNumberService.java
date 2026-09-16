@@ -52,7 +52,9 @@ public class PhoneNumberService {
                 .filter(phone -> phone.getUser().getId().equals(userId))
                 .ifPresentOrElse(
                         phoneRepository::delete,
-                        () -> { throw new EntityNotFoundException("Phone number not found or not owned by user"); }
+                        () -> {
+                            throw new EntityNotFoundException("Phone number not found or not owned by user");
+                        }
                 );
     }
 

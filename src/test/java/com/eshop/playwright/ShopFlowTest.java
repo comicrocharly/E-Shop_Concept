@@ -1,7 +1,6 @@
 package com.eshop.playwright;
 
 import com.microsoft.playwright.Locator;
-import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Page.LocatorOptions;
 import com.microsoft.playwright.Page.WaitForSelectorOptions;
 import com.microsoft.playwright.options.WaitForSelectorState;
@@ -58,7 +57,7 @@ class ShopFlowTest extends PlaywrightBase {
     // ------------------------------------------------------------------
 
     @Test
-    void registerViaUi_landsInCatalog() {
+    void registerViaUiLandsInCatalog() {
         String user = "e2e-flow-user-" + RUN_ID;
         registerViaUi(user, user + "@e2e.local", BUYER_PASSWORD);
         assertThat(page.locator("#appSection")).isVisible();
@@ -69,7 +68,7 @@ class ShopFlowTest extends PlaywrightBase {
     }
 
     @Test
-    void loginViaUi_wrongPassword_showsErrorToast_andStaysOnAuth() {
+    void loginViaUiWrongPasswordShowsErrorToastAndStaysOnAuth() {
         page.fill("#username", buyerUsername);
         page.fill("#password", "WrongPass!123");
         page.click("#authSubmit");
@@ -87,7 +86,7 @@ class ShopFlowTest extends PlaywrightBase {
     // ------------------------------------------------------------------
 
     @Test
-    void catalog_showsCreatedArticle_withPriceAndStockText() {
+    void catalogShowsCreatedArticleWithPriceAndStockText() {
         loginViaUi(buyerUsername, BUYER_PASSWORD);
         String token = "e2e-catalog-" + RUN_ID;
         long article = createArticleViaApi(token + " Widget", "E2E article", 10.50, 3);
@@ -100,7 +99,7 @@ class ShopFlowTest extends PlaywrightBase {
     }
 
     @Test
-    void catalog_searchFiltersByToken_andHighStockText() {
+    void catalogSearchFiltersByTokenAndHighStockText() {
         loginViaUi(buyerUsername, BUYER_PASSWORD);
         String token = "e2e-filt-" + RUN_ID;
         long a = createArticleViaApi(token + " Uno", "E2E article", 1.00, 10);
@@ -119,7 +118,7 @@ class ShopFlowTest extends PlaywrightBase {
     // ------------------------------------------------------------------
 
     @Test
-    void addToCart_updatesBadgeAndCartModal() {
+    void addToCartUpdatesBadgeAndCartModal() {
         loginViaUi(buyerUsername, BUYER_PASSWORD);
         String token = "e2e-cart-" + RUN_ID;
         long article = createArticleViaApi(token + " Item", "E2E article", 12.00, 10);
@@ -138,7 +137,7 @@ class ShopFlowTest extends PlaywrightBase {
     }
 
     @Test
-    void addSameArticleTwice_quantityDoubles_inCartModal() {
+    void addSameArticleTwiceQuantityDoublesInCartModal() {
         loginViaUi(buyerUsername, BUYER_PASSWORD);
         String token = "e2e-qty-" + RUN_ID;
         long article = createArticleViaApi(token + " Item", "E2E article", 12.00, 10);
@@ -158,7 +157,7 @@ class ShopFlowTest extends PlaywrightBase {
     // ------------------------------------------------------------------
 
     @Test
-    void fullShopFlow_registerCatalogCartPaymentOrder() {
+    void fullShopFlowRegisterCatalogCartPaymentOrder() {
         String user = "e2e-flow2-" + RUN_ID;
         registerViaUi(user, user + "@e2e.local", BUYER_PASSWORD);
         String token = "e2e-flow3-" + RUN_ID;
@@ -200,7 +199,7 @@ class ShopFlowTest extends PlaywrightBase {
     }
 
     @Test
-    void checkout_codPaymentMethod_succeeds_andOrderIsProcessing() {
+    void checkoutCodPaymentMethodSucceedsAndOrderIsProcessing() {
         loginViaUi(buyerUsername, BUYER_PASSWORD);
         String token = "e2e-cod-" + RUN_ID;
         long article = createArticleViaApi(token + " Cod Item", "E2E article", 7.25, 4);
@@ -223,7 +222,7 @@ class ShopFlowTest extends PlaywrightBase {
     }
 
     @Test
-    void adminSeesPaidOrder_inAdminTab() {
+    void adminSeesPaidOrderInAdminTab() {
         loginViaUi(buyerUsername, BUYER_PASSWORD);
         String token = "e2e-adm-" + RUN_ID;
         long article = createArticleViaApi(token + " Admin Item", "E2E article", 3.00, 2);

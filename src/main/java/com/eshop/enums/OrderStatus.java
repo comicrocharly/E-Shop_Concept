@@ -2,7 +2,7 @@ package com.eshop.enums;
 
 /**
  * Stati possibili di un ordine.
- * 
+ *
  * Transizione: PENDING → PROCESSING → SHIPPED → DELIVERED → COMPLETED
  *                                              ↘ CANCELLED
  */

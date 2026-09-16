@@ -341,7 +341,7 @@ class OrderServiceTest {
 
         @Test
         @DisplayName("PENDING order (legacy flow, stock already decremented): stock restored")
-        void cancelLegacyPendingOrder_restoresStock() {
+        void cancelLegacyPendingOrderRestoresStock() {
             Order order = pendingOrderWithItems(OrderStatus.PENDING, 0,
                     orderItem(null, articleA, 2, "10.00"));
             // flow legacy: lo stock era già stato decrementato alla creazione (10 -> 8)

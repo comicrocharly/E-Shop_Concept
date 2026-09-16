@@ -59,7 +59,7 @@ class PhoneNumberControllerTest {
     private RateLimitFilter rateLimitFilter;
 
     @Test
-    void findByUser_success_returns200() throws Exception {
+    void findByUserSuccessReturns200() throws Exception {
         when(currentUser.getCurrentUserId()).thenReturn(1L);
         when(phoneNumberService.findByUserId(1L))
                 .thenReturn(List.of(TestFixtures.phoneNumberResponse(1L)));
@@ -72,7 +72,7 @@ class PhoneNumberControllerTest {
     }
 
     @Test
-    void findByUser_empty_returnsEmptyArray() throws Exception {
+    void findByUserEmptyReturnsEmptyArray() throws Exception {
         when(currentUser.getCurrentUserId()).thenReturn(1L);
         when(phoneNumberService.findByUserId(1L)).thenReturn(List.of());
 
@@ -82,7 +82,7 @@ class PhoneNumberControllerTest {
     }
 
     @Test
-    void add_success_returns200() throws Exception {
+    void addSuccessReturns200() throws Exception {
         when(currentUser.getCurrentUserId()).thenReturn(1L);
         when(phoneNumberService.add(eq(1L), any(AddPhoneNumberRequest.class)))
                 .thenReturn(TestFixtures.phoneNumberResponse(1L));
@@ -95,7 +95,7 @@ class PhoneNumberControllerTest {
     }
 
     @Test
-    void add_missingNumber_returns400() throws Exception {
+    void addMissingNumberReturns400() throws Exception {
         mockMvc.perform(post("/api/users/1/phone/me")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"countryPrefix\":\"+39\",\"phoneType\":\"MOBILE\"}"))
@@ -106,7 +106,7 @@ class PhoneNumberControllerTest {
     }
 
     @Test
-    void add_invalidPrefix_returns400() throws Exception {
+    void addInvalidPrefixReturns400() throws Exception {
         mockMvc.perform(post("/api/users/1/phone/me")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"countryPrefix\":\"abc\",\"number\":\"3331234567\",\"phoneType\":\"MOBILE\"}"))
@@ -115,7 +115,7 @@ class PhoneNumberControllerTest {
     }
 
     @Test
-    void add_missingPhoneType_returns400() throws Exception {
+    void addMissingPhoneTypeReturns400() throws Exception {
         mockMvc.perform(post("/api/users/1/phone/me")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"countryPrefix\":\"+39\",\"number\":\"3331234567\"}"))
@@ -124,7 +124,7 @@ class PhoneNumberControllerTest {
     }
 
     @Test
-    void add_invalidPhoneTypeValue_returns400() throws Exception {
+    void addInvalidPhoneTypeValueReturns400() throws Exception {
         // phoneType "INVALID" passa la validazione DTO (solo @NotBlank) e fallisce
         // nello service (PhoneType.valueOf) → 400 via handler
         when(currentUser.getCurrentUserId()).thenReturn(1L);
@@ -140,7 +140,7 @@ class PhoneNumberControllerTest {
     }
 
     @Test
-    void delete_success_returns204() throws Exception {
+    void deleteSuccessReturns204() throws Exception {
         when(currentUser.getCurrentUserId()).thenReturn(1L);
 
         mockMvc.perform(delete("/api/users/1/phone/me/9"))
@@ -150,7 +150,7 @@ class PhoneNumberControllerTest {
     }
 
     @Test
-    void delete_notFound_returns500() throws Exception {
+    void deleteNotFoundReturns500() throws Exception {
         // ⚠ Comportamento attuale documentato: EntityNotFoundException → handler generico → 500
         when(currentUser.getCurrentUserId()).thenReturn(1L);
         doThrow(new EntityNotFoundException("Phone not found or owned by user"))

@@ -35,7 +35,7 @@ class UserIntegrationTest extends IntegrationTestSupport {
     // ==================== GET /me ====================
 
     @Test
-    void me_200_fullShape() throws Exception {
+    void me200FullShape() throws Exception {
         Auth a = newUser();
         mockMvc.perform(get("/api/users/me").param("testUserId", String.valueOf(a.id())))
                 .andExpect(status().isOk())
@@ -51,7 +51,7 @@ class UserIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void me_viaBearer_jwt_200() throws Exception {
+    void meViaBearerJwt200() throws Exception {
         // path CurrentUser (senza ?testUserId) con Bearer JWT: funziona full-stack
         Auth a = newUser();
         mockMvc.perform(get("/api/users/me")
@@ -61,7 +61,7 @@ class UserIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void me_unknownUser_500_currentBehavior() throws Exception {
+    void meUnknownUser500CurrentBehavior() throws Exception {
         // ⚠ Comportamento attuale: utente inesistente → RuntimeException nel
         // controller → handler generico → 500 (non 404).
         mockMvc.perform(get("/api/users/me").param("testUserId", "999999999"))
@@ -70,7 +70,7 @@ class UserIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void me_admin_200_roleAdmin() throws Exception {
+    void meAdmin200RoleAdmin() throws Exception {
         Auth adminAuth = admin();
         mockMvc.perform(get("/api/users/me").param("testUserId", String.valueOf(adminAuth.id())))
                 .andExpect(status().isOk())
@@ -80,7 +80,7 @@ class UserIntegrationTest extends IntegrationTestSupport {
     // ==================== PUT /me/profile ====================
 
     @Test
-    void profile_changeEmail_200() throws Exception {
+    void profileChangeEmail200() throws Exception {
         Auth a = newUser();
         String newEmail = a.username() + "-new@profile.test";
 
@@ -94,7 +94,7 @@ class UserIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void profile_changeEmailDuplicate_400() throws Exception {
+    void profileChangeEmailDuplicate400() throws Exception {
         Auth a = newUser();
         Auth b = newUser();
         String bEmail = userRepository.findByUsername(b.username()).orElseThrow().getEmail();
@@ -108,7 +108,7 @@ class UserIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void profile_changePassword_200_loginWithNewPassword() throws Exception {
+    void profileChangePassword200LoginWithNewPassword() throws Exception {
         Auth a = newUser();
 
         mockMvc.perform(put("/api/users/me/profile")
@@ -130,7 +130,7 @@ class UserIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void profile_changePassword_missingCurrent_400() throws Exception {
+    void profileChangePasswordMissingCurrent400() throws Exception {
         Auth a = newUser();
         mockMvc.perform(put("/api/users/me/profile")
                         .param("testUserId", String.valueOf(a.id()))
@@ -142,7 +142,7 @@ class UserIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void profile_changePassword_wrongCurrent_400() throws Exception {
+    void profileChangePasswordWrongCurrent400() throws Exception {
         Auth a = newUser();
         mockMvc.perform(put("/api/users/me/profile")
                         .param("testUserId", String.valueOf(a.id()))
@@ -155,7 +155,7 @@ class UserIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void profile_changePassword_shortNew_400() throws Exception {
+    void profileChangePasswordShortNew400() throws Exception {
         Auth a = newUser();
         mockMvc.perform(put("/api/users/me/profile")
                         .param("testUserId", String.valueOf(a.id()))
@@ -168,7 +168,7 @@ class UserIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void profile_usernameKeyIgnored_currentBehavior() throws Exception {
+    void profileUsernameKeyIgnoredCurrentBehavior() throws Exception {
         // ⚠ Comportamento attuale: updateProfile legge solo "email" e "password";
         // la chiave "username" è ignorata silenziosamente.
         Auth a = newUser();
@@ -183,7 +183,7 @@ class UserIntegrationTest extends IntegrationTestSupport {
     // ==================== PHONE ====================
 
     @Test
-    void phone_addListDelete_flow() throws Exception {
+    void phoneAddListDeleteFlow() throws Exception {
         Auth a = newUser();
         String base = "/api/users/" + a.id() + "/phone/me";
 
@@ -219,7 +219,7 @@ class UserIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void phone_addMissingFields_400_validation() throws Exception {
+    void phoneAddMissingFields400Validation() throws Exception {
         Auth a = newUser();
         String base = "/api/users/" + a.id() + "/phone/me";
         mockMvc.perform(post(base)
@@ -233,7 +233,7 @@ class UserIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void phone_addInvalidType_400() throws Exception {
+    void phoneAddInvalidType400() throws Exception {
         Auth a = newUser();
         String base = "/api/users/" + a.id() + "/phone/me";
         mockMvc.perform(post(base)
@@ -245,7 +245,7 @@ class UserIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void phone_deleteOtherUserPhone_500_currentBehavior() throws Exception {
+    void phoneDeleteOtherUserPhone500CurrentBehavior() throws Exception {
         Auth a = newUser();
         Auth b = newUser();
         String baseA = "/api/users/" + a.id() + "/phone/me";
@@ -270,7 +270,7 @@ class UserIntegrationTest extends IntegrationTestSupport {
     // ==================== ADDRESS ====================
 
     @Test
-    void address_addListDelete_flow() throws Exception {
+    void addressAddListDeleteFlow() throws Exception {
         Auth a = newUser();
         String base = "/api/users/" + a.id() + "/address/me";
         String body = json(Map.of(
@@ -303,7 +303,7 @@ class UserIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void address_addMissingFields_400_validation() throws Exception {
+    void addressAddMissingFields400Validation() throws Exception {
         Auth a = newUser();
         String base = "/api/users/" + a.id() + "/address/me";
         mockMvc.perform(post(base)
@@ -321,7 +321,7 @@ class UserIntegrationTest extends IntegrationTestSupport {
     }
 
     @Test
-    void address_deleteOtherUserAddress_500_currentBehavior() throws Exception {
+    void addressDeleteOtherUserAddress500CurrentBehavior() throws Exception {
         Auth a = newUser();
         Auth b = newUser();
         String baseA = "/api/users/" + a.id() + "/address/me";
